@@ -93,7 +93,7 @@ export function importData(txt) {
 }
 export function mTips() {
   const l = tipsList(S.phase === "closed" ? null : S.stats);
-  return `<h2>💡 Consejos de Carla</h2><div class="pn">${tipsHTML(l)}</div>
+  return `<h2>💡 Consejos de Emma</h2><div class="pn">${tipsHTML(l)}</div>
   <h3>Cómo saber si un precio está bien</h3>
   <div class="pn"><div class="tip">En <b>Stock</b> y en <b>Cartas</b>, cada precio lleva una etiqueta: <span class="acc ok">✅ Buen precio</span> <span class="acc mid">⚠️ Algo caro</span> <span class="acc bad">❌ Muy caro</span>, con el % aproximado de clientes que lo comprarían.</div>
   <div class="tip">Sobres y productos: los clientes pagan alrededor del <b>precio de referencia</b> que ves en Stock. Un poco por debajo vende casi siempre; un 15 % por encima casi nunca.</div>

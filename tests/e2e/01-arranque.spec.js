@@ -1,6 +1,6 @@
 import { test, expect, openGame, collectErrors, game } from "./helpers.js";
 
-test("1 · Arranque: carga los 3 sets por defecto sin errores de consola", async ({ page, gamePath }) => {
+test("1 · Arranque: carga los 3 sets por defecto sin errores de consola", async ({ page, gamePath }, info) => {
   const errors = collectErrors(page);
   const api = await openGame(page, gamePath);
 
@@ -24,7 +24,11 @@ test("1 · Arranque: carga los 3 sets por defecto sin errores de consola", async
   // Interfaz básica visible
   await expect(page.locator("#lv")).toContainText("Nivel 1 · Día 1");
   await expect(page.locator("#hint")).toContainText("Precios reales de Cardmarket");
-  await expect(page.locator("#tut")).toContainText("Soy Carla");
+  // La guía del tutorial: Carla en la referencia; Emma desde la Fase I
+  if (info.project.name === "vite") {
+    await expect(page.locator("#tut .tbub b")).toHaveText("Emma");
+    await expect(page.locator("#tut")).toContainText("Vale, hermanito");
+  } else await expect(page.locator("#tut")).toContainText("Soy Carla");
 
   // Pidió las cartas de los 3 sets y la lista de colecciones
   for (const id of ["sv3pt5", "sv8pt5", "sv3"])

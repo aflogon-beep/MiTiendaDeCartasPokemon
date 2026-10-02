@@ -66,6 +66,12 @@ test("17a · Primera vez: pantalla de carga y título solo con «Nueva partida»
   // ¡Empezar! → juego con el tutorial, con la dificultad y la mascota elegidas
   await expect(page.locator("#title")).toHaveCount(0);
   await expect(page.locator("#tut")).toBeVisible();
+  // El tutorial lo guía Emma, con su retrato
+  await expect(page.locator("#tut .tbub b")).toHaveText("Emma");
+  await expect(page.locator("#tut .tbub p")).toHaveText(
+    "Vale, hermanito. Te lo explico una vez y despacio, como a papá con el móvil.",
+  );
+  expect(await game(page, (P) => document.querySelector("#tut .tbub img").src === P.guideImg())).toBe(true);
   const s = await page.evaluate(() => JSON.parse(localStorage.getItem("pcs-save-real-v3")));
   expect([s.day, s.diff, s.pet]).toEqual([1, "facil", "dog"]);
 });

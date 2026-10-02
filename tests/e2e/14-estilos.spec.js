@@ -313,11 +313,14 @@ for (const [w, h] of [
         await game(page, (P) => {
           // Lo nuevo de la Fase I (no existe en la referencia) se quita antes de comparar
           document.querySelectorAll("[data-fase]").forEach((e) => e.remove());
+          // Textos que la Fase I cambia a propósito (Carla → Emma): el mismo texto en las dos para comparar estilos
+          document.querySelectorAll("#tut .tbub b, #tut .tbub p").forEach((e) => (e.textContent = "Fase I"));
           P.TILT.el = null;
           document
             .querySelectorAll("[style*='--rx'],[style*='--mx']")
             .forEach((e) => ["--rx", "--ry", "--mx", "--my"].forEach((v) => e.style.removeProperty(v)));
         });
+        await page.waitForTimeout(150); // el tutorial recoloca su bocadillo en el fotograma siguiente
         return page.evaluate(collect, ROOTS);
       };
       const a = await run(ref),

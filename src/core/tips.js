@@ -1,4 +1,4 @@
-// Consejos de Carla a partir de lo que pasó en el día.
+// Consejos de Emma a partir de lo que pasó en el día.
 import { S } from "./state.js";
 import { caseCap, caseItems, itemVal, pInfo, sealedCount, tolMul } from "./economy.js";
 import { fmt, r05 } from "./util.js";
