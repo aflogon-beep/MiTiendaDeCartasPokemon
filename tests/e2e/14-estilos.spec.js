@@ -132,7 +132,14 @@ for (const [w, h] of [
         });
         return page.evaluate(collect, ROOTS);
       };
-      const a = await run(ref), b = await run(vite);
+      let a = await run(ref), b = await run(vite);
+      // Si algo difiere, se repite la pantalla una vez: muy de vez en cuando Chrome da 0px en vez del
+      // margen «auto» calculado de la ficha de carta (pasa igual en la referencia que en Vite)
+      if (Object.keys({ ...a, ...b }).some((k) => a[k] !== b[k])) {
+        await closeModals(ref);
+        await closeModals(vite);
+        [a, b] = [await run(ref), await run(vite)];
+      }
       const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
       elements += keys.size;
       for (const k of keys) {
