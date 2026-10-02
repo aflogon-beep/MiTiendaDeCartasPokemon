@@ -95,7 +95,8 @@ const detail = ([path]) => {
   if (!el) return null;
   const cs = getComputedStyle(el), o = {};
   for (const p of cs) { const v = cs.getPropertyValue(p); o[p] = p.startsWith("--") ? v.replace(/'/g, '"').replace(/\s+/g, " ").trim() : v; }
-  return { cls: el.className, o };
+  const r = el.getBoundingClientRect(), pr = el.parentElement.getBoundingClientRect();
+  return { cls: el.className, o, box: [r.left - pr.left, r.width].join() };
 };
 
 async function prepare(page, url) {
@@ -132,14 +133,7 @@ for (const [w, h] of [
         });
         return page.evaluate(collect, ROOTS);
       };
-      let a = await run(ref), b = await run(vite);
-      // Si algo difiere, se repite la pantalla una vez: muy de vez en cuando Chrome da 0px en vez del
-      // margen «auto» calculado de la ficha de carta (pasa igual en la referencia que en Vite)
-      if (Object.keys({ ...a, ...b }).some((k) => a[k] !== b[k])) {
-        await closeModals(ref);
-        await closeModals(vite);
-        [a, b] = [await run(ref), await run(vite)];
-      }
+      const a = await run(ref), b = await run(vite);
       const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
       elements += keys.size;
       for (const k of keys) {
@@ -148,6 +142,9 @@ for (const [w, h] of [
         if (diffs.length >= 40) { diffs.push(`${name}: ${k}`); continue; }
         const [da, db] = [await ref.evaluate(detail, [k]), await vite.evaluate(detail, [k])];
         const props = da && db ? Object.keys(da.o).filter((p) => da.o[p] !== db.o[p]) : ["(pseudo-elemento)"];
+        // Con «margin: auto», Chrome a veces informa 0px en vez del margen calculado (en la referencia y
+        // en Vite por igual). Si solo cambian los márgenes laterales y la caja está en el mismo sitio, es igual.
+        if (props.length && props.every((p) => /^margin-(left|right|inline-start|inline-end)$/.test(p)) && da.box === db.box) continue;
         diffs.push(`${name}: ${k} (.${da && da.cls}) → ${props.slice(0, 6).map((p) => `${p}: ${da && da.o[p]} ≠ ${db && db.o[p]}`).join("; ") || "::before/::after"}`);
       }
       await closeModals(ref);

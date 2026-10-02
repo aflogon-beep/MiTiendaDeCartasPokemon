@@ -23,7 +23,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/helpers.js` | Abrir el juego con la red simulada, saltar el tutorial, cerrar paneles y acceder a las variables del juego. |
 | `e2e/bot.js` | Bot jugador de los tests 4 y 5: repone, pone precios recomendados, llena la vitrina y cobra (en el test 4 también las misiones). |
 | `e2e/01…13-*.spec.js` | Los 13 tests de la tabla de `CLAUDE.md`. |
-| `e2e/14-estilos.spec.js` | Compara los estilos calculados de todos los elementos (también `::before`/`::after`) entre Vite y la referencia en 44 pantallas y dos tamaños. Solo se ejecuta en el proyecto `vite` (abre las dos versiones a la vez). |
+| `e2e/14-estilos.spec.js` | Compara los estilos calculados de todos los elementos (también `::before`/`::after`) entre Vite y la referencia en 44 pantallas y dos tamaños. Solo se ejecuta en el proyecto `vite` (abre las dos versiones a la vez). Con `margin: auto`, Chrome a veces informa 0px en vez del margen calculado: si solo difieren los márgenes laterales y la caja está en el mismo sitio, no cuenta como diferencia. |
 | `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red
@@ -48,6 +48,6 @@ __pcs.spawn()      // llamar
 - **Velocidad.** El jugador puede llegar a 4×. Los tests 4 y 5 suben `speed` a 20 para simular días enteros en segundos. El juego limita cada fotograma a 0,05 s reales, así que cada paso de la simulación es como mucho de 1 s de juego.
 - **El bot va al ritmo del juego.** Actúa una vez por fotograma (con `requestAnimationFrame`), no cada X milisegundos. Así atiende igual de rápido en un ordenador lento (por ejemplo, en GitHub). Antes, con esperas fijas, allí los clientes se cansaban y el test 4 fallaba.
 - **TPV en el bot.** El cobro con tarjeta anima unos 1,8 s reales. El bot teclea el importe exacto y aplica directamente lo mismo que hace `A.ckok()` al terminar (`track("cardpay")` + `finishCK`). El efectivo sí pasa por `A.ckgive()` con el cambio exacto.
-- **Test 4 y el azar.** Sin cobrar las misiones, el bot llegaba a nivel 2 el día 7 en ~1 de cada 6 partidas (también con la referencia). Cobrándolas, como haría un jugador, llega casi siempre el día 4 o 5.
+- **Test 4 y el azar.** Sin cobrar las misiones, el bot llegaba a nivel 2 el día 7 en ~1 de cada 6 partidas (también con la referencia). Cobrándolas, como haría un jugador, llega casi siempre el día 4 o 5; aun así, alguna vez (≈1 de cada 5) tiene mala racha y llega el día 7, así que el test 4 tiene 2 reintentos.
 - **Azar.** El juego no tiene semilla. Los tests de simulación usan rangos amplios, y los de probabilidad (sobres, ladrón, falsas) muchas repeticiones.
 - **Modo ahorro (test 13).** Para simular un móvil lento, cada fotograma tarda unos 45 ms más (se envuelve `requestAnimationFrame` desde el test, sin tocar el juego).

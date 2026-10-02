@@ -1,6 +1,10 @@
 import { test, expect, freshGame, game } from "./helpers.js";
 import { botPlay } from "./bot.js";
 
+// Es una partida con azar: de vez en cuando (≈1 de cada 5) el bot tiene mala racha y llega a nivel 2 el día 7.
+// Se permiten 2 reintentos; que falle 3 veces seguidas sí indica que algo ha cambiado.
+test.describe.configure({ retries: 2 });
+
 test("4 · Simulación de 14 días: el bot llega a nivel 2 antes del día 7 y la empresa crece", async ({ page, gamePath }) => {
   test.setTimeout(540_000);
   await freshGame(page, gamePath);
