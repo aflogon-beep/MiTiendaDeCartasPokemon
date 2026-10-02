@@ -1,0 +1,424 @@
+/* Cartas: caras, mosaicos y sus etiquetas, ficha de carta y la carta 3D (brillo holo y reflejo). */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.tile {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.tile.sel {
+  outline: 3px solid var(--sign);
+}
+.cf {
+  position: relative;
+  aspect-ratio: 63/88;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--rc), #111 130%);
+  border: 2px solid var(--rc);
+}
+.cf img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #111;
+}
+.fb {
+  position: absolute;
+  inset: 0;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.2;
+}
+.fb b {
+  font-size: 12px;
+}
+.fb i {
+  font-style: normal;
+  opacity: 0.9;
+}
+.fb span {
+  opacity: 0.8;
+  font-size: 10px;
+}
+.rvb {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: #0009;
+  color: #fff;
+  font-size: 9px;
+  text-decoration: none;
+  padding: 1px 5px;
+  border-radius: 0 6px 0 0;
+}
+.pt {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  background: #000c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+.qt {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  background: var(--sign);
+  color: var(--signink);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+.srow img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex: none;
+}
+.tiles.lg {
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
+}
+.pc {
+  position: absolute;
+  inset: 0;
+  transform: translate(var(--dx, 0px), 0) rotate(var(--dr, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  will-change: transform;
+  cursor: pointer;
+}
+.pc.snap {
+  transition: transform 0.25s;
+}
+.pc.fly {
+  transition:
+    transform 0.42s cubic-bezier(0.4, 0, 0.8, 0.6),
+    opacity 0.42s;
+  opacity: 0;
+  pointer-events: none;
+}
+.ent {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: cardIn 0.38s cubic-bezier(0.2, 1.25, 0.4, 1) backwards;
+}
+.wob {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.pc.l3 .wob {
+  animation: shake 0.16s linear infinite;
+}
+.inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.3, 1.25, 0.5, 1);
+}
+.pc.back .inner {
+  transform: rotateY(180deg);
+}
+.fr .fb {
+  font-size: 14px;
+  padding: 14px 12px;
+}
+.fr .fb b {
+  font-size: 18px;
+}
+.pc.charge .bk {
+  animation: charge 0.7s ease-in-out infinite alternate;
+}
+.holo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  opacity: var(--ho, 0);
+  background: repeating-linear-gradient(
+    115deg,
+    #ff0080 0%,
+    #ffbf00 6%,
+    #39ff14 12%,
+    #00e5ff 18%,
+    #7b2cff 24%,
+    #ff0080 30%
+  );
+  background-size: 300% 300%;
+  background-position: var(--mx, 50%) var(--my, 50%);
+  filter: brightness(0.75) contrast(1.35);
+}
+.holo.gold {
+  background-image: repeating-linear-gradient(115deg, #fff2a8 0%, #d4a017 7%, #fff 14%, #b8860b 21%, #fff2a8 28%);
+}
+.holo.sp::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: overlay;
+  opacity: 0.9;
+  background-image: radial-gradient(#fff 1px, transparent 1.6px), radial-gradient(#fff 1.2px, transparent 1.8px);
+  background-size:
+    23px 23px,
+    41px 41px;
+  background-position:
+    calc(var(--mx, 50%) * 0.4) calc(var(--my, 50%) * 0.4),
+    calc(var(--mx, 50%) * -0.3) calc(var(--my, 50%) * 0.2);
+}
+.glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0) 55%
+  );
+}
+.nw {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  background: #e3350d;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+.zoomable {
+  cursor: zoom-in;
+}
+.gb {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  background: #fff;
+  color: #c0392b;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 5px;
+  border: 1px solid #c0392b;
+}
+.tile.incase {
+  outline: 3px solid #2fd17a;
+  outline-offset: -1px;
+  box-shadow:
+    0 0 0 3px #2fd17a40,
+    0 0 18px #2fd17a99;
+}
+.tile.incase.sel {
+  outline-color: var(--sign);
+  box-shadow:
+    0 0 0 3px #2fd17a,
+    0 0 18px #2fd17a99;
+}
+.vt {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #24c470, #128a4a);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  padding: 3px 2px 4px;
+  border-radius: 0 0 7px 7px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 -3px 8px #0007;
+  line-height: 1.15;
+  font-family: var(--fd);
+}
+.tile .qt {
+  box-shadow: 0 2px 4px #0007;
+}
+.tile .pt {
+  box-shadow: 0 2px 4px #0007;
+  border: 1px solid #ffffff22;
+}
+.tilebtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 78px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--fd);
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 3px 0 #0006;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  text-align: center;
+  padding: 6px;
+}
+.tilebtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #0006;
+}
+.cnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px 44px 8px 0;
+}
+.cbig {
+  width: min(62vw, 240px);
+  aspect-ratio: 63/88;
+  margin: 0 auto;
+  position: relative;
+  perspective: 900px;
+  touch-action: pan-y;
+}
+.cact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.big3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 76px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+.big3 small {
+  font-size: 11px;
+  opacity: 0.85;
+  font-weight: 500;
+}
+.favbtn {
+  width: 100%;
+  margin-top: 8px;
+  background: linear-gradient(#ff7a9c, #e0446c);
+  color: #fff;
+  box-shadow: 0 3px 0 #9c2244;
+}
+.favbtn.on {
+  background: var(--panel2);
+  color: var(--ink);
+  box-shadow: 0 3px 0 #0006;
+}
+.favhd {
+  border-color: #ff7a9c !important;
+  background: color-mix(in srgb, #ff7a9c 12%, var(--panel));
+}
+.fvb {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  background: #fff;
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 1px 5px;
+  box-shadow: 0 2px 4px #0007;
+}
+.tile.incase .fvb {
+  bottom: 40px;
+}
+
+/* Cartas gradeadas: funda de plástico (slab) encima de la carta, con etiqueta roja y la nota */
+.slabm {
+  position: absolute;
+  inset: -4px -3px auto;
+  aspect-ratio: 63/96;
+  border: 2px solid #ffffffb8;
+  border-radius: 7px;
+  background: linear-gradient(150deg, #ffffff66, #ffffff10 30%, #ffffff00 60%, #ffffff33);
+  box-shadow:
+    inset 0 0 0 2px #ffffff26,
+    0 3px 8px #0007;
+  pointer-events: none;
+}
+.slabm-lb {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 4px;
+  border: 1.5px solid #c0392b;
+  border-radius: 3px;
+  background: linear-gradient(#fff, #ececec);
+  color: #c0392b;
+  font: 800 9px/1.2 var(--fd);
+}
+.slabm-lb span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.slabm-lb b {
+  font-size: 12px;
+}
+.slabm-lb i {
+  font-size: 7px;
+  font-style: normal;
+}
+.slabm ~ .gb {
+  display: none; /* la etiqueta de la funda ya dice la nota */
+}
+.slabm.big {
+  inset: -12px -10px -10px;
+  aspect-ratio: auto;
+  border-width: 3px;
+  border-radius: 14px;
+}
+.slabm.big .slabm-lb {
+  left: 8px;
+  right: 8px;
+  right: 8px;
+  top: 8px;
+  gap: 6px;
+  padding: 4px 8px;
+  border-width: 2.5px;
+  font-size: 13px;
+}
+.slabm.big .slabm-lb b {
+  font-size: 22px;
+}
+.slabm.big .slabm-lb i {
+  font-size: 10px;
+}
+/* GEM MINT 10: etiqueta dorada también en la funda pequeña */
+.slabm.g10 {
+  border-color: #ffe08ae0;
+  box-shadow:
+    inset 0 0 0 2px #ffffff26,
+    0 0 10px #ffd54a66,
+    0 3px 8px #0007;
+}
+.slabm.g10 .slabm-lb {
+  border-color: #c9a227;
+  background: linear-gradient(115deg, #fff6d0, #ffe9a0 45%, #fffbe8 60%, #ffe08a);
+  color: #9a6b00;
+}
