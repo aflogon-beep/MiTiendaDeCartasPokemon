@@ -1,18 +1,17 @@
 /* ===== v19: móvil ===== */
-html,body{overflow-x:hidden;max-width:100%}
-#game{width:100%;box-sizing:border-box}
-#hud{gap:6px;padding:6px 10px}
+#game{max-width:900px;margin:0 auto;padding:8px 8px calc(74px + env(safe-area-inset-bottom,0px));width:100%;box-sizing:border-box}
+#hud{display:flex;justify-content:space-between;align-items:center;color:var(--signink);background:linear-gradient(color-mix(in srgb,var(--sign) 85%,#fff),var(--sign));border-radius:14px 14px 0 0;box-shadow:inset 0 -3px 0 #0002;gap:6px;padding:6px 10px}
 #hud>div:first-child{flex:1;min-width:0}
 #hud b{display:block;font-size:clamp(15px,4.6vw,19px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hud small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
+#hud small{display:block;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px}
 #hud .hr{gap:5px;flex:none;min-width:0}
 .hb{min-width:36px;min-height:36px;width:36px;height:36px;font-size:16px;padding:0}
-#money{font-size:clamp(17px,5.4vw,24px);white-space:nowrap;line-height:1.05}
+#money{text-align:right;font-family:var(--fd);font-weight:700;font-size:clamp(17px,5.4vw,24px);white-space:nowrap;line-height:1.05}
 #money small{font-size:10.5px;font-weight:600;opacity:.75;display:block}
 @media (max-width:440px){.hb[data-a=savebtn],.hb[data-k=medals]{display:none}}
 /* sin saltos: alturas fijas abajo */
 #hint{height:58px;min-height:0;box-sizing:border-box;padding:7px 12px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35}
-#chk{height:58px;box-sizing:border-box;padding:4px 10px;overflow:hidden;align-content:center}
+#chk{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--panel);height:58px;box-sizing:border-box;padding:4px 10px;overflow:hidden;align-content:center}
 #act{height:58px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(14px,4.4vw,18px);padding:0 12px}
 @supports (height:1svh){@media (max-aspect-ratio:1/1){#cvw{height:min(56svh,620px)}}}
 .clues div{margin-top:3px}

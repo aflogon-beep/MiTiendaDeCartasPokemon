@@ -37,4 +37,4 @@ body:has(#px) #toast{top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px)
 .hlc{background:var(--panel);border:3px solid var(--line);border-radius:12px;padding:6px;text-align:center;color:var(--ink);font:inherit}.hlc b{display:block;font-family:var(--fd);font-size:18px;margin-top:4px}
 button.hlc{cursor:pointer}.hlc.win{border-color:#4cc98a;box-shadow:0 0 18px #4cc98a88}
 .who{display:flex;justify-content:center;margin:10px 0}.whoimg{width:min(72vw,270px);aspect-ratio:1.35;border-radius:12px;background-size:118% auto;background-position:50% 13%;border:3px solid var(--line);background-color:#111}
-.stb{position:absolute;left:8px;bottom:8px;z-index:2;max-width:calc(100% - 64px);background:rgba(0,0,0,.72);color:#fff;border:1px solid #fff3;border-radius:12px;padding:6px 10px;font-size:12px;text-align:left;font-family:var(--fd);display:none;cursor:pointer}
+.stb{position:absolute;left:8px;bottom:8px;z-index:2;background:rgba(0,0,0,.72);color:#fff;border:1px solid #fff3;border-radius:12px;padding:6px 10px;font-size:12px;text-align:left;font-family:var(--fd);display:none;cursor:pointer}

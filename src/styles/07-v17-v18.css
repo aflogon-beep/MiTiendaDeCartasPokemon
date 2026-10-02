@@ -14,14 +14,14 @@
 .sheet .pn{border-radius:14px}
 .chips .b.on{background:var(--sign);color:var(--signink)}
 /* ===== v18 ===== */
-nav{z-index:22}
+nav{position:fixed;left:0;right:0;bottom:0;border-top:1px solid var(--line);display:flex;justify-content:center;gap:4px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--panel) 92%,#000);backdrop-filter:blur(6px);z-index:22}
 .ov{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
 .ov .sheet{max-height:100%;border-radius:16px 16px 0 0}
 #ovh .sheet h2{color:var(--ink)}
-nav button{position:relative}
+nav button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:1px;border:0;border-radius:12px;padding:6px 1px 5px;font-family:var(--fd);font-weight:600;font-size:11.5px;box-shadow:0 3px 0 #0006;background:var(--panel2);color:var(--ink);position:relative}
 nav button .nb{position:absolute;top:2px;right:calc(50% - 22px);min-width:18px;height:18px;border-radius:9px;background:#e3350d;color:#fff;font-size:10px;font-weight:800;font-style:normal;display:none;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--panel)}
-nav button.bdg::after{display:none}
-nav svg{width:24px;height:24px}
+nav button.bdg::after{content:"";position:absolute;top:5px;right:8px;width:9px;height:9px;border-radius:50%;background:#e3350d;box-shadow:0 0 0 2px var(--panel);display:none}
+nav svg{display:block;width:24px;height:24px}
 .cvctl{position:absolute;right:8px;bottom:8px;display:flex;gap:6px;z-index:2}
 .cvctl button{min-width:42px;height:38px;border-radius:10px;border:1px solid #fff3;background:#000b;color:#fff;font-weight:700;font-family:var(--fd)}
 .stb{max-width:calc(100% - 120px)}
@@ -39,8 +39,7 @@ nav svg{width:24px;height:24px}
 .stk{padding:10px 12px}.stkh{display:flex;gap:10px;align-items:center}
 .mpack{width:34px;height:48px;border-radius:5px;flex:none;background:linear-gradient(160deg,#fff 0 6%,var(--sc) 22% 78%,#0006);box-shadow:0 3px 6px #0006;display:flex;align-items:center;justify-content:center}
 .mpack img{width:18px;height:18px;object-fit:contain}
-details summary{margin-top:8px}
-#chk{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 10px;background:var(--panel)}
+details summary{cursor:pointer;margin-top:8px}
 #chk:empty{display:none}
 .ck{font-size:12px;padding:5px 10px;border-radius:999px;border:0;font-weight:700;font-family:var(--fd);cursor:pointer}
 .ck.ok{background:#1c7a4533;color:#4cc98a}.ck.warn{background:#f2b70533;color:#f2c94e}.ck.bad{background:#c0392b33;color:#ff8a7a}

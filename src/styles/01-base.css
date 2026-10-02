@@ -1,25 +1,14 @@
-:root{--bg:#1b1f2a;--panel:#252b3a;--panel2:#2f3648;--ink:#eef1f7;--mu:#98a3b8;--sign:#f2b705;--signink:#2a2000;--up:#4cc98a;--down:#ff7a6b;--line:#39415a;
- --fd:'Trebuchet MS','Segoe UI',system-ui,sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px}
 button{font:inherit;color:inherit;cursor:pointer}
-#game{max-width:900px;margin:0 auto;padding:8px 8px calc(74px + env(safe-area-inset-bottom,0px))}
-#hud{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--sign);color:var(--signink);border-radius:10px 10px 0 0;padding:8px 12px}
-#hud b{font-family:var(--fd);font-size:18px}
-#hud small{display:block;font-size:12px;opacity:.8}
-#money{font-family:var(--fd);font-size:22px;font-weight:800;text-align:right}
+#hud b{font-family:var(--fd)}
 .bar{height:6px;background:#0006}
 .bar i{display:block;height:100%;width:0;background:#4cc98a;transition:width .3s}
-#cvw{position:relative;background:#000}
-#cv{display:block;width:100%;height:auto;touch-action:manipulation}
-#hint{padding:8px 12px;background:var(--panel);color:var(--mu);font-size:13px;min-height:34px}
-#act{display:block;width:100%;border:0;background:var(--sign);color:var(--signink);font-family:var(--fd);font-weight:800;font-size:18px;padding:14px;border-radius:0 0 10px 10px}
+#hint{background:var(--panel);color:var(--mu);font-size:13px}
+#act{display:block;width:100%;border:0;color:var(--signink);font-family:var(--fd)}
 #act:disabled{background:var(--panel2);color:var(--mu)}
 #act.pulse{animation:pulse 1s infinite}
 @media (prefers-reduced-motion:reduce){#act.pulse{animation:none}}
 @keyframes pulse{50%{filter:brightness(1.18)}}
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);display:flex;justify-content:center;gap:4px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:10}
-nav button{flex:1;max-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 1px;font-weight:700;font-size:12px}
 nav button:focus-visible,.b:focus-visible,#act:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--bg);width:100%;max-width:760px;max-height:90%;overflow:auto;border-radius:16px 16px 0 0;padding:14px 12px calc(16px + env(safe-area-inset-bottom,0px));border:1px solid var(--line)}
@@ -31,15 +20,14 @@ h3{font-family:var(--fd);margin:14px 0 6px;font-size:16px}
 .mu{color:var(--mu);font-size:13px}
 .up{color:var(--up)}.down{color:var(--down)}
 .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.b{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-weight:600;min-height:38px}
-.b:hover{border-color:var(--mu)}
-.b.pri{background:var(--sign);color:var(--signink);border-color:var(--sign)}
+.b{background:var(--panel2);padding:8px 12px;min-height:38px}
+.b:hover{border-color:var(--mu);filter:brightness(1.08)}
+.b.pri{border-color:var(--sign)}
 .b.on{background:#fff;color:#111}
 .b:disabled{opacity:.4;cursor:not-allowed}
 .big{width:100%;margin-top:10px;font-size:16px;padding:12px}
 .step{display:flex;gap:8px;align-items:center}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
-.tiles.lg{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
 .sheet.wide{max-width:1000px}
 .tile{position:relative;cursor:pointer;border-radius:8px}
 .tile.sel{outline:3px solid var(--sign)}
@@ -67,7 +55,6 @@ input[type=range]{width:100%}
 .srow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px}
 .srow img{width:30px;height:30px;object-fit:contain;flex:none}
 .tb{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}.tb td{padding:2px 4px;border-bottom:1px solid var(--line)}.tb td+td{text-align:right}
-details summary{cursor:pointer}
 .tiles.lg{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
 .stage{display:flex;justify-content:center;padding:8px 0;cursor:pointer;perspective:900px}
 .bigcard{width:min(300px,70vw);aspect-ratio:63/88;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 10px 30px #0008}
