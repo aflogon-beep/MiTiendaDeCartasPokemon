@@ -69,8 +69,8 @@ function frame(now) {
   const raw = Math.min(0.05, (now - last) / 1000);
   perfTick(raw);
   last = now;
-  if (hasState() && G.TITLE) {
-    // Pantalla de título: la tienda y la calle siguen vivas detrás (peatones, coches, pájaros), sin juego
+  if (hasState() && (G.TITLE || G.STORY)) {
+    // Título o historia: la tienda y la calle siguen vivas (peatones, coches, pájaros), sin juego
     updPed(raw);
     updCars(raw);
     updBirds(raw);
@@ -248,8 +248,11 @@ document.addEventListener("visibilitychange", () => {
 /* ===================== ACCESO PARA LOS TESTS ===================== */
 // Todos los módulos, para que los tests encuentren cada nombre en el suyo (window.__pcs).
 const modules = Object.values(
-  import.meta.glob(["./core/**/*.js", "./world/**/*.js", "./render/**/*.js", "./ui/**/*.js", "./audio/**/*.js"], {
-    eager: true,
-  }),
+  import.meta.glob(
+    ["./core/**/*.js", "./world/**/*.js", "./render/**/*.js", "./ui/**/*.js", "./audio/**/*.js", "./story/**/*.js"],
+    {
+      eager: true,
+    },
+  ),
 );
 installTestHooks(G, modules);

@@ -211,6 +211,17 @@ export function drawWall() {
     pokeball(p[0] + 14, 20, 6);
   });
   const cxm = W / 2;
+  // En la historia (escena 7) el nombre aparece de izquierda a derecha, como pintado con brocha
+  const signTxt = (f) => {
+    const rv = VIS.signReveal;
+    if (rv == null || rv >= 1) return f();
+    cx.save();
+    cx.beginPath();
+    cx.rect(cxm - 170, 0, 340 * rv, 48);
+    cx.clip();
+    f();
+    cx.restore();
+  };
   if (t === 0) {
     cx.fillStyle = "#6b4527";
     rr(cxm - 112, 9, 224, 27, 4);
@@ -218,7 +229,7 @@ export function drawWall() {
     cx.fillStyle = "#8a5a33";
     rr(cxm - 108, 11, 216, 23, 3);
     cx.fill();
-    txt(shopName().toUpperCase(), cxm, 28, fitS(shopName(), 16, 200), "#f4e2c0", "center");
+    signTxt(() => txt(shopName().toUpperCase(), cxm, 28, fitS(shopName(), 16, 200), "#f4e2c0", "center"));
   } else if (t === 1) {
     cx.fillStyle = "#f2b705";
     rr(cxm - 130, 7, 260, 29, 7);
@@ -227,7 +238,7 @@ export function drawWall() {
     cx.lineWidth = 2;
     cx.stroke();
     pokeball(cxm - 108, 21, 8);
-    txt(shopName().toUpperCase(), cxm + 10, 27, fitS(shopName(), 15, 210), "#2a2000", "center");
+    signTxt(() => txt(shopName().toUpperCase(), cxm + 10, 27, fitS(shopName(), 15, 210), "#2a2000", "center"));
   } else if (t === 2) {
     cx.fillStyle = "#fff";
     rr(cxm - 140, 5, 280, 33, 6);
@@ -239,7 +250,7 @@ export function drawWall() {
     cx.fillStyle = "#222";
     cx.fillRect(cxm - 140, 19, 280, 2);
     pokeball(cxm - 118, 21, 10);
-    txt(shopName().toUpperCase(), cxm + 12, 33, fitS(shopName(), 14, 220), "#1b1f2a", "center");
+    signTxt(() => txt(shopName().toUpperCase(), cxm + 12, 33, fitS(shopName(), 14, 220), "#1b1f2a", "center"));
   } else {
     cx.fillStyle = "#0b0f1a";
     rr(cxm - 160, 4, 320, 36, 6);
@@ -258,7 +269,7 @@ export function drawWall() {
     cx.save();
     cx.shadowColor = "#ffd54a";
     cx.shadowBlur = 8;
-    txt(shopName().toUpperCase(), cxm, 29, fitS(shopName(), 16, 290), g, "center");
+    signTxt(() => txt(shopName().toUpperCase(), cxm, 29, fitS(shopName(), 16, 290), g, "center"));
     cx.restore();
   }
   if (t === 3)
@@ -358,6 +369,7 @@ export function drawShelf(i) {
   cx.fillStyle = top;
   cx.fillRect(s.x, ft + 29, s.w, 3);
   if (!sd) {
+    if (VIS.story) return; // en la historia, sin etiquetas: tapan el cartel
     cx.fillStyle = "rgba(255,255,255,.18)";
     rr(s.x + 6, y0 - h + 4, s.w - 12, 15, 4);
     cx.fill();

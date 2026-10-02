@@ -8,7 +8,8 @@ export const today = () => {
   return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 };
 export function giftCheck() {
-  if (!hasState() || G.M || (S.tut && S.tut.on) || (G.MODE !== "real" && G.MODE !== "offline")) return;
+  if (!hasState() || G.M || G.TITLE || G.STORY || (S.tut && S.tut.on) || (G.MODE !== "real" && G.MODE !== "offline"))
+    return;
   const g = S.gift || (S.gift = { last: "", streak: 0 }),
     t = today();
   if (g.last === t) return;

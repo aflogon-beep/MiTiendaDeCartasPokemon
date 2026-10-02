@@ -25,6 +25,7 @@ export const G = {
   MODE: "offline", // "real" con cartas de la API; "offline" con cartas ilustradas
   SLOT: 1, // ranura de partida activa (1-3, ver core/slots.js)
   TITLE: false, // en la pantalla de título: la partida de fondo es decorado y no se guarda
+  STORY: false, // viendo la historia: el juego se queda quieto (solo se animan la calle y la cámara)
   NOTE: "", // aviso del estado de las cartas que se añade a la pista del HUD
   M: null, // panel abierto ("packs", "coll", "ck"…) o null; con un panel abierto el juego se para
   MG: null, // minijuego en curso

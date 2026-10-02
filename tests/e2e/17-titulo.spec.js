@@ -62,6 +62,7 @@ test("17a · Primera vez: pantalla de carga y título solo con «Nueva partida»
   await expect(t.locator('[data-a="tadvd"].on')).toContainText("Fácil");
   await expect(t.locator('[data-a="tadvp"].on')).toHaveText("🐶 Perro");
   await t.locator('[data-a="tadvgo"]').click();
+  await page.locator("#stskip").click(); // la historia (test 18)
 
   // ¡Empezar! → juego con el tutorial, con la dificultad y la mascota elegidas
   await expect(page.locator("#title")).toHaveCount(0);
@@ -147,6 +148,7 @@ test("17c · Sobrescribir y borrar piden confirmación; importar un código en u
   await t.locator('[data-a="tnewin"][data-n="1"]').click();
   expect(dialogs.pop()).toBe(`¿Sobrescribir la tienda «${SAVE.shopName}»? No se puede deshacer.`);
   await t.locator('[data-a="tadvgo"]').click();
+  await page.locator("#stskip").click(); // la historia (test 18)
   expect(await game(page, (P) => [P.SLOT, P.S.day, P.S.diff, P.S.pet])).toEqual([1, 1, "normal", "cat"]);
 
   // Borrar la ranura 3

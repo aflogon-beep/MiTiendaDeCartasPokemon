@@ -27,6 +27,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/15-pwa.spec.js` | App instalable: manifest e iconos, service worker activo y el juego vuelve a abrir sin red (con las cartas de IndexedDB). Solo en el proyecto `vite`. |
 | `e2e/16-ranuras.spec.js` | Fase I · ranuras de partida: una partida guardada por la v22 aparece como ranura 1 con los mismos datos; cambiar de ranura no mezcla partidas y la última usada se recuerda. Solo en el proyecto `vite`. |
 | `e2e/17-titulo.spec.js` | Fase I · pantalla de carga y título: primera vez (solo «Nueva partida»), «Continuar», «Cargar partida», sobrescribir y borrar con confirmación, importar en una ranura, volver al título y ajustes rápidos. Solo en el proyecto `vite`. |
+| `e2e/18-historia.spec.js` | Fase I · historia de inicio: saltarla y llegar al tutorial con Emma; verla entera tocando (nombre de la tienda en la escena 7, que aparece en el cartel; la mascota elegida); repetirla desde Más sin pedir el nombre; «menos animaciones». Solo en el proyecto `vite`. |
 | `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red

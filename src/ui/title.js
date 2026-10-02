@@ -7,7 +7,7 @@
 // ve el título, la partida de fondo NO se guarda (G.TITLE): es solo decorado.
 //   Continuar  → la última ranura usada
 //   Nueva partida → elegir ranura (pide confirmación si está ocupada) → Prepara tu aventura
-//                   (dificultad y mascota; el protagonista es Álvaro) → juego con el tutorial
+//                   (dificultad y mascota; el protagonista es Álvaro) → historia → juego con el tutorial
 //   Cargar partida → elegir ranura, borrar ranuras o importar (archivo o código)
 //   ⚙️ → sonido, música y texto grande
 // Desde el juego: Más → Título (guarda antes de salir).
@@ -22,6 +22,7 @@ import { giftCheck } from "../core/gift.js";
 import { MUSIC, setMusic } from "../audio/sfx.js";
 import { DIFFS, PETS } from "../core/constants.js";
 import { CHARS, drawPortrait } from "../render/characters.js";
+import { startStory } from "./story.js";
 import { A } from "./actions.js";
 import { closeM } from "./modals.js";
 import { hud, setPause, applyUI } from "./hud.js";
@@ -277,6 +278,7 @@ Object.assign(A, {
     S.pet = adv.pet;
     adv = null;
     startGame();
+    startStory(); // después, el tutorial con Emma (empieza solo al terminar o saltar la historia)
   },
   topen: (d) => enterSlot(+d.n),
   tdel: (d) => {
