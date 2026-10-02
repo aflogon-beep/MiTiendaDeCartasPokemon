@@ -36,15 +36,19 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Tests (Vitest + Playwright contra la versión de Vite)
+        if: hashFiles('index.html') != ''
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm test
+
       - name: Build con Vite
         if: hashFiles('index.html') != ''
         env:
           # Ruta base de Pages (p. ej. /MiTiendaDeCartasPokemon/), para vite.config.js
           BASE_PATH: ${{ steps.pages.outputs.base_path }}/
         run: |
-          npm ci
-          npx playwright install --with-deps chromium
-          npm test
           npm run build
           mkdir -p _site
           cp -r dist/. _site/
