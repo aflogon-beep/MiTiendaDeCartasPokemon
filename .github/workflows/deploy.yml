@@ -1,0 +1,69 @@
+# Publica el juego en GitHub Pages.
+# - Mientras no haya proyecto Vite (fase R0): publica reference/pokemon-card-shop-v22.html como index.html.
+# - Cuando exista package.json (fase R1+): npm ci, npm test y npm run build, y publica dist/.
+name: Deploy a GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - "claude/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo despliegue a la vez; si llega otro push, el que está en curso termina.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Node
+        if: hashFiles('package.json') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build con Vite
+        if: hashFiles('package.json') != ''
+        env:
+          # Ruta base de Pages (p. ej. /MiTiendaDeCartasPokemon/), para vite.config.js
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+        run: |
+          npm ci
+          npm test --if-present
+          npm run build
+          mkdir -p _site
+          cp -r dist/. _site/
+
+      - name: Publicar el HTML de referencia
+        if: hashFiles('package.json') == ''
+        run: |
+          mkdir -p _site
+          cp reference/pokemon-card-shop-v22.html _site/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
