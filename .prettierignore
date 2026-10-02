@@ -1,0 +1,8 @@
+reference/
+dist/
+test-results/
+playwright-report/
+package-lock.json
+tests/fixtures/*.json
+*.md
+index.html

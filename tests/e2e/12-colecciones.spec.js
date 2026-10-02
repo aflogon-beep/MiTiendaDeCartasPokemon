@@ -10,7 +10,10 @@ async function openSets(page) {
   await expect(page.locator("#ovh h2").first()).toHaveText("Colecciones");
 }
 
-test("12a · Colecciones: si la lista falla se reintenta, se avisa y hay botón para reintentar", async ({ page, gamePath }) => {
+test("12a · Colecciones: si la lista falla se reintenta, se avisa y hay botón para reintentar", async ({
+  page,
+  gamePath,
+}) => {
   test.setTimeout(120_000);
   const api = await freshGame(page, gamePath, { api: { failList: true } });
   const ovh = page.locator("#ovh");
@@ -38,17 +41,27 @@ test("12a · Colecciones: si la lista falla se reintenta, se avisa y hay botón 
   // Y se puede añadir una colección nueva al catálogo
   await ovh.locator('[data-a="addset"][data-k="fx4"]').click();
   await expect.poll(() => notes(page), { timeout: 15_000 }).toContain("✅ 1 colección(es) añadidas");
-  expect(await game(page, (P) => ({ sets: P.S.sets, loaded: !!P.BYS.fx4 }))).toEqual({ sets: ["mew", "pre", "obf", "fx4"], loaded: true });
+  expect(await game(page, (P) => ({ sets: P.S.sets, loaded: !!P.BYS.fx4 }))).toEqual({
+    sets: ["mew", "pre", "obf", "fx4"],
+    loaded: true,
+  });
 });
 
-test("12b · Colecciones: un set que no carga se reintenta, se avisa y se recupera con el botón", async ({ page, gamePath }) => {
+test("12b · Colecciones: un set que no carga se reintenta, se avisa y se recupera con el botón", async ({
+  page,
+  gamePath,
+}) => {
   test.setTimeout(120_000);
   const api = await freshGame(page, gamePath, { api: { failSets: ["sv8pt5"] } });
   const ovh = page.locator("#ovh");
 
   // Arranca con los otros dos sets; el que falla se intentó 3 veces
   expect(setCalls(api, "sv8pt5")).toBe(3);
-  expect(await game(page, (P) => ({ mode: P.MODE, sets: P.SETS.map((s) => s.id), failed: [...P.FAILED] }))).toEqual({ mode: "real", sets: ["mew", "obf"], failed: ["pre"] });
+  expect(await game(page, (P) => ({ mode: P.MODE, sets: P.SETS.map((s) => s.id), failed: [...P.FAILED] }))).toEqual({
+    mode: "real",
+    sets: ["mew", "obf"],
+    failed: ["pre"],
+  });
   expect(await notes(page)).toContain("⚠️ 1 colección(es) no cargaron. Reinténtalo en Más → Colecciones");
   await expect(page.locator("#hint")).toContainText("⚠️ 1 colección(es) sin cargar: Más → Colecciones → Reintentar");
 
@@ -63,7 +76,9 @@ test("12b · Colecciones: un set que no carga se reintenta, se avisa y se recupe
   api.failSets.clear();
   await retry.click();
   await expect.poll(() => notes(page), { timeout: 15_000 }).toContain("✅ Todas las colecciones cargadas");
-  expect(await game(page, (P) => ({ sets: P.SETS.map((s) => s.id), failed: P.FAILED.size, cards: P.CARDS.length }))).toEqual({ sets: ["mew", "pre", "obf"], failed: 0, cards: 183 });
+  expect(
+    await game(page, (P) => ({ sets: P.SETS.map((s) => s.id), failed: P.FAILED.size, cards: P.CARDS.length })),
+  ).toEqual({ sets: ["mew", "pre", "obf"], failed: 0, cards: 183 });
   await expect(ovh).not.toContainText("no han cargado");
   await ovh.locator('.sheet > [data-a="close"].big').click();
   await expect(page.locator("#hint")).toContainText("Precios reales de Cardmarket");

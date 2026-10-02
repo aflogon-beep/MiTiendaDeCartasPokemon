@@ -10,10 +10,13 @@
     "test": "vitest run && playwright test --project=vite",
     "test:unit": "vitest run",
     "test:e2e": "playwright test --project=vite",
-    "test:ref": "playwright test --project=referencia"
+    "test:ref": "playwright test --project=referencia",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@playwright/test": "1.56",
+    "prettier": "^3.9.9",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"
   }

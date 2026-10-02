@@ -34,13 +34,19 @@ test("3 · Día completo con cajero: abrir, clientes, cierre y ticket del día",
   // Durante el día: el cajero cobra solo; si alguien quiere vender o cambiar, se le dice que no.
   let sawCustomer = false;
   for (let t = 0; t < 400; t++) {
-    const st = await game(page, (P) => ({ M: P.M, phase: P.S.phase, n: P.custs.length, front: P.front() && P.front().want.k }));
+    const st = await game(page, (P) => ({
+      M: P.M,
+      phase: P.S.phase,
+      n: P.custs.length,
+      front: P.front() && P.front().want.k,
+    }));
     if (st.n) sawCustomer = true;
     if (st.M === "sum") break;
     if (st.M === "sell") await ovh.locator('[data-a="dealno"]').click();
     else if (st.M === "lot") await ovh.locator('[data-a="lotno"]').click();
     else if (st.M === "trade") await ovh.locator('[data-a="tradeno"]').click();
-    else if (st.M) await dismissInfo(page); // historia, medallas…
+    else if (st.M)
+      await dismissInfo(page); // historia, medallas…
     else if (st.front && ["sell", "lot", "trade"].includes(st.front)) await page.locator("#act").click();
     await page.waitForTimeout(250);
   }
@@ -54,7 +60,14 @@ test("3 · Día completo con cajero: abrir, clientes, cierre y ticket del día",
   await expect(ticket).toContainText("Sueldos");
   await expect(ticket).toContainText("RESULTADO DEL DÍA");
 
-  const s = await game(page, (P) => ({ sum: P.S.summary, day: P.S.day, phase: P.S.phase, hist: P.S.hist, money: P.S.money, served: P.S.lt.served || 0 }));
+  const s = await game(page, (P) => ({
+    sum: P.S.summary,
+    day: P.S.day,
+    phase: P.S.phase,
+    hist: P.S.hist,
+    money: P.S.money,
+    served: P.S.lt.served || 0,
+  }));
   expect(s.day).toBe(2);
   expect(s.phase).toBe("closed");
   expect(s.sum.day).toBe(1);

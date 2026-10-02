@@ -23,12 +23,23 @@ test("13 · Modo ahorro: con FPS bajos se activa solo", async ({ page, gamePath 
 
   // A ritmo normal no se activa
   await page.waitForTimeout(5000);
-  expect(await game(page, (P) => ({ lite: P.LITE(), auto: !!P.VIS.autoLite, dpr: P.VIEW.dpr }))).toEqual({ lite: false, auto: false, dpr: 2 });
+  expect(await game(page, (P) => ({ lite: P.LITE(), auto: !!P.VIS.autoLite, dpr: P.VIEW.dpr }))).toEqual({
+    lite: false,
+    auto: false,
+    dpr: 2,
+  });
 
   // Con el móvil lento, a los pocos segundos se activa el modo ahorro y avisa
   await page.evaluate(() => (window.__slow = true));
   await expect.poll(() => game(page, (P) => P.LITE()), { timeout: 20_000 }).toBe(true);
-  expect(await game(page, (P) => ({ auto: P.VIS.autoLite, perf: (P.S.ui && P.S.ui.perf) || "auto", dpr: P.VIEW.dpr, fps: Math.round(P.VIS.fpsE) }))).toMatchObject({ auto: true, perf: "auto", dpr: 1.25 });
+  expect(
+    await game(page, (P) => ({
+      auto: P.VIS.autoLite,
+      perf: (P.S.ui && P.S.ui.perf) || "auto",
+      dpr: P.VIEW.dpr,
+      fps: Math.round(P.VIS.fpsE),
+    })),
+  ).toMatchObject({ auto: true, perf: "auto", dpr: 1.25 });
   expect(await notes(page)).toContain("⚡ He activado el modo ahorro para que vaya más fluido");
 
   // En Más se ve que el rendimiento está en automático con ahorro
@@ -46,6 +57,10 @@ test("13b · Modo ahorro: si el jugador elige rendimiento alto, no se activa sol
 
   await page.evaluate(() => (window.__slow = true));
   await page.waitForTimeout(9000);
-  expect(await game(page, (P) => ({ lite: P.LITE(), auto: !!P.VIS.autoLite, slow: P.VIS.fpsE < 38 }))).toEqual({ lite: false, auto: false, slow: true });
+  expect(await game(page, (P) => ({ lite: P.LITE(), auto: !!P.VIS.autoLite, slow: P.VIS.fpsE < 38 }))).toEqual({
+    lite: false,
+    auto: false,
+    slow: true,
+  });
   expect(await notes(page)).not.toContain("modo ahorro");
 });

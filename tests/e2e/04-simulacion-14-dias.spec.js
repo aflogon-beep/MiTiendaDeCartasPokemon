@@ -5,7 +5,10 @@ import { botPlay } from "./bot.js";
 // Se permiten 2 reintentos; que falle 3 veces seguidas sí indica que algo ha cambiado.
 test.describe.configure({ retries: 2 });
 
-test("4 · Simulación de 14 días: el bot llega a nivel 2 antes del día 7 y la empresa crece", async ({ page, gamePath }) => {
+test("4 · Simulación de 14 días: el bot llega a nivel 2 antes del día 7 y la empresa crece", async ({
+  page,
+  gamePath,
+}) => {
   test.setTimeout(540_000);
   await freshGame(page, gamePath);
   expect(await game(page, (P) => P.DF().n)).toBe("Normal");
@@ -13,7 +16,14 @@ test("4 · Simulación de 14 días: el bot llega a nivel 2 antes del día 7 y la
 
   // speed 20: los tests aceleran el reloj del juego (el jugador solo puede llegar a 4×)
   const log = await game(page, botPlay, { days: 14, speed: 20, claim: true, maxMs: 480_000 });
-  console.log(log.map((d) => `día ${d.day}: nivel ${d.level} · empresa ${d.net} € · caja ${d.money} € · ventas ${d.inc} € · clientes ${d.cust} (${d.lost} sin comprar)`).join("\n"));
+  console.log(
+    log
+      .map(
+        (d) =>
+          `día ${d.day}: nivel ${d.level} · empresa ${d.net} € · caja ${d.money} € · ventas ${d.inc} € · clientes ${d.cust} (${d.lost} sin comprar)`,
+      )
+      .join("\n"),
+  );
 
   expect(log.map((d) => d.day)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
   // Todos los días entra gente y se vende algo

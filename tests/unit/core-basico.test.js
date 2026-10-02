@@ -2,7 +2,20 @@ import { describe, it, expect, vi } from "vitest";
 import { clamp, r05, fmt, pct } from "../../src/core/util.js";
 import { rnd, pick, wpick, srand, gauss } from "../../src/core/rng.js";
 import { RAR, RMAP, LV, LTK, DIFFS } from "../../src/core/constants.js";
-import { rarOf, mapCard, setCards, indexCards, CARDS, BYID, BYS, BYSR, BYR, SETDEF, setName, mkSetDef } from "../../src/core/cards/sets.js";
+import {
+  rarOf,
+  mapCard,
+  setCards,
+  indexCards,
+  CARDS,
+  BYID,
+  BYS,
+  BYSR,
+  BYR,
+  SETDEF,
+  setName,
+  mkSetDef,
+} from "../../src/core/cards/sets.js";
 import { initPrice, step, rvr } from "../../src/core/cards/prices.js";
 import { FIX_CARDS } from "../fixtures/api.js";
 
@@ -22,7 +35,7 @@ describe("util", () => {
 
 describe("rng", () => {
   it("rnd, pick y wpick respetan los límites y los pesos", () => {
-    for (let i = 0; i < 200; i++) expect(rnd(5)).toBeGreaterThanOrEqual(0), expect(rnd(5)).toBeLessThan(5);
+    for (let i = 0; i < 200; i++) (expect(rnd(5)).toBeGreaterThanOrEqual(0), expect(rnd(5)).toBeLessThan(5));
     expect(["a", "b"]).toContain(pick(["a", "b"]));
     const n = { a: 0, b: 0 };
     for (let i = 0; i < 4000; i++) n[wpick({ a: 3, b: 1 })]++;
@@ -31,7 +44,8 @@ describe("rng", () => {
     expect(wpick({ a: 0, b: 1 })).toBe("b");
   });
   it("srand es determinista", () => {
-    const a = srand(11), b = srand(11);
+    const a = srand(11),
+      b = srand(11);
     expect([a(), a(), a()]).toEqual([b(), b(), b()]);
   });
   it("gauss está centrada en 0 y entre -1,5 y 1,5", () => {

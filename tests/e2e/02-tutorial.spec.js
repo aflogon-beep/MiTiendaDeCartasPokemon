@@ -37,7 +37,8 @@ test("2 · Tutorial completo: los 12 pasos avanzan hasta el final", async ({ pag
   for (let i = 0; i < 40; i++) {
     if (await game(page, (P) => P.openState.mode === "sum")) break;
     await page.waitForTimeout(450);
-    if (await page.locator("#pxst").count()) await page.locator("#pxst").click({ position: { x: 40, y: 40 }, force: true });
+    if (await page.locator("#pxst").count())
+      await page.locator("#pxst").click({ position: { x: 40, y: 40 }, force: true });
   }
 
   // 7 · Cierra y toca «Cartas»

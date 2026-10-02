@@ -27,7 +27,8 @@ test("1 · Arranque: carga los 3 sets por defecto sin errores de consola", async
   await expect(page.locator("#tut")).toContainText("Soy Carla");
 
   // Pidió las cartas de los 3 sets y la lista de colecciones
-  for (const id of ["sv3pt5", "sv8pt5", "sv3"]) expect(api.calls.some((u) => decodeURIComponent(u).includes(`set.id:${id}`))).toBe(true);
+  for (const id of ["sv3pt5", "sv8pt5", "sv3"])
+    expect(api.calls.some((u) => decodeURIComponent(u).includes(`set.id:${id}`))).toBe(true);
   await expect.poll(() => api.calls.some((u) => u.includes("/v2/sets"))).toBe(true);
 
   // Deja correr el juego un poco: ni errores ni peticiones a otros servidores

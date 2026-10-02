@@ -17,7 +17,7 @@ export async function botPlay(P, opt) {
 
   const exactChange = (due) => {
     const out = [];
-    for (const v of DEN) while (due >= v) out.push(v), (due -= v);
+    for (const v of DEN) while (due >= v) (out.push(v), (due -= v));
     return out;
   };
 
@@ -25,7 +25,15 @@ export async function botPlay(P, opt) {
     const S = P.S;
     if (M === "sum") {
       const s = S.summary;
-      log.push({ day: s.day, level: P.level(), net: Math.round(P.netWorth()), money: Math.round(S.money), inc: Math.round(s.inc), cust: s.cust, lost: s.lost });
+      log.push({
+        day: s.day,
+        level: P.level(),
+        net: Math.round(P.netWorth()),
+        money: Math.round(S.money),
+        inc: Math.round(s.inc),
+        cust: s.cust,
+        lost: s.lost,
+      });
       return A.close();
     }
     if (M === "ck") {
@@ -96,7 +104,8 @@ export async function botPlay(P, opt) {
   P.speed = speed;
   let opened = 0;
   while (log.length < days) {
-    if (performance.now() - t0 > opt.maxMs) throw new Error(`bot: tiempo agotado en el día ${P.S.day} (M=${P.M}, fase=${P.S.phase})`);
+    if (performance.now() - t0 > opt.maxMs)
+      throw new Error(`bot: tiempo agotado en el día ${P.S.day} (M=${P.M}, fase=${P.S.phase})`);
     const M = P.M;
     if (M) {
       handle(M);

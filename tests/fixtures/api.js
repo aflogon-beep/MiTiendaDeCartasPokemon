@@ -46,7 +46,19 @@ const PRICE = {
 };
 
 const SYL = ["flo", "chis", "pa", "zu", "ma", "ron", "ti", "ka", "bel", "lu", "dra", "go", "ne", "vi", "so", "quo"];
-const TYPES = ["Fire", "Grass", "Water", "Lightning", "Psychic", "Fighting", "Darkness", "Metal", "Fairy", "Dragon", "Colorless"];
+const TYPES = [
+  "Fire",
+  "Grass",
+  "Water",
+  "Lightning",
+  "Psychic",
+  "Fighting",
+  "Darkness",
+  "Metal",
+  "Fairy",
+  "Dragon",
+  "Colorless",
+];
 
 // Generador pseudoaleatorio con semilla (para que los datos sean siempre los mismos)
 function rng(seed) {

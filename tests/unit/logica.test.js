@@ -111,7 +111,9 @@ describe("tratos (makeDeal) según la dificultad", () => {
     return f / n;
   };
   it("las falsas escalan con la dificultad (fácil ×0,35, difícil ×1,3)", () => {
-    const easy = rate("facil"), normal = rate("normal"), hard = rate("dificil");
+    const easy = rate("facil"),
+      normal = rate("normal"),
+      hard = rate("dificil");
     expect(easy).toBeLessThan(normal * 0.6);
     expect(hard).toBeGreaterThan(normal * 1.1);
     expect(normal).toBeGreaterThan(0.2);
@@ -161,7 +163,8 @@ describe("tienda rival (rivalUpd)", () => {
     S.rival.str = 1;
     S.rival.price = 1;
     SETS.forEach((sd) => (S.shelf[sd.id] = S.pack[sd.id].ref * 0.5));
-    const m = S.money, rep = S.repB || 0;
+    const m = S.money,
+      rep = S.repB || 0;
     const msg = rivalUpd();
     expect(msg).toContain("ha cerrado");
     expect(S.rival).toMatchObject({ on: false, closed: true });

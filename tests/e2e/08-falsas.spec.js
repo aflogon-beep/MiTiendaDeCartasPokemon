@@ -29,9 +29,17 @@ test("8 · Falsas: la inspección marca pistas y una falsa falla en 2 de 3 prueb
   const rule = await game(page, (P) => {
     const out = { fakeOk: 0, realOk: 0 };
     for (let i = 0; i < 300; i++) {
-      const t = P.mkTells(true), w = P.mkWt(true, t);
-      if (t.length === 2 && new Set(t).size === 2 && t.every((k) => ["lens", "light", "scale"].includes(k)) && (t.includes("scale") ? w < 1.62 : w >= 1.72)) out.fakeOk++;
-      const r = P.mkTells(false), rw = P.mkWt(false, r);
+      const t = P.mkTells(true),
+        w = P.mkWt(true, t);
+      if (
+        t.length === 2 &&
+        new Set(t).size === 2 &&
+        t.every((k) => ["lens", "light", "scale"].includes(k)) &&
+        (t.includes("scale") ? w < 1.62 : w >= 1.72)
+      )
+        out.fakeOk++;
+      const r = P.mkTells(false),
+        rw = P.mkWt(false, r);
       if (r.length === 0 && rw >= 1.72 && rw < 1.8) out.realOk++;
     }
     return out;
@@ -84,5 +92,10 @@ test("8 · Falsas: la inspección marca pistas y una falsa falla en 2 de 3 prueb
   const rep0 = await game(page, (P) => P.S.repB || 0);
   await ovh.locator('[data-a="ifake"]').click();
   await expect(page.locator("#toast")).toContainText("¡Bien visto! Era falsa");
-  expect(await game(page, (P) => ({ rep: P.S.repB, caught: P.S.lt.caught, M: P.M, deal: P.deal }))).toEqual({ rep: rep0 + 1, caught: 1, M: null, deal: null });
+  expect(await game(page, (P) => ({ rep: P.S.repB, caught: P.S.lt.caught, M: P.M, deal: P.deal }))).toEqual({
+    rep: rep0 + 1,
+    caught: 1,
+    M: null,
+    deal: null,
+  });
 });

@@ -63,7 +63,12 @@ export async function mockNetwork(page, opts = {}) {
         return route.fulfill({ status: 500, headers: cors, body: "fallo simulado" });
       const r = apiResponse(url);
       if (!r) return route.fulfill({ status: 404, headers: cors, body: "{}" });
-      return route.fulfill({ status: r.status, headers: cors, contentType: "application/json", body: JSON.stringify(r.body) });
+      return route.fulfill({
+        status: r.status,
+        headers: cors,
+        contentType: "application/json",
+        body: JSON.stringify(r.body),
+      });
     }
     if (host === "images.pokemontcg.io") return route.fulfill({ status: 200, contentType: "image/png", body: PNG });
     if (host === "fonts.googleapis.com") return route.fulfill({ status: 200, contentType: "text/css", body: "" });
@@ -165,13 +170,18 @@ export async function freshGame(page, gamePath, opts = {}) {
 }
 
 /** Ejecuta código con acceso a las variables del juego: fn(P, arg). */
-export const game = (page, fn, arg) => page.evaluate(([src, a]) => (0, eval)(`(${src})`)(window.__pcs, a), [fn.toString(), arg]);
+export const game = (page, fn, arg) =>
+  page.evaluate(([src, a]) => (0, eval)(`(${src})`)(window.__pcs, a), [fn.toString(), arg]);
 
 /** Coordenadas de pantalla (página) de un punto del mundo del juego. */
 export async function worldToPage(page, x, y) {
-  const p = await page.evaluate(([x, y]) => {
-    const V = window.__pcs.VIEW, r = window.__pcs.CV.getBoundingClientRect();
-    return { x: r.left + x * V.s + V.ox, y: r.top + y * V.s + V.oy };
-  }, [x, y]);
+  const p = await page.evaluate(
+    ([x, y]) => {
+      const V = window.__pcs.VIEW,
+        r = window.__pcs.CV.getBoundingClientRect();
+      return { x: r.left + x * V.s + V.ox, y: r.top + y * V.s + V.oy };
+    },
+    [x, y],
+  );
   return p;
 }

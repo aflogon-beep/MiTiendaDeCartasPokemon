@@ -22,7 +22,17 @@ describe("API simulada de pokemontcg.io", () => {
   it("cada set tiene rarezas variadas, ids únicos y precios de Cardmarket", () => {
     for (const [id, cards] of Object.entries(FIX_CARDS)) {
       const rar = new Set(cards.map((c) => c.rarity));
-      for (const r of ["Common", "Uncommon", "Rare", "Double Rare", "Illustration Rare", "Ultra Rare", "Special Illustration Rare", "Hyper Rare"]) expect(rar.has(r), `${id} sin ${r}`).toBe(true);
+      for (const r of [
+        "Common",
+        "Uncommon",
+        "Rare",
+        "Double Rare",
+        "Illustration Rare",
+        "Ultra Rare",
+        "Special Illustration Rare",
+        "Hyper Rare",
+      ])
+        expect(rar.has(r), `${id} sin ${r}`).toBe(true);
       expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
       const priced = cards.filter((c) => c.cardmarket && c.cardmarket.prices.trendPrice > 0);
       expect(priced.length).toBeGreaterThan(cards.length * 0.8);
@@ -36,7 +46,9 @@ describe("API simulada de pokemontcg.io", () => {
   });
 
   it("responde a /sets como la API real", () => {
-    const r = apiResponse(`${API}sets?select=id,name,series,releaseDate,total,printedTotal,images&orderBy=-releaseDate&pageSize=250`);
+    const r = apiResponse(
+      `${API}sets?select=id,name,series,releaseDate,total,printedTotal,images&orderBy=-releaseDate&pageSize=250`,
+    );
     expect(r.status).toBe(200);
     expect(r.body).toEqual(setsPayload());
     const dates = r.body.data.map((s) => s.releaseDate);
@@ -48,7 +60,8 @@ describe("API simulada de pokemontcg.io", () => {
     const all = apiResponse(cardsUrl("sv3")).body;
     expect(all.totalCount).toBe(FIX_CARDS.sv3.length);
     expect(all.data.every((c) => c.id.startsWith("sv3-"))).toBe(true);
-    const p1 = apiResponse(cardsUrl("sv3", 1, 25)).body, p3 = apiResponse(cardsUrl("sv3", 3, 25)).body;
+    const p1 = apiResponse(cardsUrl("sv3", 1, 25)).body,
+      p3 = apiResponse(cardsUrl("sv3", 3, 25)).body;
     expect(p1.data).toHaveLength(25);
     expect(p3.data.map((c) => c.id)).toEqual(FIX_CARDS.sv3.slice(50, 75).map((c) => c.id));
     expect(apiResponse(cardsUrl("noexiste")).body.data).toEqual([]);

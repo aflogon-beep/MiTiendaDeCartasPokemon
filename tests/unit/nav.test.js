@@ -17,7 +17,10 @@ describe("navegación (navPath)", () => {
     S.decor = Object.fromEntries(DECOR.map((d) => [d.k, 1]));
     S.up.shelf = 1;
     S.annex = true;
-    const goals = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => { const s = LAY.shelf(i); return [s.x + s.w / 2, s.y + s.h + 44]; });
+    const goals = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+      const s = LAY.shelf(i);
+      return [s.x + s.w / 2, s.y + s.h + 44];
+    });
     goals.push([LAY.qx, LAY.qy], [LAY.qx, LAY.qy + 5 * LAY.qs]);
     for (const [gx, gy] of goals) {
       const path = navPath(358, 540, gx, gy);
@@ -46,10 +49,16 @@ describe("rutas desde la calle (routeTo)", () => {
   it("entra por la puerta y sale por ella", () => {
     const c = { x: -100, y: 600 };
     routeTo(c, 200, 300);
-    expect(c.wps.slice(0, 2)).toEqual([{ x: 358, y: 600 }, { x: 358, y: 560 }]);
+    expect(c.wps.slice(0, 2)).toEqual([
+      { x: 358, y: 600 },
+      { x: 358, y: 560 },
+    ]);
     const d = { x: 200, y: 300 };
     routeTo(d, 900, 600);
-    expect(d.wps.slice(-2)).toEqual([{ x: 358, y: 560 }, { x: 358, y: 600 }]);
+    expect(d.wps.slice(-2)).toEqual([
+      { x: 358, y: 560 },
+      { x: 358, y: 600 },
+    ]);
     const e = { x: -300, y: 600 };
     routeTo(e, 900, 600);
     expect(e.wps).toEqual([]); // por la calle no hay obstáculos

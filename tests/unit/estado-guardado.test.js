@@ -13,7 +13,15 @@ hide("getItem", (k) => (Object.hasOwn(LS, k) ? LS[k] : null));
 hide("setItem", (k, v) => (LS[k] = String(v)));
 hide("removeItem", (k) => delete LS[k]);
 globalThis.localStorage = LS;
-const store = { get size() { return Object.keys(LS).length; }, get: (k) => LS[k], has: (k) => Object.hasOwn(LS, k), set: (k, v) => (LS[k] = v), clear: () => Object.keys(LS).forEach((k) => delete LS[k]) };
+const store = {
+  get size() {
+    return Object.keys(LS).length;
+  },
+  get: (k) => LS[k],
+  has: (k) => Object.hasOwn(LS, k),
+  set: (k, v) => (LS[k] = v),
+  clear: () => Object.keys(LS).forEach((k) => delete LS[k]),
+};
 
 describe("estado", () => {
   it("antes de cargar no hay partida y no se guarda nada", () => {
@@ -73,7 +81,9 @@ describe("guardado", () => {
     expect(store.has("pcs-set2-sv3")).toBe(false);
     const msgs = [];
     on("toast", (t) => msgs.push(t));
-    LS.setItem = () => { throw new Error("lleno"); };
+    LS.setItem = () => {
+      throw new Error("lleno");
+    };
     expect(saveNow()).toBe(false);
     expect(msgs[0]).toContain("No se pudo guardar");
     LS.setItem = real;

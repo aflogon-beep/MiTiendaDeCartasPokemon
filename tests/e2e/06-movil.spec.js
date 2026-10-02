@@ -20,7 +20,10 @@ const overflowing = () =>
       return true;
     })
     .slice(0, 5)
-    .map((el) => `${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""}.${el.className} → ${Math.round(el.getBoundingClientRect().left)}…${Math.round(el.getBoundingClientRect().right)}`);
+    .map(
+      (el) =>
+        `${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""}.${el.className} → ${Math.round(el.getBoundingClientRect().left)}…${Math.round(el.getBoundingClientRect().right)}`,
+    );
 
 const layout = () => {
   const r = (s) => {
@@ -37,7 +40,10 @@ for (const [w, h] of [
   test.describe(`${w} px`, () => {
     test.use({ viewport: { width: w, height: h }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
 
-    test(`6 · Móvil ${w} px: sin desbordamiento horizontal y la tienda mide lo mismo abierta y cerrada`, async ({ page, gamePath }) => {
+    test(`6 · Móvil ${w} px: sin desbordamiento horizontal y la tienda mide lo mismo abierta y cerrada`, async ({
+      page,
+      gamePath,
+    }) => {
       await freshGame(page, gamePath);
       // Con algo de stock para que la lista de comprobación del cierre tenga contenido
       await game(page, (P) => {

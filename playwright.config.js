@@ -23,11 +23,23 @@ export default defineConfig({
   },
   projects: [
     { name: "vite", use: { baseURL: `http://localhost:${VITE}`, gamePath: "/" } },
-    { name: "referencia", use: { baseURL: `http://localhost:${REF}`, gamePath: "/reference/pokemon-card-shop-v22.html" } },
+    {
+      name: "referencia",
+      use: { baseURL: `http://localhost:${REF}`, gamePath: "/reference/pokemon-card-shop-v22.html" },
+    },
   ],
   webServer: [
-    { command: "node tests/static-server.js", env: { PORT: String(REF) }, port: REF, reuseExistingServer: !process.env.CI },
+    {
+      command: "node tests/static-server.js",
+      env: { PORT: String(REF) },
+      port: REF,
+      reuseExistingServer: !process.env.CI,
+    },
     // Sin reutilizar: cada ejecución compila el código actual.
-    { command: `npx vite build && npx vite preview --port ${VITE} --strictPort`, port: VITE, reuseExistingServer: false },
+    {
+      command: `npx vite build && npx vite preview --port ${VITE} --strictPort`,
+      port: VITE,
+      reuseExistingServer: false,
+    },
   ],
 });

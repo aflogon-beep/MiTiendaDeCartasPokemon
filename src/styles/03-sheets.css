@@ -1,24 +1,132 @@
 /* Paneles deslizantes: fondo, hoja, asa, botón de cerrar, primeras veces (Carla) y menú de Más. */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:20;display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:var(--bg);width:100%;max-width:760px;max-height:90%;overflow:auto;border-radius:16px 16px 0 0;padding:14px 12px calc(16px + env(safe-area-inset-bottom,0px));border:1px solid var(--line)}
-.sheet.wide{max-width:1000px}
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.menu .b{min-height:62px;font-size:15px}
-.ov.in{animation:ovin .22s ease-out}
-@keyframes ovin{from{background:rgba(0,0,0,0)}}
-.sheet.in{animation:shin .32s cubic-bezier(.2,1.1,.3,1)}
-@keyframes shin{from{transform:translateY(60px);opacity:0}}
-@media (prefers-reduced-motion:reduce) {.sheet.in,.ov.in,#money.gain{animation:none}}
-.serchips .b{white-space:nowrap;flex:none;padding:6px 10px;min-height:32px;font-size:13px}
-.sheet{position:relative}
-.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:-4px auto 8px}
-.xbtn{position:sticky;top:0;float:right;margin:-8px -2px 0 8px;width:38px;height:38px;border-radius:50%;border:0;background:var(--panel2);color:var(--ink);font-size:16px;font-weight:700;box-shadow:0 2px 0 #0006;z-index:4;cursor:pointer}
-.xbtn:active{transform:translateY(2px);box-shadow:none}
-.sheet h2{font-size:22px;padding-right:44px}
-.sheet .pn{border-radius:14px}
-.ov{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
-.ov .sheet{max-height:100%;border-radius:16px 16px 0 0}
-#ovh .sheet h2{color:var(--ink)}
-.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.b.mini{min-height:30px;padding:4px 10px;font-size:13px}
-.hint1{display:flex;gap:10px;align-items:center;background:#fff;color:#1b1f2a;border-radius:14px;padding:10px;margin:0 0 12px;box-shadow:0 6px 18px #0006}
+.ov {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet {
+  background: var(--bg);
+  width: 100%;
+  max-width: 760px;
+  max-height: 90%;
+  overflow: auto;
+  border-radius: 16px 16px 0 0;
+  padding: 14px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+  border: 1px solid var(--line);
+}
+.sheet.wide {
+  max-width: 1000px;
+}
+.menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.menu .b {
+  min-height: 62px;
+  font-size: 15px;
+}
+.ov.in {
+  animation: ovin 0.22s ease-out;
+}
+@keyframes ovin {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+.sheet.in {
+  animation: shin 0.32s cubic-bezier(0.2, 1.1, 0.3, 1);
+}
+@keyframes shin {
+  from {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet.in,
+  .ov.in,
+  #money.gain {
+    animation: none;
+  }
+}
+.serchips .b {
+  white-space: nowrap;
+  flex: none;
+  padding: 6px 10px;
+  min-height: 32px;
+  font-size: 13px;
+}
+.sheet {
+  position: relative;
+}
+.grab {
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  margin: -4px auto 8px;
+}
+.xbtn {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin: -8px -2px 0 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--panel2);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 2px 0 #0006;
+  z-index: 4;
+  cursor: pointer;
+}
+.xbtn:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.sheet h2 {
+  font-size: 22px;
+  padding-right: 44px;
+}
+.sheet .pn {
+  border-radius: 14px;
+}
+.ov {
+  bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+}
+.ov .sheet {
+  max-height: 100%;
+  border-radius: 16px 16px 0 0;
+}
+#ovh .sheet h2 {
+  color: var(--ink);
+}
+.tgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.b.mini {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+.hint1 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: #fff;
+  color: #1b1f2a;
+  border-radius: 14px;
+  padding: 10px;
+  margin: 0 0 12px;
+  box-shadow: 0 6px 18px #0006;
+}
