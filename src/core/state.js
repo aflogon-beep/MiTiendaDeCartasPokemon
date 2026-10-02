@@ -22,6 +22,10 @@ export const G={
   NOTE:"",        // aviso del estado de las cartas que se añade a la pista del HUD
   M:null,         // panel abierto ("packs", "coll", "ck"…) o null; con un panel abierto el juego se para
   MG:null,        // minijuego en curso
+  spawnT:3,       // segundos hasta que entre el siguiente cliente
+  deal:null,      // trato con un cliente que quiere vendernos una carta
+  TOF:null,       // oferta de un cliente por uno de nuestros trofeos
+  LOT:null,       // lote misterioso que se está negociando
 };
 
 export let SETS=[];

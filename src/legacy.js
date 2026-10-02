@@ -35,6 +35,18 @@ import { loadSetsFor, retrySets, addSets } from "./core/cards/api.js";
 import { seriesList } from "./core/cards/sets.js";
 import { W, H, LAY, FLOOR_T, FRONT_Y, CX0, CX1, CY0, CY1, LUX, AX, XS0, XS1, TROPHY, admireSpot } from "./world/layout.js";
 import { NG, navSig, navObstacles, navBuild, navOk, navCell, navFree, navLOS, navPath, routeTo } from "./world/nav.js";
+import { SHIRTS, PANTS, HAIRC, mkOutfit } from "./core/customers/outfit.js";
+import { custs, queue, say, qpos, front, leave, updateCusts } from "./core/customers/move.js";
+import { cid, bellT, spawn, pickProd, shelfSpot, caseSpot } from "./core/customers/spawn.js";
+import { decide } from "./core/customers/decide.js";
+import { pay, payWith, canHaggle } from "./core/customers/checkout.js";
+import { loy, pickReg } from "./core/regulars.js";
+import { theftOK, makeThief, startTheft, catchThief, thiefGone } from "./core/theft.js";
+import { storyTick } from "./core/story.js";
+import { closeDeal, finishDeal } from "./core/deals.js";
+import { makeLot, lotEst, lotReview, expCost, lotBuy, endLot } from "./core/lots.js";
+import { marketDay, mkMarketLots, mkCand, nextMarket } from "./core/market.js";
+import { endDay } from "./core/day.js";
 /* ===================== DATOS ===================== */
 const $=s=>document.querySelector(s);
 
@@ -53,141 +65,13 @@ function evBreak(sid){
 }
 
 /* ===================== CLIENTES ===================== */
-let custs=[],queue=[],cid=0,spawnT=3,deal=null;
-const say=(c,t)=>{c.bub=t;c.bt=2.2};
-function shelfSpot(i){const s=LAY.shelf(i);return {x:s.x+s.w/2+rnd(40)-20,y:s.y+s.h+44+rnd(14)}}
-function caseSpot(){const c=LAY.cs();return {x:c.x+c.w/2+rnd(80)-40,y:c.y+c.h+40+rnd(14)}}
-function spawn(){
-  const wts={};for(const k in CT)wts[k]=CT[k].w;wts.seller=(S.stats.sellers||0)>=4?0:.14;{const t=dayT();if(S.phase!=="closed"&&(t<.18||(t>.55&&t<.72)))wts.kid*=1.8;if(S.school&&S.school.until>=S.day)wts.kid*=1.6}wts.lot=S.day>=2&&!custs.some(x=>x.type==="lot")?.05:0;if(S.tour)wts.collector*=2;
-  let type=wpick(wts),reg=null;
-  if(S.ev&&S.ev.t==="vip"&&!S.vipDone&&S.clock>12){type="whale";S.vipDone=true}
-  else if(S.tut&&S.tut.on&&!(S.lt.served>0)&&caseItems().length)type="collector";
-  else if(Math.random()<.28){reg=pickReg();if(reg)type=RG(reg).t}
-  if(type==="seller")S.stats.sellers=(S.stats.sellers||0)+1;
-  if(performance.now()-bellT>1500){bellT=performance.now();sfx.bell()}
-  const R=reg?RG(reg):null,rs=reg?regS(reg):null;
-  const c={id:++cid,type,reg,x:358+(Math.random()<.5?-1:1)*(170+rnd(260)),y:590+rnd(16),st:"in",tx:0,ty:0,sp:(type==="kid"?76:55)+rnd(20),phoneP:Math.random()<.45,ph:rnd(6),bub:null,bt:0,skin:R?R.skin:pick(["#f2c9a0","#e0a878","#a9714b","#7a4a2b"]),hold:null,wt:0,pat:(28+rnd(10))*patMul()*(S.tut&&S.tut.on?3:1)*(rs?1+rs.loy/100*.6:1),t:0,mv:false,paid:0};
-  c.out=R?Object.assign({},regS(reg).out||(()=>{const o=mkOutfit(type,R);delete o.hat;return regS(reg).out=o})()):mkOutfit(type,R);if(R){say(c,rs.met?pick(["¡Buenas! 👋","¡Hola otra vez!","¿Qué hay de nuevo?"]):`¡Hola! Soy ${R.n} 😄`);rs.met=true;rs.visits++;if(!S.sets.includes(rs.fav))rs.fav=pick(S.sets)}
-  const ROUTE=[{x:353,y:505}];
-  if(reg&&["lucia","iker","hugo"].includes(reg)&&S.day>=2&&Math.random()<.35){const tr=makeTrade();if(tr){c.want={k:"trade"};c.trade=tr;c.st="toq";routeTo(c,LAY.qx,LAY.qy+queue.length*LAY.qs);custs.push(c);S.stats.cust++;return}}
-  if(type==="seller"||type==="lot"){c.want={k:type==="lot"?"lot":"sell"};if(type==="seller")c.deal=makeDeal(reg);c.st="toq";routeTo(c,LAY.qx,LAY.qy+queue.length*LAY.qs);custs.push(c);S.stats.cust++;return}
-  const ptry=S.tut&&S.tut.on?0:R&&R.acc?.6:({kid:.25,collector:.3,investor:.4,whale:.45}[type]||0);
-  const pid=Math.random()<ptry?pickProd(R&&R.acc?"player":type):null;
-  if(pid){c.want={k:"prod",pid};const b=LAY.prod;c.tx=b.x+20+rnd(b.w-40);c.ty=b.y+b.h+34+rnd(10);}
-  else if((type==="kid"||type==="whale")&&S.slots.some(Boolean)){
-    const w={};S.slots.forEach(id=>{if(id)w[id]=(S.sealed[id]>0?3:1)*(S.ev&&S.ev.t==="launch"&&S.ev.s===id?6:1)*(rs&&rs.fav===id?4:1)});
-    const s=wpick(w),i=S.slots.indexOf(s);c.want={k:"pack",s};const p=shelfSpot(i);c.tx=p.x;c.ty=p.y;
-  }else{c.want={k:"single"};const p=caseSpot();c.tx=p.x;c.ty=p.y;c.wps=[]}
-  if((c.type==="collector"||c.type==="kid")&&!c.reg&&!c.thief&&trophyOn()&&Math.random()<.14){c.want={k:"admire"};const a=admireSpot();c.tx=a.x;c.ty=a.y}
-  if(c.type==="collector"&&!c.reg&&c.want.k!=="admire"&&theftOK()&&Math.random()<(S.cams?.035:.07)*DF().theft)makeThief(c);
-  routeTo(c,c.tx,c.ty);
-  custs.push(c);S.stats.cust++;
-}
-function leave(c,angry){
-  if(c.hold){if(c.hold.k==="pack")S.sealed[c.hold.s]+=c.hold.qty;else if(c.hold.k==="prod")S.prod[c.hold.pid]=pStock(c.hold.pid)+c.hold.qty;else c.hold.it.res=false;c.hold=null}
-  const qi=queue.indexOf(c);if(qi>=0)queue.splice(qi,1);
-  if(angry){S.sales=Math.max(0,S.sales-1);S.stats.lost++;if(c.reg)loy(c.reg,-8,"Se fue enfadado de la tienda")}
-  c.st="leave";
-}
-function decide(c){
-  if(c.thief&&!c.run)return startTheft(c);
-  if(c.want.k==="admire"){S.admire=(S.admire||0)+1;say(c,pick(["😍 ¡Qué colección!","🤩 ¡Menudas cartas!","📸 ¡Le hago una foto!","✨ ¡Qué pasada!"]));heartsAt(c.x,c.y-30,2);const tl=trophies().filter(i=>itemVal(i)>=3);if(tl.length&&Math.random()<.12&&!G.M){TOF={c,it:pick(tl)};TOF.price=r05(itemVal(TOF.it)*(1.25+Math.random()*.2));openM("toffer")}return leave(c,false)}
-  const m=CT[c.type].mult*(c.reg?1+regS(c.reg).loy/1000:1);
-  if(c.want.k==="prod"){
-    const pid=c.want.pid,i=pInfo(pid);if(!i||pStock(pid)<1){say(c,"😕 Sin stock");why("ps:"+pid);return leave(c,true)}
-    const pr=pPrice(pid),ref=i.ref*m*tolMul()*(.9+Math.random()*.25);
-    if(pr>ref){say(c,"💸 Muy caro");why("pp:"+pid);return leave(c,true)}
-    S.prod[pid]--;c.hold={k:"prod",pid,qty:1,total:pr};
-  }else if(c.want.k==="pack"){
-    const s=c.want.s,st=S.sealed[s],ref=S.pack[s].ref*m*tolMul()*(S.ev&&S.ev.t==="launch"&&S.ev.s===s?1.2:1)*(.9+Math.random()*.25),sh=r05(S.shelf[s]*(S.myPromo&&S.myPromo.day===S.day&&S.myPromo.s===s?.85:1));
-    if(st<1){say(c,"😕 Sin stock");why("ks:"+s);return leave(c,true)}
-    if(S.rival&&S.rival.on&&DF().rival&&S.rival.promo&&S.rival.promo.s===s&&!(S.myPromo&&S.myPromo.day===S.day&&S.myPromo.s===s)&&Math.random()<.3){say(c,"🏪 Enfrente está más barato");why("rv:"+s);return leave(c,true)}
-    if(sh>ref){say(c,"💸 Muy caro");why("kp:"+s);return leave(c,true)}
-    let qty=c.type==="whale"?3+rnd(4):c.type==="investor"?2+rnd(3):c.type==="collector"?1+rnd(3):1+(Math.random()<.35?1:0);qty=Math.min(qty,st);
-    if(c.type==="kid"&&sh>14){say(c,"😢 No me llega");return leave(c,false)}
-    S.sealed[s]-=qty;c.hold={k:"pack",s,qty,total:sh*qty};
-  }else{
-    let its=S.items.filter(i=>i.case!=null&&!i.res&&!i.fkK);
-    if(!its.length){say(c,"😕 Vitrina vacía");why("ce");return leave(c,true)}
-    if(c.type==="investor")its=its.sort((a,b)=>itemVal(b)-itemVal(a)).slice(0,3);
-    const it=pick(its),f=(.95+Math.random()*.3)*m*tolMul()*(it.lux?1.12:1);
-    if(it.case>f&&!(S.tut&&S.tut.on)){say(c,"💸 Muy caro");why("cp");return leave(c,true)}
-    it.res=true;c.hold={k:"single",it,total:itemVal(it)*it.case};
-  }
-  c.st="toq";routeTo(c,LAY.qx,LAY.qy+queue.length*LAY.qs);
-}
-function qpos(c){const i=queue.indexOf(c);return {x:LAY.qx,y:LAY.qy+Math.max(0,i)*LAY.qs}}
-function front(){const c=queue[0];if(!c)return null;const p=qpos(c);return Math.hypot(c.x-p.x,c.y-p.y)<5&&(c.st==="wait")?c:null}
-function pay(c,got){
-  const h=c.hold;if(got==null)got=h.total;
-  S.money+=got;S.stats.inc+=got;S.sales++;
-  if(h.k==="single"){const i=S.items.indexOf(h.it);if(i>=0)S.items.splice(i,1);track("bigsale",got);if(h.it.fk)S.fkRet.push({got,reg:c.reg||null})}else if(h.k==="prod")track("sellprod",h.qty);else{track("sellpack",h.qty);S.lt.setSold=S.lt.setSold||{};S.lt.setSold[h.s]=(S.lt.setSold[h.s]||0)+h.qty}
-  if(c.reg)loy(c.reg,3+(c.wt<c.pat*.4?2:0));
-  track("earn",got);track("serve");if(got>=50)shake(3);
-  toast("+ "+fmt(got));fx(LAY.counter.x+28,LAY.counter.y+40,"+"+fmt(got),"#4cc98a");coinBurst(c.x,c.y-30,got);c.bought=true;VIS.drawer=1.4;c.hold=null;say(c,"❤️");
-  const qi=queue.indexOf(c);if(qi>=0)queue.splice(qi,1);c.st="leave";hud();
-}
 function serveFront(){
   const c=front();if(!c||G.M||paused)return;
-  if(c.want.k==="sell"){deal=c.deal;deal.cust=c;openM("sell");return}
+  if(c.want.k==="sell"){G.deal=c.deal;G.deal.cust=c;openM("sell");return}
   if(c.want.k==="lot"){makeLot(c);openM("lot");return}
   if(c.want.k==="trade"){TRD={c,mine:c.trade.mine,give:c.trade.give,say:pick(["¡Hola! ¿Me cambias esta carta? 🙏","Tengo una que te puede gustar…","¿Hacemos un cambio?"])};openM("trade");return}
   if(S.staff.cashier){pay(c);sfx.chaching();return}
   if(canHaggle(c))openHaggle(c);else openCheckout(c);
-}
-function updateCusts(dt){
-  for(const c of custs){
-    c.t+=dt;if(c.bt>0){c.bt-=dt;if(c.bt<=0)c.bub=null}
-    let tx=c.tx,ty=c.ty;
-    if(c.st==="toq"||c.st==="wait"){if(c.st==="toq"&&queue.indexOf(c)<0)queue.push(c);const p=qpos(c);tx=p.x;ty=p.y}
-    if(c.st==="leave"){if(c.ex==null){c.ex=358+(Math.random()<.5?-1:1)*(380+rnd(220));c.ey=588+rnd(18)}tx=c.ex;ty=c.ey}
-    if(c.st==="leave"&&!c.lv){c.lv=1;if(c.ex==null){c.ex=358+(Math.random()<.5?-1:1)*(380+rnd(220));c.ey=588+rnd(18)}routeTo(c,c.ex,c.ey)}
-    const wp=c.wps&&c.wps.length?c.wps[0]:null;if(wp){tx=wp.x;ty=wp.y}
-    if(c.st==="browse"){c.mv=false;c.bw-=dt;if(c.bw<=0)decide(c);continue}
-    const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),stp=c.sp*dt;
-    if(d>2){const k=Math.min(stp,d)/d;c.x+=dx*k;c.y+=dy*k;c.mv=true;c.ph+=dt*(c.run?24:c.type==="kid"?15:11);if(Math.abs(dx)>.5)c.face=dx>0?1:-1}else c.mv=false;
-    if(!c.waved&&c.st!=="leave"&&c.y<568&&c.y>540){c.waved=1;c.wave=1.3}if(c.wave>0)c.wave-=dt;
-    if(wp){if(d<=3)c.wps.shift();continue}
-    if(c.st==="in"&&d<=3){c.st="browse";c.bw=1.4+Math.random()*1.6}
-    if(c.st==="toq"&&d<=4)c.st="wait";
-    if(c.st==="wait"){
-      c.wt+=dt;
-      if(c.wt>c.pat){say(c,"😠");why("pat");leave(c,true)}
-      else if(front()===c&&c.hold&&S.staff.cashier){c.paid+=dt;if(c.paid>1.6){pay(c);sfx.coin()}}
-    }
-  }
-  custs=custs.filter(c=>{const g=c.st==="leave"&&c.ex!=null&&!(c.wps&&c.wps.length)&&Math.hypot(c.x-c.ex,c.y-c.ey)<4;if(g&&c.run)thiefGone(c);return !g});
-}
-function endDay(){
-  const rent=r05(RENT*DF().rent);S.money-=rent;
-  const sal=STAFF.reduce((a,x)=>a+(S.staff[x.k]?x.sal:0),0);S.money-=sal;
-  let tourInc=null;if(S.tour){const pl=8+rnd(10);tourInc=pl*5-40;S.money+=tourInc;S.repB+=2;track("tour")}
-  if(S.staff.cm)S.repB+=1;
-  Object.keys(S.prices).forEach(id=>step(S.prices[id],VOL[(BYID[id]||{}).r]||.5));
-  let news="";
-  if(Math.random()<.08&&SETS.length){
-    const sd=pick(SETS),up=Math.random()<.5,m=up?1.06+Math.random()*.1:.86+Math.random()*.08;
-    CARDS.forEach(c=>{if(c.s===sd.id&&["DR","IR","UR","SIR","HR"].includes(c.r))S.prices[c.id].p*=m});
-    news=up?`📰 Un torneo popular impulsa ${sd.n}: las cartas raras suben.`:`📰 Reimpresión anunciada de ${sd.n}: las cartas raras bajan.`;
-  }
-  refreshPacks();S.slots=S.slots.map(id=>id&&S.sealed[id]>0?id:null);assignSlots();
-  let loanPay=0;if(S.loan&&S.loan.left>0){loanPay=Math.min(S.loan.left,S.loan.daily);S.money-=loanPay;S.loan.left=r05(S.loan.left-loanPay)}
-  let mkN=0,mkInc=0;if(S.market&&S.market.day===S.day&&!S.market.res){S.market.res=1;const pr=accP(S.market.mk,.9,1.25)*.9;S.market.items.forEach(id=>{const it=S.items.find(i=>i.i===id);if(!it)return;it.res=false;if(Math.random()<pr){mkInc+=itemVal(it)*S.market.mk;mkN++;S.items.splice(S.items.indexOf(it),1)}});S.money+=mkInc}
-  if(S.myPromo&&S.myPromo.day===S.day&&S.rival&&S.rival.promo&&S.myPromo.s===S.rival.promo.s)S.rival.str=Math.max(0,S.rival.str-5);
-  const rivMsg=rivalUpd();
-  const st=S.stats;S.hist=(S.hist||[]).concat([{d:S.day,inc:Math.round(st.inc*100)/100,net:Math.round(netWorth()),cust:st.cust,lost:st.lost}]).slice(-60);
-  S.day++;
-  let grN=0,fkN=0;S.items.forEach(i=>{if(i.gq&&i.gq.due<=S.day){if(i.fk){delete i.gq;i.fkK=true;fkN++;return}i.gr=rollGrade(i.k);delete i.gq;S.grNew.push(i.i);grN++;if(i.gr===10)track("gem");if(i.gr>=9)track("gem9")}});
-  const nOrd=S.orders.length;S.orders=S.orders.filter(o=>o.due>=S.day);const exp=nOrd-S.orders.length;
-  let newOrd=false;if(S.orders.length<3&&Math.random()<.6){genOrder();newOrd=true}
-  let refund=0,refN=0;S.fkRet.forEach(x=>{if(Math.random()<.45){refund+=x.got;refN++;S.repB=Math.max(0,S.repB-3);loy(x.reg,-25,"Le vendiste una carta falsa")}});S.money-=refund;S.fkRet=[];
-  S.ev=null;S.tour=false;S.vipDone=false;
-  if(S.day%7===0&&S.sets.length)S.ev={t:"launch",s:pick(S.sets)};else{const r=Math.random();if(r<.12)S.ev={t:"rain"};else if(r<.22)S.ev={t:"vip"}}
-  genMissions();
-  S.lastWhy=st.why||{};S.lastTips=dedupTips(tipsList(st));
-  S.summary={loanPay,mkN,mkInc,rivMsg,rivNew:S.newsRival?(S.newsRival=0,1):0,day:S.day-1,inc:st.inc,cust:st.cust,lost:st.lost,bought:st.bought,rent,sal,tourInc,news,net:netWorth(),grN,newOrd,exp,fkN,refund,refN};
-  S.phase="closed";S.clock=0;S.stats={inc:0,cust:0,lost:0,bought:0};
-  checkAch();saveNow();VIS.dawn=1;openM("sum");sfx.print();hud();
 }
 
 /* ===================== DIBUJO (base) ===================== */
@@ -457,19 +341,6 @@ function drawPed(p){const o=p.out;o.skin=p.skin;o.mv=true;o.ph=p.ph;o.mood="neut
   if(S.ev&&S.ev.t==="rain"){cx.fillStyle=o.shirt;cx.beginPath();cx.arc(p.x,p.y-54,17,Math.PI,0);cx.fill();cx.strokeStyle="#222";cx.lineWidth=1.2;cx.beginPath();cx.moveTo(p.x,p.y-54);cx.lineTo(p.x,p.y-30);cx.stroke()}}
 function nightK(){if(VIS.endAt)return 1;if(S.phase==="closed"&&VIS.dawn>0)return VIS.dawn;return clamp((dayT()-.72)/.28,0,1)}
 /* ----- personajes ----- */
-const SHIRTS=["#4a90d9","#e3350d","#2fa557","#f2b705","#8e4cb5","#e07a2f","#1abc9c","#34495e","#d65fae","#95a5a6"],PANTS=["#2c3350","#3b3b3b","#5a4632","#1f3a5f","#6b6b6b"],HAIRC=["#2a1a0a","#6b3a1e","#c47a45","#111","#d9b36c","#8a8a8a"];
-function mkOutfit(type,R){
-  const o={shirt:pick(SHIRTS),pants:pick(PANTS),shoes:pick(["#141414","#f4f4f4","#7a3b1a"]),hair:pick(HAIRC),hs:rnd(5),sc:type==="kid"?.82:1,seed:Math.random()*4};
-  if(type==="kid"){o.hat=Math.random()<.5?"cap":null;o.hatc=pick(["#d9534f","#3f7fc4","#2fa557"]);o.acc=Math.random()<.6?"backpack":null;o.bp=pick(["#c0392b","#f2b705","#3f7fc4"]);o.logo=Math.random()<.5}
-  if(type==="investor"){o.shirt=pick(["#2d3142","#3d4257","#1f2233"]);o.suit=true;o.hs=0}
-  if(type==="whale"){o.chain=true;o.shades=Math.random()<.7;o.shirt=pick(["#d0a52a","#f5f5f5","#111"])}
-  if(type==="collector"){o.glasses=Math.random()<.5;o.acc=Math.random()<.35?"backpack":null;o.bp="#555"}
-  if(type==="seller"){o.shirt=pick(["#a25fb5","#555","#6b4527"]);o.hs=4}
-  if(type==="lot"){o.hs=3;o.hair="#cfcfcf";o.shirt="#8a5a2b";o.glasses=true}
-  if(R){o.shirt=R.col;o.hair=R.hair;({rafa:()=>{o.shades=true;o.hs=0},lucia:()=>{o.hs=2;o.glasses=true},iker:()=>{o.hat="cap";o.hatc="#3f7fc4";o.acc="backpack";o.bp="#f2b705"},marcos:()=>{o.suit=true;o.hs=0},aitana:()=>{o.hs=1;o.chain=true;o.shades=true},hugo:()=>{o.logo=true;o.acc="backpack";o.bp="#2f2f38"},paco:()=>{o.hs=3;o.glasses=true}}[R.id]||(()=>{}))()}
-  const se=season();if(!o.hat){if(se==="xmas"&&Math.random()<.35)o.hat="santa";if(se==="hallo"&&Math.random()<.25)o.hat="witch"}if(se==="summer"&&Math.random()<.35)o.shades=true;
-  return o;
-}
 function drawHair(o,hy){
   if(o.hat==="cap"){cx.fillStyle=o.hatc||"#d9534f";cx.beginPath();cx.arc(0,hy-1.5,8.7,Math.PI,0);cx.fill();rr(-1,hy-4.5,12.5,3,1.5);cx.fill();return}
   cx.fillStyle=o.hair;
@@ -608,7 +479,9 @@ function draw(){
 on("toast",(t,o)=>toast(t,o));on("sets",()=>{if(G.M==="sets")renderM()});
 on("hud",()=>hud());on("renderM",()=>renderM());on("openM",t=>openM(t));on("closeM",()=>closeM());
 on("sfx",(k,...a)=>sfx[k](...a));on("confetti",(...a)=>confetti(...a));
-on("medal",id=>(VIS.medQ=VIS.medQ||[]).push(id));
+on("medal",id=>(VIS.medQ=VIS.medQ||[]).push(id));on("vis",o=>Object.assign(VIS,o));
+on("fx",(...a)=>fx(...a));on("coinBurst",(...a)=>coinBurst(...a));on("heartsAt",(...a)=>heartsAt(...a));on("starsAt",(...a)=>starsAt(...a));
+on("shake",v=>shake(v));on("vibe",p=>vibe(p));on("tone",(...a)=>tone(...a));
 function toast(t,o){o=o||{};if(!o.nolog){VIS.notes=VIS.notes||[];VIS.notes.unshift({t,at:Date.now()});if(VIS.notes.length>40)VIS.notes.length=40;VIS.unread=(VIS.unread||0)+1;if(typeof updBadges==="function")updBadges()}
   const e=$("#toast");if(!e)return;const d=document.createElement("div");d.className="toast";d.innerHTML=t+(o.undo?' <button class="undo" data-a="undo">Deshacer</button>':"");if(o.undo)d.style.pointerEvents="auto";e.appendChild(d);while(e.children.length>2)e.firstChild.remove();setTimeout(()=>d.remove(),o.undo?7000:2600)}
 let paused=false;
@@ -639,7 +512,7 @@ function hud(){
 $("#act").addEventListener("click",()=>{
   if(G.M)return;if(paused){setPause(false);return}const f=front();
   if(f)return serveFront();
-  if(S.phase==="closed"){sfx.shutter();S.phase="open";S.clock=0;spawnT=1;S.burst=S.ev&&S.ev.t==="launch"?6:0;S.vipDone=false;
+  if(S.phase==="closed"){sfx.shutter();S.phase="open";S.clock=0;G.spawnT=1;S.burst=S.ev&&S.ev.t==="launch"?6:0;S.vipDone=false;
     {const lq=VIS.lq&&VIS.lq.day===S.day&&S.ev&&S.ev.t==="launch"?VIS.lq.p:null;if(lq){S.burst=0;VIS.lq=null;shake(5);tone(880,0,.25,"triangle",.05);tone(1175,.12,.3,"triangle",.05);lq.forEach((p,i)=>setTimeout(()=>{if(S.phase!=="open")return;spawn();const c=custs[custs.length-1];if(c){c.x=p.x;c.y=p.y;if(!c.reg){c.out=p.out;c.skin=p.skin}routeTo(c,c.st==="toq"?LAY.qx:c.tx,c.st==="toq"?LAY.qy+queue.length*LAY.qs:c.ty)}},250+i*260))}}S.stats={inc:0,cust:0,lost:0,bought:0};hud()}
 });
 
@@ -671,7 +544,7 @@ function renderM(){
   const isNew=prevM!==G.M;
   {const hk=HINT1[G.M];if(hk&&!(S.seen&&(S.seen[G.M]||S.seen.all))&&!(S.tut&&S.tut.on))body=`<div class="hint1"><img src="${guideImg()}" alt=""><div><b>Carla</b><p>${hk}</p></div><div style="display:flex;flex-direction:column;gap:4px"><button class="b pri" data-a="seen" data-k="${G.M}">¡Vale!</button><button class="b mini" data-a="seen" data-k="all">No más</button></div></div>`+body}
   const lock=G.M==="ck"||G.M==="hag"||G.M==="lot"||G.M==="sell"||G.M==="insp"||G.M==="trade"||G.M==="toffer";
-  $("#ovh").innerHTML=`<div class="ov${isNew?" in":""}"${lock?"":' data-a="close"'}><div class="sheet${G.M==="open"?" wide":""}${isNew?" in":""}"><div class="grab"></div><button class="xbtn" data-a="close" aria-label="Cerrar">✕</button>${body}<button class="b big" data-a="close">${G.M==="ck"?"Atender luego":G.M==="insp"?"Volver":G.M==="lot"&&!(LOT&&LOT.done)?"Rechazar y cerrar":"Cerrar"}</button></div></div>`;
+  $("#ovh").innerHTML=`<div class="ov${isNew?" in":""}"${lock?"":' data-a="close"'}><div class="sheet${G.M==="open"?" wide":""}${isNew?" in":""}"><div class="grab"></div><button class="xbtn" data-a="close" aria-label="Cerrar">✕</button>${body}<button class="b big" data-a="close">${G.M==="ck"?"Atender luego":G.M==="insp"?"Volver":G.M==="lot"&&!(G.LOT&&G.LOT.done)?"Rechazar y cerrar":"Cerrar"}</button></div></div>`;
   const nw=$("#ovh .sheet");if(nw&&sc)nw.scrollTop=sc;prevM=G.M;if(G.M==="insp")bindInsp();if(G.M==="album")bindAlbum();if(G.M==="card")bindCard();
 }
 function mPacks(){
@@ -739,7 +612,7 @@ function mUp(){
   return `<h2>Mejoras</h2>`+UPS.map(u=>{const lv=S.up[u.k],done=lv>=u.max,c=u.cost[lv];return `<div class="pn"><div class="row"><b>${u.n}${u.max>1?` (${lv}/${u.max})`:""}</b>${done?'<span class="up">Comprada</span>':`<button class="b pri" data-a="upg" data-k="${u.k}"${S.money<c?" disabled":""}>${fmt(c)}</button>`}</div><div class="mu">${u.d}</div></div>`}).join("")+`<h3>Decoración</h3>${dec}<h3>Personal</h3>${stf}<h3>Seguridad</h3><div class="pn row"><span>📹 Cámaras de seguridad<br><span class="mu">Menos robos y el ladrón corre más despacio.</span></span><button class="b pri" data-a="buycams"${S.cams||S.money<250?" disabled":""}>${S.cams?"Instaladas ✔":"250 €"}</button></div><h3>Ampliación</h3><div class="pn row"><span>🏗️ Comprar el local de al lado (la panadería)</span><button class="b pri" data-a="m" data-k="annex">${S.annex?"Hecho ✔":"Ver"}</button></div>`;
 }
 function mSell(){
-  const d=deal,mn=r05(d.val*.3),mx=r05(d.val*1.1);
+  const d=G.deal,mn=r05(d.val*.3),mx=r05(d.val*1.1);
   return `<h2>${d.reg?RG(d.reg).e+" "+RG(d.reg).n+" quiere venderte":"Un cliente quiere vender"}</h2><div class="pn" style="display:flex;gap:12px"><div style="width:120px;flex:none">${face(d.c,d.rv)}</div><div style="flex:1"><b>${d.c.name}</b> <span class="mu">${d.k}${d.rv?" · Reverse":""}</span><div class="mu">${RAR[d.c.r].n} · ${setName(d.c.s)}</div><div>Valor de mercado: <b>${fmt(d.val)}</b></div><div>Pide: <b>${fmt(d.ask)}</b></div>${d.msg?`<div style="margin-top:8px;background:var(--panel2);border-radius:8px;padding:8px">🗣️ ${d.msg}</div>`:""}</div></div>
   ${!d.chk&&d.val>=2?'<div class="pn" style="border-color:#f2b705"><b>🕵️ ¡Ojo!</b> Algunas cartas que te ofrecen son falsas. Pulsa <b>🔍 Examinar</b> antes de pagar.</div>':""}${(()=>{const r=d.ask/d.val,tr=chg(d.c.id,7);return `<div class="pn"><div><b>${r<=.7?"🟢 Chollo":r<=.9?"🟡 Precio razonable":"🔴 Caro para revender"}</b> · pide el ${Math.round(r*100)} % del valor de mercado</div><div class="mu">Tendencia 7 días: <span class="${cls(tr)}">${pct(tr)}</span>. Para ganar revendiendo, ofrece como mucho ${fmt(r05(d.val*.75))} (75 %).${d.val<1?" Es una carta de poco valor: no compensa comprarla.":""}</div></div>`})()}
   <div class="pn"><div class="row"><span>Tu oferta</span><b id="olab">${fmt(d.offer)}</b></div><input type="range" data-i="offer" min="${mn}" max="${mx}" step="0.05" value="${clamp(d.offer,mn,mx)}"><div class="mu">Si compras por debajo de mercado, luego lo vendes con margen.</div>
@@ -944,7 +817,7 @@ Object.assign(sfx,{
   ach:()=>{[784,988,1175,1568].forEach((f,i)=>tone(f,i*.08,.4,"triangle",.08))},
   sad:()=>{tone(392,0,.28,"triangle",.08);tone(370,.28,.28,"triangle",.08);tone(349,.56,.6,"triangle",.08)}
 });
-let MUSIC=(()=>{try{return localStorage.getItem("pcs-music")==="1"}catch(e){return false}})(),musT=null,musN=0,musAt=0,bellT=0;
+let MUSIC=(()=>{try{return localStorage.getItem("pcs-music")==="1"}catch(e){return false}})(),musT=null,musN=0,musAt=0;
 function musicTick(){
   if(!MUSIC||paused||document.hidden)return;const a=ac();if(!a||a.state!=="running")return;
   const now=a.currentTime;if(musAt<now)musAt=now+.05;
@@ -999,11 +872,6 @@ function drawEvBanner(){const t=evShort();if(!t)return;cx.font="700 13px system-
 
 /* ----- caja: efectivo con cambio y TPV ----- */
 let CK=null;
-function payWith(tc){
-  if(Math.random()<.15)return tc;
-  const cands=[500,1000,2000,5000,10000].map(u=>Math.ceil(tc/u)*u).filter((v,i,a)=>v>=tc&&a.indexOf(v)===i&&v-tc<10000).sort((a,b)=>a-b);
-  const w=[6,3,1.4,.6,.3],o={};cands.forEach((v,i)=>o[i]=w[i]||.2);return cands[+wpick(o)];
-}
 function openCheckout(c){
   const tc=Math.round(c.hold.total*100),card=Math.random()<(c.type==="whale"?.7:c.type==="kid"?.12:c.type==="investor"?.6:.42);
   CK={c,tc,m:card?"card":"cash",given:[],typed:"",st:"pay",msg:""};
@@ -1036,7 +904,6 @@ function finishCK(recv){const c=CK.c;CK=null;closeM();pay(c,recv);sfx.chaching()
 
 /* ----- regateo al vender ----- */
 let HG=null;
-function canHaggle(c){return c.hold.k==="single"&&c.hold.total>=5&&!c.hg&&Math.random()<({investor:.6,collector:.4,whale:.2,kid:.3}[c.type]||.3)}
 function openHaggle(c){c.hg=true;const full=r05(c.hold.total),offer=r05(full*(.74+Math.random()*.14));HG={c,full,offer,max:offer+(full-offer)*(.3+Math.random()*.7),x:r05((offer+full)/2),tries:0,msg:`¿Me la dejas en ${fmt(offer)}?`};openM("hag")}
 function mHag(){
   const h=HG,it=h.c.hold.it,cd=BYID[it.c];
@@ -1047,19 +914,9 @@ function mHag(){
 function dealHg(v){const c=HG.c;c.hold.total=v;HG=null;openCheckout(c)}
 
 /* ----- lotes misteriosos ----- */
-let LOT=null;
-function makeLot(c){
-  const n=40+rnd(220),cards=[],W8={C:52,U:26,R:11,DR:6,IR:2.2,UR:1.2,SIR:.9,HR:.7};
-  const pools={};Object.keys(W8).forEach(r=>pools[r]=(BYR[r]||[]).filter(x=>S.sets.includes(x.s)));
-  for(let i=0;i<n;i++){let r=wpick(W8);if(!pools[r].length)r="C";const l=pools[r].length?pools[r]:CARDS,cd=pick(l),k=wpick({NM:45,LP:38,MP:17}),rv=(r==="C"||r==="U"||r==="R")&&Math.random()<.15;cards.push({c:cd,k,rv,v:price(cd.id)*(rv?rvr(cd):1)*COND[k]})}
-  const v=cards.reduce((a,x)=>a+x.v,0),ask=Math.max(5,r05(v*(.5+Math.random()*.8)));
-  LOT={c,n,cards,v,ask,floor:r05(ask*(.72+Math.random()*.18)),rev:[],expert:false,lo:v*(.35+Math.random()*.3),hi:v*(1.35+Math.random()*.8),tries:0,msg:"",offer:ask,done:false,counter:0,free:!!S.staff.appraiser};
-}
-function lotEst(){const L=LOT;if(L.expert)return [L.v,L.v];if(!L.rev.length)return [L.lo,L.hi];const k=L.rev.length,m=L.rev.reduce((a,i)=>a+L.cards[i].v,0)/k,e=m*L.n,b=clamp(1.3/Math.sqrt(k)*(S.staff.appraiser?.5:1),.08,.9);return [e*(1-b),e*(1+b)]}
-function lotReview(k){const L=LOT,rest=L.cards.map((_,i)=>i).filter(i=>!L.rev.includes(i));for(let j=0;j<k&&rest.length;j++)L.rev.push(rest.splice(rnd(rest.length),1)[0])}
-const expCost=()=>Math.max(20,r05(LOT.ask*.08));
+
 function mLot(){
-  const L=LOT;
+  const L=G.LOT;
   if(L.done){const d=L.v-L.paid,top=L.cards.slice().sort((a,b)=>b.v-a.v).slice(0,9);
     return `<h2>¡Lote comprado!</h2><div class="pn"><div>Has pagado <b>${fmt(L.paid)}</b> por ${L.n} cartas.</div><div class="est">Valor real: <b>${fmt(L.v)}</b> <span class="${cls(d)}">(${d>=0?"+":""}${fmt(d)})</span></div><div class="mu">${d>L.paid*.5?"¡Menudo chollo! 🤑":d>=0?"Buen negocio 👍":"Vaya, te la han colado 😅"}</div></div><h3>Lo mejor del lote</h3><div class="tiles">${top.map(x=>`<div class="tile zoomable" data-a="zoom" data-k="${x.c.id}" data-n="${x.rv?1:0}">${face(x.c,x.rv)}<div class="pt">${fmt(x.v)}</div></div>`).join("")}</div><p class="mu">Las cartas ya están en tu colección.</p>`}
   const [lo,hi]=lotEst(),rv=L.rev.map(i=>L.cards[i]).sort((a,b)=>b.v-a.v),mn=r05(L.ask*.4);
@@ -1071,12 +928,6 @@ function mLot(){
   <div class="pn"><div class="row"><span>Tu oferta</span><b id="lotlab">${fmt(L.offer)}</b></div><input type="range" data-i="lotx" min="${mn}" max="${L.ask}" step="0.05" value="${clamp(L.offer,mn,L.ask)}">
   <div class="btns"><button class="b pri" data-a="lotbuy"${S.money<L.ask?" disabled":""}>Comprar por ${fmt(L.ask)}</button><button class="b" data-a="lotoff">Ofrecer</button>${L.counter?`<button class="b pri" data-a="lotcnt"${S.money<L.counter?" disabled":""}>Cerrar por ${fmt(L.counter)}</button>`:""}<button class="b" data-a="lotno">Rechazar</button></div></div>`;
 }
-function lotBuy(p){
-  const L=LOT;if(S.money<p){toast("No tienes dinero suficiente");return}
-  S.money-=p;const each=p/L.n;L.cards.forEach(x=>{S.items.push({i:S.nid++,c:x.c.id,k:x.k,rv:x.rv,cost:each,case:null,res:false});S.dex[x.c.id]=1});
-  L.done=true;L.paid=p;sfx.chaching();if(L.v-p>p*.5)shake(6);track("lot");hud();renderM();
-}
-function endLot(){const L=LOT;if(!L)return;const c=L.c;LOT=null;if(c){const qi=queue.indexOf(c);if(qi>=0)queue.splice(qi,1);c.hold=null;say(c,L.done?"❤️":"👋");c.st="leave";if(L.done)S.sales++}}
 
 /* ----- revelación de gradeo ----- */
 let GR=null;
@@ -1141,11 +992,10 @@ function importData(txt){
   if(!ns||typeof ns.money!=="number"||!Array.isArray(ns.items)){toast("⚠️ Ese archivo o código no es una partida válida");return}
   if(!confirm(`¿Cargar la partida del día ${ns.day} con ${fmt(ns.money)}? Se sustituirá la actual.`))return;
   toast("Cargando partida…");
-  loadSetsFor(ns.sets).then(()=>{replaceState(ns);S.phase="closed";S.clock=0;custs=[];queue=[];ensure();saveNow();closeM();hud();toast("✅ Partida cargada")});
+  loadSetsFor(ns.sets).then(()=>{replaceState(ns);S.phase="closed";S.clock=0;custs.length=0;queue.length=0;ensure();saveNow();closeM();hud();toast("✅ Partida cargada")});
 }
 
 /* ===================== V6: PRODUCTOS, HABITUALES Y FALSIFICACIONES ===================== */
-function pickProd(type){const pf=PPREF[type]||{acc:1},w={};Object.keys(S.prod).forEach(pid=>{if(pStock(pid)<1)return;const i=pInfo(pid);if(!i)return;const v=pf[i.t]||0;if(v)w[pid]=v});return Object.keys(w).length?wpick(w):null}
 let pTab="packs";
 let pF="all";
 function packTabs(){return `${S.deliv&&S.deliv.length?`<div class="pn">🚚 En camino: ${delivSummary()}</div>`:""}<div class="row" style="margin-bottom:8px"><span class="mu">Entrega: ${S.express?"⚡ al momento (+8 %)":"🚚 furgoneta gratis (tarda unos segundos)"}</span><button class="b" data-a="exptog">Cambiar</button></div><div class="tabs">${[["packs","🎴 Sobres"],["sealed","🗃️ Sellado"],["acc","🛡️ Accesorios"]].map(([k,n])=>`<button class="b ${pTab===k?"on":""}" data-a="ptab" data-k="${k}">${n}</button>`).join("")}</div><button class="b pri" data-a="recall" style="width:100%;margin:2px 0 8px">🎯 Poner todo a precio recomendado</button><div class="chips">${[["all","Todos"],["stock","Con stock"]].concat(pTab==="packs"?[["shelf","En estanterías"]]:[]).map(([k,n])=>`<button class="b ${pF===k?"on":""}" data-a="pfilt" data-k="${k}">${n}</button>`).join("")}</div>`}
@@ -1155,12 +1005,6 @@ function prodRow(pid){
 }
 
 /* ----- clientes habituales ----- */
-function loy(id,d,note){if(!id)return;const r=regS(id);r.loy=clamp(r.loy+d,0,100);if(note)r.note=note;if(d>0){const c=custs.find(x=>x.reg===id);if(c)heartsAt(c.x,c.y-54,Math.min(4,Math.ceil(d/3)))}}
-function pickReg(){
-  const here=new Set(custs.map(c=>c.reg).filter(Boolean)),w={};
-  REGS.forEach(r=>{if(here.has(r.id))return;const s=regS(r.id);if(s.loy<5)return;if(r.t==="lot"&&(S.day<2||custs.some(c=>c.type==="lot")))return;w[r.id]=.5+s.loy/50});
-  return Object.keys(w).length?wpick(w):null;
-}
 function mRegs(){
   return REGS.map(r=>{const s=regS(r.id);return `<div class="pn" style="display:flex;gap:10px;align-items:center${s.met?"":";opacity:.6"}">${s.met?`<img class="rgimg" src="${regImg(r.id)}" alt="">`:'<div style="font-size:34px">❔</div>'}<div style="flex:1;min-width:0"><div class="row"><b>${s.met?r.n:"Aún no le conoces"}</b><span style="font-size:12px">${s.met?hearts(s.loy):""}</span></div>${s.met?`<div class="mu">${r.d}${(r.t==="kid"||r.t==="whale")&&s.fav?" Favorito: "+setName(s.fav)+".":""} Visitas: ${s.visits}.</div>${s.note?`<div class="mu">📝 ${s.note}</div>`:""}`:""}</div></div>`}).join("")
   +'<p class="mu">Trátales bien (rápido, buen precio, cambio exacto, encargos) y volverán más, aceptarán precios algo más altos, dejarán propina y traerán amigos. Si se enfadan, dejarán de venir.</p>';
@@ -1607,7 +1451,6 @@ function mMG(){
   if(m.k==="end")return `<h2>${m.title}</h2><div class="pn" style="text-align:center"><div style="font-size:60px">${m.win?"🏆":"🙂"}</div><b style="font-family:var(--fd);font-size:22px">${m.res}</b><div class="mu">${m.rewTxt}</div></div><div class="btns"><button class="b pri big" data-a="mgstart" data-k="${m.again}">Jugar otra vez</button><button class="b big" data-a="m" data-k="games">Otros minijuegos</button></div>`;
 }
 /* ----- historia con Carla ----- */
-function storyTick(){if(!hasState()||(S.tut&&S.tut.on))return;const st=story(),c=CHAP[st.ch];if(!c)return;const p=chapProg();if(p.every(x=>x.v>=x.g)&&!G.M&&!front()){S.money+=c.r;S.repB+=1;st.done=st.ch;st.ch++;st.intro=false;const n=CHAP[st.ch];if(n)n.g.forEach(([,k])=>st.base[k]=chapVal(k));openM("story")}}
 function mStory(){const st=story(),prev=CHAP[st.done],cur=CHAP[st.ch],p=chapProg();
   const prevBox=prev&&!st.seenEnd?`<div class="pn"><b>✅ Capítulo completado: ${prev.t}</b><p>${prev.e}</p><div class="up">+${fmt(prev.r)} · +1 ⭐</div></div>`:"";st.seenEnd=true;
   return retoTabs("story")+`<div class="cust"><img src="${guideImg()}" alt="" style="width:60px;height:76px;border-radius:12px;background:#ffe9a8"><div class="sp">${cur?cur.i:"¡Has completado toda la historia! Eres una leyenda."}</div></div>${prevBox}
@@ -1708,14 +1551,12 @@ function updVCars(dt){
 }
 function drawVCar(c){cx.save();cx.translate(c.x,c.y);cx.rotate(c.dir>0?Math.PI/2:-Math.PI/2);drawCar(Object.assign({},c,{x:0,y:0,dir:1,bike:false,bus:false}));cx.restore()}
 /* ----- mercadillo ----- */
-const marketDay=()=>S.day%7===3;
 function drawMarket(){if(!marketDay())return;const t=performance.now()/1000;[[420,770],[500,770],[660,770],[740,770],[440,930],[720,930]].forEach(([x,y],i)=>{const mine=i===0&&S.market&&S.market.day===S.day;
   cx.fillStyle="rgba(0,0,0,.2)";cx.fillRect(x+3,y+3,58,24);cx.fillStyle="#8a5a33";cx.fillRect(x,y,58,22);cx.fillStyle="#f4f4f4";for(let k=0;k<4;k++)cx.fillRect(x+4+k*14,y+5,10,13);
   for(let k=0;k<58;k+=10){cx.fillStyle=(k/10)%2?(mine?"#f2b705":["#e3350d","#3f7fc4","#2fa557","#8e4cb5","#e07a2f","#1abc9c"][i]):"#fff";cx.fillRect(x+k,y-14,10,10)}
   if(mine)txt("TU PUESTO",x+29,y-17,7,"#2a2000","center")});
   for(let i=0;i<8;i++){const o=VIS["mk"+i]||(VIS["mk"+i]=mkOutfit(pick(["kid","collector","whale","investor"]),null));o.skin=["#f2c9a0","#a9714b","#e0a878"][i%3];o.mv=true;o.ph=t*9+i;o.mood="happy";o.face=Math.cos(t*.4+i)>0?1:-1;o.arm=null;o.bag=i%3===0;o.phone=false;o.sc=1;
     drawPerson(420+(i*53+Math.sin(t*.4+i)*60+400)%360,820+((i*29)%90)+Math.sin(t*.5+i)*8,o)}}
-function mkMarketLots(){if(VIS.mlots&&VIS.mlots.day===S.day)return VIS.mlots.l;const l=[0,1,2].map(()=>{makeLot(null);const L=LOT;L.n=Math.min(L.n,30+rnd(30));L.cards=L.cards.slice(0,L.n);L.v=L.cards.reduce((a,x)=>a+x.v,0);L.ask=Math.max(5,r05(L.v*(.45+Math.random()*.35)));L.floor=r05(L.ask*.85);L.lo=L.v*.5;L.hi=L.v*1.6;L.offer=L.ask;return L});LOT=null;VIS.mlots={day:S.day,l};return l}
 
 /* ----- ampliación ----- */
 function drawAnnex(){
@@ -1738,8 +1579,6 @@ function mRival(){const R=S.rival;if(!R||(!R.on&&!R.closed))return `<h2>🏪 Loc
   ${rows?`<table class="tb"><tr class="mu"><td>Sobres</td><td>Tú</td><td>Ellos</td></tr>${rows}</table>`:""}
   <div class="pn"><b>Cómo ganarles</b><div class="tip">💸 Pon tus sobres más baratos que ellos: cada día que les ganas en precio pierden fuerza.</div><div class="tip">⭐ Sube tu reputación (encargos, torneos, álbum).</div><div class="tip">📣 Haz una oferta del día (−15 %) en el set de su promoción para robársela.</div></div>
   <div class="btns">${shown.map(sd=>`<button class="b" data-a="mypromo" data-k="${sd.id}"${pr?" disabled":""}>📣 Oferta en ${sd.n}</button>`).join("")}</div>${pr?`<p class="up">Oferta de hoy: −15 % en ${setName(S.myPromo.s)}</p>`:""}`}
-const mkCand=()=>S.items.filter(i=>i.case==null&&!i.res&&!i.gq&&!i.fkK&&!i.lux&&!i.fav&&itemVal(i)>=.5).sort((a,b)=>itemVal(b)-itemVal(a)).slice(0,24);
-const nextMarket=()=>{let d=S.day;while(d%7!==3)d++;return d};
 function mMarket(){if(!marketDay())return `<h2>⛲ La plaza</h2><div class="pn">Cada semana hay mercadillo de cartas en la plaza. El próximo es el <b>día ${nextMarket()}</b>.</div>`;
   const mk=S.market&&S.market.day===S.day?S.market:null,lots=mkMarketLots(),sel=VIS.mksel||[];
   return `<h2>🧺 Mercadillo de la plaza</h2>${mk?`<div class="pn"><b>Tu puesto está montado</b><div class="mu">Llevas ${mk.items.length} carta(s) al ${Math.round(mk.mk*100)} % del mercado. Se venden a lo largo del día; el resultado sale en el ticket.</div></div>`:`<div class="pn"><b>Monta tu puesto (20 €)</b><div class="mu">Elige hasta 12 cartas guardadas (no las de la vitrina) y su precio.</div><div class="btns">${[1,1.1,1.2].map(m=>`<button class="b ${(VIS.mkm||1.1)===m?"on":""}" data-a="mkm" data-n="${m}">${Math.round(m*100)} %</button>`).join("")}</div><div class="tiles" style="margin-top:8px">${mkCand().map(it=>`<div class="tile${sel.includes(it.i)?" sel":""}" data-a="mksel" data-n="${it.i}">${face(BYID[it.c],it.rv)}<div class="pt">${fmt(itemVal(it))}</div></div>`).join("")||'<p class="mu">No tienes cartas guardadas de más de 0,50 €.</p>'}</div><button class="b pri big" data-a="mkgo"${!sel.length||S.money<20?" disabled":""}>Montar puesto con ${sel.length} carta(s) · 20 €</button></div>`}
@@ -1838,17 +1677,6 @@ function applyUI(){const u=(hasState()&&S.ui)||{};document.documentElement.class
 /* ===================== V20: FAVORITAS Y LADRONES ===================== */
 function favBanner(){return `<div class="pn favhd"><b>❤️ Tu colección personal</b><div class="mu">Aquí guardas tus cartas favoritas. Están protegidas: no se venden, no van a la vitrina y no se usan en intercambios ni encargos.</div></div>`}
 /* ----- ladrón ----- */
-const theftOK=()=>DF().theft>0&&S.phase==="open"&&S.day>=3&&S.theftDay!==S.day&&!(S.tut&&S.tut.on)&&caseItems().filter(i=>!i.fav).length>=2;
-function makeThief(c){c.thief=true;S.theftDay=S.day;c.out=Object.assign(mkOutfit("collector",null),{shirt:"#2b2f38",pants:"#1d2030",hat:"cap",hatc:"#111",bp:null,acc:null});c.want={k:"single"};const p=caseSpot();c.tx=p.x;c.ty=p.y}
-function startTheft(c){
-  const it=caseItems().filter(i=>!i.fav&&!i.res).sort((a,b)=>itemVal(b)*b.case-itemVal(a)*a.case)[0];if(!it){c.thief=false;return leave(c,false)}
-  S.items.splice(S.items.indexOf(it),1);c.loot=it;c.run=true;c.sp=S.cams?115:150;c.st="leave";c.lv=0;c.ex=358+(Math.random()<.5?-1:1)*(560+rnd(120));c.ey=596;
-  say(c,"💨");VIS.alarmT=performance.now()+3200;sfx.alarm();vibe([120,60,120]);
-  toast(`🚨 ¡Un ladrón se lleva ${BYID[it.c].name}! Tócalo antes de que escape`,{nolog:1});
-}
-function catchThief(c){c.caught=true;S.lt.thCaught=(S.lt.thCaught||0)+1;c.run=false;c.sp=38;VIS.alarmT=0;const it=c.loot;c.loot=null;if(it)S.items.push(it);say(c,"😳");S.repB+=2;track("caught");starsAt(c.x,c.y-30,14);sfx.ach();vibe(40);
-  toast(`👮 ¡Pillado! Recuperas ${it?BYID[it.c].name:"la carta"} · +2 ⭐`);hud()}
-function thiefGone(c){if(c.caught||!c.loot)return;S.lt.thLost=(S.lt.thLost||0)+1;VIS.alarmT=0;why("thief");toast(`😞 El ladrón escapó con ${BYID[c.loot.c].name} (${fmt(itemVal(c.loot)*(c.loot.case||1))})`);sfx.err()}
 function drawThiefFx(c){if(!c.run||c.caught)return;const t=performance.now()/1000,d=c.face||1;
   for(let i=0;i<4;i++){const k=((t*4+i/4)%1);cx.fillStyle=`rgba(200,200,200,${.45*(1-k)})`;cx.beginPath();cx.arc(c.x-d*(10+k*26),c.y-2-k*6,3+k*5,0,7);cx.fill()}
   cx.save();cx.translate(c.x+d*9,c.y-34);cx.rotate(d*.3);cx.fillStyle="#fff";cx.fillRect(-5,-7,10,14);cx.fillStyle="#f2b705";cx.fillRect(-4,-6,8,12);cx.restore();
@@ -1883,8 +1711,8 @@ function drawTrophy(){
 function mTrophy(){const l=trophies(),tv=l.reduce((a,i)=>a+itemVal(i),0);
   return `<h2>🏆 Sala de trofeos</h2><div class="pn favhd"><div class="row"><span>${l.length} carta(s) · valor ${fmt(tv)}</span><b>+${trophyRep()} ⭐</b></div><div class="mu">Tus favoritas se exponen aquí. Los clientes vienen a admirarlas (${S.admire||0} visitas) y te dan reputación. Las 6 más valiosas se ven en la vitrina de la tienda.</div></div>
   ${l.length?`<div class="tiles">${l.map(it=>`<div class="tile" data-a="sel" data-k="${gk(it)}" style="outline:2px solid #c9a227;outline-offset:-1px">${face(BYID[it.c],it.rv)}<div class="pt">${fmt(itemVal(it))}</div><div class="fvb">❤️</div></div>`).join("")}</div>`:'<p class="mu">Aún no tienes favoritas. Abre una carta en Cartas y pulsa «❤️ Guardar en favoritas».</p>'}`}
-let TOF=null;
-function mTOffer(){const t=TOF,c=BYID[t.it.c];return `<h2>🤩 ¡Quieren tu trofeo!</h2><div class="cust"><div class="av">🧐</div><div class="sp">¡Me encanta tu ${c.name}! Te doy ${fmt(t.price)} por ella.</div></div><div class="trd" style="grid-template-columns:1fr"><div>${face(c,t.it.rv)}<b>Valor de mercado: ${fmt(itemVal(t.it))}</b></div></div><div class="pn"><b>Te ofrecen el ${Math.round(t.price/itemVal(t.it)*100)} % de su valor.</b><div class="mu">Es una de tus favoritas: tú decides si la vendes.</div></div><div class="btns"><button class="b go big" data-a="tofok">💰 Vender por ${fmt(t.price)}</button><button class="b big" data-a="tofno">❤️ Me la quedo</button></div>`}
+
+function mTOffer(){const t=G.TOF,c=BYID[t.it.c];return `<h2>🤩 ¡Quieren tu trofeo!</h2><div class="cust"><div class="av">🧐</div><div class="sp">¡Me encanta tu ${c.name}! Te doy ${fmt(t.price)} por ella.</div></div><div class="trd" style="grid-template-columns:1fr"><div>${face(c,t.it.rv)}<b>Valor de mercado: ${fmt(itemVal(t.it))}</b></div></div><div class="pn"><b>Te ofrecen el ${Math.round(t.price/itemVal(t.it)*100)} % de su valor.</b><div class="mu">Es una de tus favoritas: tú decides si la vendes.</div></div><div class="btns"><button class="b go big" data-a="tofok">💰 Vender por ${fmt(t.price)}</button><button class="b big" data-a="tofno">❤️ Me la quedo</button></div>`}
 /* ----- estadísticas ----- */
 function svgLine(vals,col){if(vals.length<2)return '<p class="mu">Juega un par de días para ver la gráfica.</p>';const w=320,h=110,p=6,mx=Math.max(...vals),mn=Math.min(...vals),X=i=>p+i*(w-2*p)/(vals.length-1),Y=v=>h-p-(v-mn)/((mx-mn)||1)*(h-2*p);
   const d=vals.map((v,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)).join("");return `<svg viewBox="0 0 ${w} ${h}" class="chart" role="img"><path d="${d}L${X(vals.length-1)} ${h-p}L${X(0)} ${h-p}Z" fill="${col}2a"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(vals.length-1)}" cy="${Y(vals[vals.length-1])}" r="4" fill="${col}"/></svg>`}
@@ -1902,18 +1730,10 @@ function mStats(){const L=S.lt||{},H=(S.hist||[]).slice(-30),days=H.map(x=>x.d);
   ${bp?`<h3>Mejor carta sacada de un sobre</h3><div class="pn" style="display:flex;gap:12px;align-items:center"><div style="width:84px;flex:none">${face(bp,false)}</div><div><b>${bp.name}</b><div class="mu">${RAR[bp.r].n} · ${setName(bp.s)}</div><div class="up" style="font-family:var(--fd);font-size:20px">${fmt(L.bestPull)}</div></div></div>`:""}`}
 
 /* ===================== ACCIONES ===================== */
-function closeDeal(c,angry){if(c)leave(c,angry);deal=null;closeM()}
-function finishDeal(p){
-  if(S.money<p){toast("No tienes dinero suficiente");return}
-  const d=deal;S.money-=p;S.stats.bought++;
-  S.items.push({i:S.nid++,c:d.c.id,k:d.k,rv:d.rv,cost:p,case:null,res:false,fk:d.fake||undefined});S.dex[d.c.id]=1;loy(d.reg,3);track("buycard");if(p<=d.val*.75&&d.val>=1)track("goodbuy");
-  toast(`Comprada ${d.c.name} por ${fmt(p)}`);
-  const c=d.cust;c.hold=null;say(c,"❤️");queue.splice(queue.indexOf(c),1);c.st="leave";S.sales++;deal=null;closeM();
-}
 const grpItems=()=>S.items.filter(i=>gk(i)===collSel);
 const A={
   m:d=>openM(d.k),
-  close:()=>{if(G.M==="toffer"){A.tofno();return}if(G.M==="card"&&!(S.tut&&S.tut.on)){openM("coll");return}if(G.M==="trade"){A.tradeno();return}if(G.M==="mg")G.MG=null;if(G.M==="insp"){const src=INSP&&INSP.src;INSP=null;openM(src==="deal"&&deal?"sell":"coll");return}if(G.M==="sell"&&deal){closeDeal(deal.cust,false);return}if(G.M==="lot"){endLot();closeM();return}if(G.M==="ck")CK=null;if(G.M==="hag")HG=null;closeM()},
+  close:()=>{if(G.M==="toffer"){A.tofno();return}if(G.M==="card"&&!(S.tut&&S.tut.on)){openM("coll");return}if(G.M==="trade"){A.tradeno();return}if(G.M==="mg")G.MG=null;if(G.M==="insp"){const src=INSP&&INSP.src;INSP=null;openM(src==="deal"&&G.deal?"sell":"coll");return}if(G.M==="sell"&&G.deal){closeDeal(G.deal.cust,false);return}if(G.M==="lot"){endLot();closeM();return}if(G.M==="ck")CK=null;if(G.M==="hag")HG=null;closeM()},
   ptab:d=>{pTab=d.k;if(pTab!=="packs"&&pF==="shelf")pF="stock";renderM()},
   pfilt:d=>{pF=d.k;renderM()},
   recp:d=>{S.shelf[d.k]=recPack(d.k);sfx.coin();renderM()},
@@ -1922,13 +1742,13 @@ const A={
   pp:d=>{S.pp[d.k]=Math.max(.25,Math.round((pPrice(d.k)+ +d.n)*100)/100);renderM()},
   buyprod:d=>{const i=pInfo(d.k),n=+d.n,c=i.w*n*(S.express?1.08:1);if(S.money<c){toast("No tienes dinero suficiente");return}S.money-=c;if(S.express){S.prod[d.k]=pStock(d.k)+n;S.prodSeen=true}else{(S.deliv=S.deliv||[]).push({prod:{[d.k]:n}});toast("🚚 Pedido en camino: llega en la furgoneta")}sfx.coin();hud();renderM()},
   openprod:d=>{const i=pInfo(d.k);if(!i||pStock(d.k)<1)return;S.prod[d.k]--;S.sealed[i.s]+=i.packs;assignSlots();saveNow();hud();if(i.t==="box")track("boxopen");BOXO={i};openM("boxo")},
-  inspd:()=>{const d=deal;d.tells=d.tells||mkTells(d.fake);d.wt=d.wt||mkWt(d.fake,d.tells);INSP={c:d.c,rv:d.rv,fake:!!d.fake,src:"deal",tells:d.tells,wt:d.wt,mode:"lens"};openM("insp")},
+  inspd:()=>{const d=G.deal;d.tells=d.tells||mkTells(d.fake);d.wt=d.wt||mkWt(d.fake,d.tells);INSP={c:d.c,rv:d.rv,fake:!!d.fake,src:"deal",tells:d.tells,wt:d.wt,mode:"lens"};openM("insp")},
   inspc:()=>{const l=grpItems().filter(i=>!i.res&&!i.gq&&!i.fkK),it=l.find(i=>i.fk)||l[0];if(!it)return;it.tl=it.tl||mkTells(!!it.fk);it.wg=it.wg||mkWt(!!it.fk,it.tl);INSP={c:BYID[it.c],rv:it.rv,fake:!!it.fk,src:"coll",item:it.i,tells:it.tl,wt:it.wg,mode:"lens"};openM("insp")},
   imode:d=>{INSP.mode=d.k;sfx.flip();renderM()},
-  iok:()=>{const src=INSP.src;INSP=null;if(src==="deal"){deal.chk=true;openM("sell")}else openM("coll")},
+  iok:()=>{const src=INSP.src;INSP=null;if(src==="deal"){G.deal.chk=true;openM("sell")}else openM("coll")},
   ifake:()=>{
     const I=INSP;INSP=null;
-    if(I.src==="deal"){const d=deal;
+    if(I.src==="deal"){const d=G.deal;
       if(d.fake){S.repB+=1;track("caught");toast("🕵️ ¡Bien visto! Era falsa · +1 ⭐");sfx.ach();loy(d.reg,-5,"Le pillaste intentando colarte una falsa");closeDeal(d.cust,false)}
       else{toast("😬 Era auténtica. Se ha ido ofendido");sfx.err();loy(d.reg,-10,"Le acusaste de vender una falsa (era buena)");closeDeal(d.cust,true)}
       return}
@@ -1968,7 +1788,7 @@ const A={
   mkm:d=>{VIS.mkm=+d.n;renderM()},
   mksel:d=>{const s=VIS.mksel=VIS.mksel||[],n=+d.n,i=s.indexOf(n);if(i>=0)s.splice(i,1);else if(s.length<12)s.push(n);renderM()},
   mkgo:()=>{const sel=VIS.mksel||[];if(!sel.length||S.money<20)return;S.money-=20;S.market={day:S.day,items:sel.slice(),mk:VIS.mkm||1.1};sel.forEach(id=>{const it=S.items.find(i=>i.i===id);if(it)it.res=true});VIS.mksel=[];toast("🧺 ¡Puesto montado en la plaza!");sfx.coin();hud();renderM()},
-  mklot:d=>{const L=mkMarketLots()[+d.n];if(!L||L.done)return;LOT=L;openM("lot")},
+  mklot:d=>{const L=mkMarketLots()[+d.n];if(!L||L.done)return;G.LOT=L;openM("lot")},
   nav:d=>{const k=d.k;if(k==="home"){if(G.M)closeM();VIEW.mode="auto";VIEW.user=0;return}openM(k==="retos"?(VIS.lastReto||"tasks"):k==="coll"?(VIS.lastCards||"coll"):k)},
   csort:d=>{cSort=d.k;renderM()},
   cmore:()=>{VIS.cMore=!VIS.cMore;renderM()},
@@ -1988,15 +1808,15 @@ const A={
   diffset:d=>{S.diff=d.k;toast(`🎚️ Dificultad: ${DF().n}`);renderM();hud()},
   perf:()=>{const o=["auto","hi","lo"],c=(S.ui&&S.ui.perf)||"auto";S.ui=Object.assign({},S.ui,{perf:o[(o.indexOf(c)+1)%3]});if(S.ui.perf!=="auto")VIS.autoLite=false;fitCanvas();renderM()},
   fpstog:()=>{S.ui=Object.assign({},S.ui,{fps:!(S.ui&&S.ui.fps)});renderM()},
-  tofok:()=>{const t=TOF;if(!t)return;const i=S.items.indexOf(t.it);if(i>=0){S.items.splice(i,1);S.money+=t.price;track("earn",t.price);toast(`💰 Vendiste tu trofeo ${BYID[t.it.c].name} por ${fmt(t.price)}`);sfx.chaching()}TOF=null;closeM();hud()},
-  tofno:()=>{if(TOF){say(TOF.c,"😢 ¡Vaya!");S.repB+=0}TOF=null;closeM();toast("❤️ Te quedas tu trofeo")},
+  tofok:()=>{const t=G.TOF;if(!t)return;const i=S.items.indexOf(t.it);if(i>=0){S.items.splice(i,1);S.money+=t.price;track("earn",t.price);toast(`💰 Vendiste tu trofeo ${BYID[t.it.c].name} por ${fmt(t.price)}`);sfx.chaching()}G.TOF=null;closeM();hud()},
+  tofno:()=>{if(G.TOF){say(G.TOF.c,"😢 ¡Vaya!");S.repB+=0}G.TOF=null;closeM();toast("❤️ Te quedas tu trofeo")},
   savebtn:()=>{const ok=saveNow();if(ok){toast("💾 Partida guardada · "+new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}));sfx.coin()}if(G.M==="backup")renderM()},
   export:()=>{saveNow();const b=new Blob([exportStr()],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`pokemon-card-shop-dia${S.day}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast("⬇️ Copia descargada")},
   importf:()=>$("#impfile").click(),
   copycode:()=>{const code=btoa(unescape(encodeURIComponent(exportStr())));const done=()=>toast("📋 Código copiado. Guárdalo en tus notas");
     if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(done).catch(()=>{$("#impcode").value=code;toast("Selecciona y copia el código del cuadro")});else{$("#impcode").value=code;toast("Selecciona y copia el código del cuadro")}},
   importc:()=>importData($("#impcode").value),
-  reset:()=>{if(!confirm("¿Borrar la partida y empezar de cero? No se puede deshacer."))return;newState();custs=[];queue=[];saveNow();closeM();hud();toast("Partida nueva")},
+  reset:()=>{if(!confirm("¿Borrar la partida y empezar de cero? No se puede deshacer."))return;newState();custs.length=0;queue.length=0;saveNow();closeM();hud();toast("Partida nueva")},
   sndtog:()=>{SOUND=!SOUND;try{localStorage.setItem("pcs-sound",SOUND?"1":"0")}catch(e){}renderM()},
   mustog:()=>{if(!SOUND){SOUND=true;try{localStorage.setItem("pcs-sound","1")}catch(e){}}setMusic(!MUSIC);renderM()},
   zreset:()=>{closeM();A.zfit()},
@@ -2040,11 +1860,11 @@ const A={
   hgacc:()=>{loy(HG.c.reg,3);dealHg(HG.offer)},
   hgcnt:()=>{const h=HG;if(h.x<=h.max){h.msg="¡Trato hecho!";dealHg(h.x);return}h.tries++;sfx.err();if(h.tries>=2){say(h.c,"😤");leave(h.c,true);HG=null;closeM();return}h.msg=pick(["Uff… es demasiado. ¿Algo menos?","No sé, no sé… baja un poco más."]);renderM()},
   hgfix:()=>{const h=HG;if(h.max>=h.full*.95||Math.random()<.35){dealHg(h.full);return}say(h.c,"😤");leave(h.c,true);HG=null;closeM()},
-  lotrev:d=>{const n=+d.n,L=LOT;let c=n===10?10:35;if(n===10&&L.free){c=0;L.free=false}if(S.money<c){toast("No tienes dinero suficiente");return}S.money-=c;lotReview(n);sfx.flip();hud();renderM()},
-  lotexp:()=>{const c=expCost();if(S.money<c){toast("No tienes dinero suficiente");return}S.money-=c;LOT.expert=true;sfx.ach();hud();renderM()},
-  lotbuy:()=>lotBuy(LOT.ask),
-  lotcnt:()=>lotBuy(LOT.counter),
-  lotoff:()=>{const L=LOT,o=L.offer;if(o>=L.floor){lotBuy(o);return}if(!L.tries){L.tries=1;L.counter=r05(L.floor*1.03);L.msg=`Por menos de ${fmt(L.counter)} no lo vendo.`;sfx.err();renderM();return}L.msg="";endLot();closeM();toast("El coleccionista se ha ido")},
+  lotrev:d=>{const n=+d.n,L=G.LOT;let c=n===10?10:35;if(n===10&&L.free){c=0;L.free=false}if(S.money<c){toast("No tienes dinero suficiente");return}S.money-=c;lotReview(n);sfx.flip();hud();renderM()},
+  lotexp:()=>{const c=expCost();if(S.money<c){toast("No tienes dinero suficiente");return}S.money-=c;G.LOT.expert=true;sfx.ach();hud();renderM()},
+  lotbuy:()=>lotBuy(G.LOT.ask),
+  lotcnt:()=>lotBuy(G.LOT.counter),
+  lotoff:()=>{const L=G.LOT,o=L.offer;if(o>=L.floor){lotBuy(o);return}if(!L.tries){L.tries=1;L.counter=r05(L.floor*1.03);L.msg=`Por menos de ${fmt(L.counter)} no lo vendo.`;sfx.err();renderM();return}L.msg="";endLot();closeM();toast("El coleccionista se ha ido")},
   lotno:()=>{endLot();closeM()},
 
   speed:()=>{speed=speed===1?2:speed===2?4:1;paintNav()},
@@ -2097,11 +1917,11 @@ const A={
   caserem:()=>{const it=grpItems().find(i=>i.case!=null&&!i.res&&!i.lux);if(it)it.case=null;renderM()},
   mk:d=>{grpItems().forEach(i=>{if(i.case!=null)i.case=clamp(Math.round((i.case+ +d.n)*100)/100,.6,1.6)});renderM()},
   upg:d=>{const u=UPS.find(x=>x.k===d.k),c=u.cost[S.up[d.k]];if(S.money<c)return;S.money-=c;S.up[d.k]++;assignSlots();hud();renderM()},
-  dealask:()=>finishDeal(deal.ask),
-  dealcounter:()=>finishDeal(deal.counter),
-  dealno:()=>closeDeal(deal.cust,false),
+  dealask:()=>finishDeal(G.deal.ask),
+  dealcounter:()=>finishDeal(G.deal.counter),
+  dealno:()=>closeDeal(G.deal.cust,false),
   dealoffer:()=>{
-    const d=deal,o=+($("[data-i=offer]").value);d.offer=o;
+    const d=G.deal,o=+($("[data-i=offer]").value);d.offer=o;
     if(o>=d.ask){finishDeal(d.ask);return}
     if(o>=d.floor){finishDeal(o);return}
     if(o>=d.floor*.85){d.counter=r05(d.floor);d.msg=`Mmm… por ${fmt(d.counter)} y cerramos.`;renderM();return}
@@ -2110,7 +1930,7 @@ const A={
     d.msg="¡Eso es casi un insulto! Ofréceme algo razonable.";renderM();
   }
 };
-const I={csearch:el=>{collQ=el.value;const e=$("#cgrid");if(e)e.innerHTML=collGrid()},shopn:el=>{S.shopName=el.value.slice(0,22);hud()},hgx:el=>{HG.x=+el.value;$("#hglab").textContent=fmt(HG.x)},lotx:el=>{LOT.offer=+el.value;$("#lotlab").textContent=fmt(LOT.offer)},setq:el=>{setQ=el.value;const e=$("#setlist");if(e)e.innerHTML=setRows()},offer:el=>{deal.offer=+el.value;$("#olab").textContent=fmt(+el.value)}};
+const I={csearch:el=>{collQ=el.value;const e=$("#cgrid");if(e)e.innerHTML=collGrid()},shopn:el=>{S.shopName=el.value.slice(0,22);hud()},hgx:el=>{HG.x=+el.value;$("#hglab").textContent=fmt(HG.x)},lotx:el=>{G.LOT.offer=+el.value;$("#lotlab").textContent=fmt(G.LOT.offer)},setq:el=>{setQ=el.value;const e=$("#setlist");if(e)e.innerHTML=setRows()},offer:el=>{G.deal.offer=+el.value;$("#olab").textContent=fmt(+el.value)}};
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-a]");if(!b)return;
   if(b.classList.contains("ov")&&e.target!==b)return;
@@ -2126,11 +1946,11 @@ function frame(now){
     const dt=raw*speed;updFx(dt);updPfx(dt);updPed(dt);updCars(dt);updBirds(dt);updVan(dt);updVCars(dt);VIS.drawer=Math.max(0,(VIS.drawer||0)-dt);
     if(S.phase==="open"||S.phase==="closing"){
       if(S.phase==="open"){
-        S.clock+=dt;spawnT-=dt;
-        if(spawnT<=0){
+        S.clock+=dt;G.spawnT-=dt;
+        if(G.spawnT<=0){
           spawn();
-          if(S.burst>0){S.burst--;spawnT=.8}
-          else{const base=4.2/(1+repv()*.03)/(1+S.up.ads*.3)/spMul();spawnT=base*(.6+Math.random()*.8)}
+          if(S.burst>0){S.burst--;G.spawnT=.8}
+          else{const base=4.2/(1+repv()*.03)/(1+S.up.ads*.3)/spMul();G.spawnT=base*(.6+Math.random()*.8)}
         }
         if(S.clock>=DAYLEN)S.phase="closing";
       }

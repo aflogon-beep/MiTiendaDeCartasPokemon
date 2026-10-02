@@ -3,6 +3,9 @@ import { REGS } from "./constants.js";
 import { S } from "./state.js";
 import { albPct } from "./achievements.js";
 import { medCount } from "./medals.js";
+import { ui } from "./bus.js";
+import { G, hasState } from "./state.js";
+import { front } from "./customers/move.js";
 export const CHAP=[
   {t:"La gran apertura",i:"¡Por fin abrimos! Vamos a demostrar que esta tienda vale la pena.",g:[["Vende sobres","psold",5],["Atiende clientes","served",8]],e:"¡Primer gran día! Los vecinos ya hablan de nosotros.",r:50},
   {t:"Coleccionista novato",i:"Una buena tienda tiene que conocer bien sus cartas. ¡A llenar el álbum!",g:[["Completa % de un set del álbum","alb",15]],e:"¡Así se hace! Ya pareces un experto.",r:60},
@@ -16,3 +19,4 @@ export const CHAP=[
 export function chapVal(k){if(k==="alb")return Math.round(Math.max(0,...S.sets.map(albPct))*100);if(k==="fans")return REGS.filter(r=>S.regs[r.id]&&S.regs[r.id].loy>=60).length;if(k==="med")return medCount();return S.lt[k]||0}
 export function story(){if(!S.story){S.story={ch:0,base:{},intro:false};CHAP[0].g.forEach(([,k])=>S.story.base[k]=chapVal(k))}return S.story}
 export function chapProg(){const st=story(),c=CHAP[st.ch];if(!c)return null;return c.g.map(([n,k,g])=>{const abs=k==="alb"||k==="fans"||k==="med",v=abs?chapVal(k):chapVal(k)-(st.base[k]||0);return {n,v:Math.max(0,Math.min(g,v)),g}})}
+export function storyTick(){if(!hasState()||(S.tut&&S.tut.on))return;const st=story(),c=CHAP[st.ch];if(!c)return;const p=chapProg();if(p.every(x=>x.v>=x.g)&&!G.M&&!front()){S.money+=c.r;S.repB+=1;st.done=st.ch;st.ch++;st.intro=false;const n=CHAP[st.ch];if(n)n.g.forEach(([,k])=>st.base[k]=chapVal(k));ui.openM("story")}}
