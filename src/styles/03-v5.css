@@ -10,10 +10,7 @@
 #toast .toast{position:static;transform:none;max-width:100%;box-shadow:0 6px 18px #0007;text-align:center}
 .tabs{display:flex;gap:6px;margin-bottom:10px}.tabs .b{flex:1;padding:8px 4px}
 .prog{height:8px;border-radius:5px;background:#0006;overflow:hidden;margin:6px 0}.prog i{display:block;height:100%;background:linear-gradient(90deg,#4cc98a,#f2b705)}
-.tiles.alb{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
-.tiles.alb .fb{font-size:9px;padding:4px}.tiles.alb .fb b{font-size:9px}
 .tile.miss .cf{filter:grayscale(1) brightness(.45);opacity:.45}
-.tile .num{position:absolute;left:3px;top:3px;background:#000b;color:#fff;font-size:10px;padding:0 4px;border-radius:4px}
 .gb{position:absolute;right:4px;bottom:4px;background:#fff;color:#c0392b;font-size:10px;font-weight:900;padding:1px 5px;border-radius:5px;border:1px solid #c0392b}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:8px}.menu .b{min-height:62px;font-size:15px}
 .ckwrap{display:flex;flex-direction:column;gap:10px}

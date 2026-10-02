@@ -5,7 +5,6 @@
 .vt{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#24c470,#128a4a);color:#fff;font-size:10px;font-weight:800;text-align:center;padding:3px 2px 4px;border-radius:0 0 7px 7px;letter-spacing:.03em;box-shadow:0 -3px 8px #0007;line-height:1.15;font-family:var(--fd)}
 .vt b{display:block;font-size:13px;font-weight:700}
 .tile .qt{box-shadow:0 2px 4px #0007}.tile .pt{box-shadow:0 2px 4px #0007;border:1px solid #ffffff22}
-.tile .ct{display:none}
 .sheet{position:relative}
 .grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:-4px auto 8px}
 .xbtn{position:sticky;top:0;float:right;margin:-8px -2px 0 8px;width:38px;height:38px;border-radius:50%;border:0;background:var(--panel2);color:var(--ink);font-size:16px;font-weight:700;box-shadow:0 2px 0 #0006;z-index:4;cursor:pointer}
@@ -20,7 +19,6 @@ nav{position:fixed;left:0;right:0;bottom:0;border-top:1px solid var(--line);disp
 #ovh .sheet h2{color:var(--ink)}
 nav button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:1px;border:0;border-radius:12px;padding:6px 1px 5px;font-family:var(--fd);font-weight:600;font-size:11.5px;box-shadow:0 3px 0 #0006;background:var(--panel2);color:var(--ink);position:relative}
 nav button .nb{position:absolute;top:2px;right:calc(50% - 22px);min-width:18px;height:18px;border-radius:9px;background:#e3350d;color:#fff;font-size:10px;font-weight:800;font-style:normal;display:none;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--panel)}
-nav button.bdg::after{content:"";position:absolute;top:5px;right:8px;width:9px;height:9px;border-radius:50%;background:#e3350d;box-shadow:0 0 0 2px var(--panel);display:none}
 nav svg{display:block;width:24px;height:24px}
 .cvctl{position:absolute;right:8px;bottom:8px;display:flex;gap:6px;z-index:2}
 .cvctl button{min-width:42px;height:38px;border-radius:10px;border:1px solid #fff3;background:#000b;color:#fff;font-weight:700;font-family:var(--fd)}
