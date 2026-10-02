@@ -4,7 +4,7 @@ Errores o cosas mejorables encontradas durante el refactor. **No se arreglan de 
 
 ---
 
-## 1. Clientes que atraviesan muebles al ir a la cola · ✅ DECIDIDO: arreglar al terminar las fases
+## 1. Clientes que atraviesan muebles al ir a la cola · causa 1 ✅ arreglada · causa 2 ⏳ elegir opción
 
 **Qué pasa.** Con mobiliario en la tienda, a veces un cliente que va hacia la caja (`st: "toq"`) cruza en línea recta por encima de un mueble: la máquina de café, una maceta, una estantería, la mesa de juego o el mueble de «Sellado y accesorios». Es un roce de unos píxeles o lo cruza entero.
 
@@ -23,7 +23,17 @@ Errores o cosas mejorables encontradas durante el refactor. **No se arreglan de 
 
 Pasa más cuanto más larga es la cola y cuanto más rápido se atiende (la cola se mueve mientras el cliente camina).
 
-**Decisión (Alberto):** el test 5 queda marcado como «fallo conocido» (`test.fail()`) y se arregla cuando terminen las fases del refactor (idea: recalcular la ruta cuando cambia el hueco de la cola). Al arreglarlo, quitar `test.fail()` del test 5.
+**Decisión (Alberto):** arreglarlo al terminar las fases (idea: recalcular la ruta cuando cambia el hueco de la cola).
+
+**Estado (tras la Fase I):**
+- ✅ **Causa 1 arreglada**: `routeTo` recuerda el destino (`c.rg`) y, mientras el cliente va a la cola, si su hueco cambia se recalcula la ruta desde donde está (`updateCusts`). Vale para todos los caminos que llevan a la cola (clientes que compran, que venden, lotes e intercambios). Test unitario en `tests/unit/nav.test.js`.
+- **Tests**: el test 5 pasa en Vite (los clientes que van a huecos sin camino se cuentan aparte en su informe); en la referencia sigue como fallo conocido. La causa 2 está como fallo conocido (`it.fails`) en `tests/unit/nav.test.js`: al arreglarla, cambiarlo por `it`.
+- ⏳ **Causa 2 (nueva, pendiente de decidir)**: con todo el mobiliario, **los huecos de la cola a partir del 7.º no tienen camino**. El 7.º (`y = 454`) cae encima de la zona de un mueble y el 8.º y siguientes quedan encerrados entre los muebles de abajo y el mostrador. Cuando `navPath` no encuentra camino devuelve una ruta vacía y el cliente va en línea recta, atravesando lo que haya. Solo pasa con colas de 7 o más personas (con el bot a 20× pasa a menudo). Es lo que sigue haciendo fallar el test 5.
+
+**Opciones para la causa 2** (cambian cómo se ve una cola muy larga; hay que elegir):
+- **A) La cola dobla**: a partir del hueco que ya no tiene sitio, la cola sigue por un pasillo libre (girando hacia la izquierda o hacia arriba). La cola se ve siempre en fila, pero más larga y con una curva.
+- **B) Esperan cerca de la cola**: los que no caben esperan de pie en el sitio libre más cercano al final de la cola (se agrupan ahí) y van pasando a la fila según se liberan huecos. Más sencillo; la cola normal (hasta 6) no cambia.
+- **C) Cola llena**: si ya hay 6 en la cola, los clientes nuevos siguen mirando las estanterías hasta que haya hueco. Cambia un poco el ritmo de la tienda (afecta a la paciencia), así que es la menos recomendable.
 
 ---
 

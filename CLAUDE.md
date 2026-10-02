@@ -16,7 +16,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §1 (clientes que atraviesan muebles; es el «fallo conocido» del test 5) y §2 (recálculo del precio de los sobres al cargar). Los dos cambian comportamiento: **proponer el arreglo y preguntar** antes de tocarlos.
+Pendiente: `docs/pendientes.md` §1 causa 2 (con todo el mobiliario, los huecos de la cola a partir del 7.º no tienen camino; hay que elegir opción A, B o C) y §2 (recálculo del precio de los sobres al cargar). Los dos cambian comportamiento: **proponer el arreglo y preguntar** antes de tocarlos.
 
 ## Reglas
 
@@ -100,7 +100,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 - **Los tests saltan el título y la historia**: `openGame` pone `window.__pcsSkipTitle` y el juego entra directo en la última partida, como antes de la Fase I. Para probar el título: `openGame(page, gamePath, { title: true })`.
 - **Service worker bloqueado** en todos los tests salvo el 15 (`serviceWorkers: "block"`).
 - **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual.
-- Test 5: `test.fail()` («fallo conocido», `docs/pendientes.md` §1). Test 4: 2 reintentos (partida con azar).
+- Test 5: en Vite pasa (causa 1 de `docs/pendientes.md` §1 arreglada; los clientes que van a huecos de la cola sin camino, causa 2, se cuentan aparte). En la referencia, `test.fail()`. La causa 2 es un `it.fails` en `tests/unit/nav.test.js` («fallo conocido»). Test 4: 2 reintentos (partida con azar).
 
 ## Forma de trabajar
 
