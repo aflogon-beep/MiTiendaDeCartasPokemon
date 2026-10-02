@@ -31,6 +31,24 @@ export const G={
   SOUND:(()=>{try{return localStorage.getItem("pcs-sound")!=="0"}catch(e){return true}})(), // sonido activado
   BGk:-1,         // clave del fondo de la tienda ya dibujado (-1 = rehacer)
   CITYk:"",       // clave de la ciudad ya dibujada ("" = rehacer)
+  // Estado de las pantallas (lo cambian las acciones de la interfaz)
+  openState:null, // apertura de sobres en curso
+  collSel:null,   // grupo de cartas seleccionado en Cartas
+  collF:"all",    // filtro de Cartas
+  collQ:"",       // búsqueda en Cartas
+  cSort:"val",    // orden de Cartas
+  pTab:"packs",   // pestaña de Stock
+  pF:"all",       // filtro de Stock
+  tTab:"ord",     // pestaña de Tareas
+  albS:null,      // set abierto en el Álbum
+  albPg:0,        // página del Álbum
+  setQ:"",        // búsqueda en Colecciones
+  CK:null,        // cobro en caja (efectivo o TPV)
+  HG:null,        // regateo en curso
+  INSP:null,      // inspección de una carta (falsas)
+  TRD:null,       // intercambio propuesto por un habitual
+  BOXO:null,      // apertura de caja o producto sellado
+  CUSTC:null,     // cliente cuya ficha se está viendo
 };
 
 export let SETS=[];

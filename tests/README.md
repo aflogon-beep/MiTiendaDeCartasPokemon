@@ -40,8 +40,7 @@ __pcs.spawn()      // llamar
 ```
 
 - **Referencia:** son variables globales de un `<script>` clásico, y `helpers.js` las expone con un `Proxy` y `eval` indirecto.
-- **Vite:** el propio juego crea `window.__pcs` al final de `src/legacy.js`, con un `eval` directo que ve las variables del módulo.
-- **Al separar módulos (R2):** hay que mantener el mismo `window.__pcs` con los mismos nombres. Las variables sueltas agrupadas en `G` se expondrán con su nombre original, para que estos tests sigan valiendo sin cambios.
+- **Vite:** `src/main.js` crea `window.__pcs` con `src/debug.js`. Busca cada nombre primero en `G` (las variables que se reasignan: `M`, `speed`, `collSel`…) y después en los exports de todos los módulos. Así `__pcs.M` sigue funcionando aunque en el código sea `G.M`.
 
 ## Notas
 

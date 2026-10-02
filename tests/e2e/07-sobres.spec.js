@@ -1,4 +1,4 @@
-import { test, expect, freshGame, game } from "./helpers.js";
+import { test, expect, freshGame, game, dismissCelebrations } from "./helpers.js";
 
 test("7 · Sobres: 300 sobres sin cartas repetidas dentro del mismo", async ({ page, gamePath }) => {
   await freshGame(page, gamePath);
@@ -33,6 +33,7 @@ test("7 · Sobres: 300 sobres sin cartas repetidas dentro del mismo", async ({ p
     P.assignSlots();
   });
   for (let i = 0; i < 5; i++) {
+    await dismissCelebrations(page); // abrir sobres puede dar medallas (Trueno, Arcoíris)
     await page.locator('#nav [data-k="packs"]').click();
     await page.locator('#ovh [data-a="open"][data-k="mew"][data-n="1"]').click();
     const ids = await game(page, (P) => P.openState.cards.map((x) => x.c.id));
@@ -40,8 +41,6 @@ test("7 · Sobres: 300 sobres sin cartas repetidas dentro del mismo", async ({ p
     expect(new Set(ids).size).toBe(10);
     await page.locator("#pxskip").click();
     await page.locator('#ovh .sheet > [data-a="close"].big').click();
-    await page.waitForTimeout(200);
-    await page.evaluate(() => document.querySelectorAll("#medok, #tierok").forEach((b) => b.click()));
   }
   expect(await game(page, (P) => P.S.sealed.mew)).toBe(25);
 });

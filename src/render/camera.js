@@ -3,7 +3,7 @@ import { CV, LITE } from "./canvas.js";
 import { CX0, CX1, CY0, CY1, FRONT_Y, H, W } from "../world/layout.js";
 import { clamp } from "../core/util.js";
 import { front, queue } from "../core/customers/move.js";
-export const VIEW={s:1,ox:0,oy:0,cw:W,ch:H,dpr:2,min:1,max:2,cover:1,init:false,user:0};
+export const VIEW={s:1,ox:0,oy:0,cw:W,ch:H,dpr:2,min:1,max:2,cover:1,init:false,user:0,mode:"auto"};
 export function clampView(){const V=VIEW,x0=CX0*V.s,x1=CX1*V.s,y0=CY0*V.s,y1=CY1*V.s;
   V.ox=x1-x0<=V.cw?(V.cw-(x1+x0))/2:clamp(V.ox,V.cw-x1,-x0);V.oy=y1-y0<=V.ch?(V.ch-(y1+y0))/2:clamp(V.oy,V.ch-y1,-y0)}
 export function fitCanvas(){
