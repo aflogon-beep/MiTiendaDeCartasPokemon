@@ -21,7 +21,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `fixtures/carta.png` | PNG genérico que se devuelve para cualquier imagen de `images.pokemontcg.io`. |
 | `fixtures/partida-v22.json` | Partida exportada desde la v22 (Más → Partida → Exportar) jugando contra la API simulada. La usa el test 11. |
 | `e2e/helpers.js` | Abrir el juego con la red simulada, saltar el tutorial, cerrar paneles y acceder a las variables del juego. |
-| `e2e/bot.js` | Bot jugador de los tests 4 y 5: repone, pone precios recomendados, llena la vitrina y cobra. |
+| `e2e/bot.js` | Bot jugador de los tests 4 y 5: repone, pone precios recomendados, llena la vitrina y cobra (en el test 4 también las misiones). |
 | `e2e/01…13-*.spec.js` | Los 13 tests de la tabla de `CLAUDE.md`. |
 | `unit/` | Tests de Vitest. De momento, los de la API simulada. Irán creciendo con la lógica pura extraída en R2. |
 
@@ -47,5 +47,6 @@ __pcs.spawn()      // llamar
 
 - **Velocidad.** El jugador puede llegar a 4×. Los tests 4 y 5 suben `speed` a 20–40 para simular días enteros en segundos. El juego limita cada fotograma a 0,05 s reales, así que cada paso de la simulación es como mucho de 1–2 s de juego.
 - **TPV en el bot.** El cobro con tarjeta anima unos 1,8 s reales. El bot teclea el importe exacto y aplica directamente lo mismo que hace `A.ckok()` al terminar (`track("cardpay")` + `finishCK`). El efectivo sí pasa por `A.ckgive()` con el cambio exacto.
+- **Test 4 y el azar.** Sin cobrar las misiones, el bot llegaba a nivel 2 el día 7 en ~1 de cada 6 partidas (también con la referencia). Cobrándolas, como haría un jugador, llega casi siempre el día 4 o 5.
 - **Azar.** El juego no tiene semilla. Los tests de simulación usan rangos amplios, y los de probabilidad (sobres, ladrón, falsas) muchas repeticiones.
 - **Modo ahorro (test 13).** Para simular un móvil lento, cada fotograma tarda unos 45 ms más (se envuelve `requestAnimationFrame` desde el test, sin tocar el juego).

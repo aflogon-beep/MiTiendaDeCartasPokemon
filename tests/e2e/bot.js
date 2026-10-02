@@ -1,7 +1,8 @@
 // Bot jugador para la simulación de varios días (test 4).
 // Se ejecuta DENTRO de la página: recibe P (= window.__pcs) y no puede usar nada de fuera.
 // Juega como un jugador sencillo: repone sobres, pone los precios recomendados (🎯),
-// llena la vitrina con sus mejores cartas, abre la tienda y cobra a los clientes.
+// llena la vitrina con sus mejores cartas, abre la tienda y cobra a los clientes
+// (con claim: true, también cobra las recompensas de las misiones del día, como haría un jugador).
 // No compra cartas, lotes ni intercambia: a los que vienen a vender les dice que no.
 export async function botPlay(P, opt) {
   const { days, speed, claim } = opt;

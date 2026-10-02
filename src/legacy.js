@@ -1,129 +1,34 @@
 "use strict";
+import { on } from "./core/bus.js";
+import { clamp, fmt, pct, r05 } from "./core/util.js";
+import { rnd, pick, gauss, wpick, srand } from "./core/rng.js";
+import { RAR, RMAP, COND, DEFAULT_SETS, LEGACY, DAYLEN, RENT, LV, VOL, CT, ERA, RORD, GMULT, GTXT, GSVC, NAMES, MT, ACH, LTK, ALBR, DECOR, STAFF, UPS, PTYPES, ACC, PPREF, REGS, DIFFS, TIERS, SEAS, RECO } from "./core/constants.js";
+import { cget, cput, IDB, cacheGet } from "./core/cards/cache.js";
+import { step, initPrice, rvr } from "./core/cards/prices.js";
+import { setCards, hue, SETDEF, setName, setCol, mkSetDef, rarOf, mapCard, offlineCards, indexCards, CARDS, BYID, BYSR, BYR, BYS } from "./core/cards/sets.js";
+import { API, jget, SETLIST_ST, loadSetList, refreshSetList, FAILED, STALE, fetchSetCards, loadMany } from "./core/cards/api.js";
 /* ===================== DATOS ===================== */
 const $=s=>document.querySelector(s);
-const rnd=n=>Math.floor(Math.random()*n),pick=a=>a[rnd(a.length)],gauss=()=>Math.random()+Math.random()+Math.random()-1.5,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const fmt=n=>new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(n);
-const pct=x=>(x>=0?"+":"")+(x*100).toFixed(1).replace(".",",")+" %";
-const r05=x=>Math.max(.05,Math.round(x*20)/20);
-const wpick=o=>{let t=0;for(const k in o)t+=o[k];let r=Math.random()*t;for(const k in o){r-=o[k];if(r<=0)return k}return Object.keys(o)[0]};
 
-const RAR={C:{n:"Común",c:"#8a94a3",def:.05},U:{n:"Poco común",c:"#4a86c9",def:.1},R:{n:"Rara",c:"#b48a1e",def:.4},DR:{n:"Doble rara",c:"#d9782a",def:2.5},IR:{n:"Ilustración rara",c:"#2fa557",def:8},UR:{n:"Ultra rara",c:"#8e4cb5",def:8},SIR:{n:"Ilustración especial",c:"#d9402a",def:40},HR:{n:"Hyper rara",c:"#c9950f",def:12}};
-const RMAP={"Common":"C","Uncommon":"U","Rare":"R","Rare Holo":"DR","Rare Holo EX":"DR","Rare Holo GX":"DR","Rare Holo V":"DR","Rare Holo VMAX":"DR","Rare Holo VSTAR":"DR","Rare Holo LV.X":"DR","Rare Holo Star":"DR","Rare Prime":"DR","LEGEND":"DR","Rare BREAK":"DR","Double Rare":"DR","ACE SPEC Rare":"DR","Rare ACE":"DR","Radiant Rare":"IR","Amazing Rare":"IR","Illustration Rare":"IR","Trainer Gallery Rare Holo":"IR","Classic Collection":"IR","Ultra Rare":"UR","Rare Ultra":"UR","Shiny Rare":"UR","Shiny Ultra Rare":"UR","Rare Shiny":"UR","Rare Shiny GX":"UR","Special Illustration Rare":"SIR","Hyper Rare":"HR","Rare Secret":"HR","Rare Rainbow":"HR","Mega Hyper Rare":"HR"};
-const COND={NM:1,LP:.85,MP:.7};
 /* Sets: lista completa desde pokemontcg.io. Los 3 primeros conservan su id antiguo para no perder partidas. */
-const DEFAULT_SETS=["mew","pre","obf"];
-const LEGACY={sv3pt5:"mew",sv8pt5:"pre",sv3:"obf"};
-const hue=t=>{let h=0;for(const ch of t)h=(h*31+ch.charCodeAt(0))%360;return h};
-let SETDEF=[
-  {id:"mew",api:"sv3pt5",n:"151",year:2023,total:207,dp:4.5,fc:"#3f9b4a"},
-  {id:"pre",api:"sv8pt5",n:"Evoluciones Prismáticas",year:2025,total:180,dp:9.5,fc:"#d65fae"},
-  {id:"obf",api:"sv3",n:"Llamas Obsidianas",year:2023,total:230,dp:3.4,fc:"#e0622a"}
-];
-SETDEF.forEach(d=>d.col=d.fc);
-const setName=t=>(SETDEF.find(x=>x.id===t)||{}).n||t;
-const setCol=t=>(SETDEF.find(x=>x.id===t)||{}).col||"#888";
-let CARDS=[],BYID={},BYSR={},BYR={},BYS={},SETS=[],MODE="offline",NOTE="";
-const API="https://api.pokemontcg.io/v2/";
-function jget(url,ms){
-  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),ms||20000);
-  return fetch(url,{signal:ac.signal}).then(r=>{clearTimeout(to);if(!r.ok)throw new Error(r.status);return r.json()}).catch(e=>{clearTimeout(to);throw e});
-}
-const cget=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
-const cput=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-function mkSetDef(x){
-  const id=LEGACY[x.id]||x.id,year=+String(x.releaseDate||"2020").slice(0,4),ex=SETDEF.find(d=>d.id===id);
-  const o=ex||{id,dp:year>=2020?4.5:4};
-  Object.assign(o,{api:x.id,n:ex?ex.n:x.name,series:x.series,year,total:x.total||x.printedTotal||0,sym:x.images&&x.images.symbol,date:x.releaseDate,col:(ex&&ex.fc)||`hsl(${hue(id)} 55% 48%)`});
-  if(!ex)SETDEF.push(o);
-  return o;
-}
-let SETLIST_ST="ok";
-function loadSetList(){const c=cget("pcs-sets-v1");return Promise.resolve(c&&c.sets&&c.sets.length?c.sets:null)}
-function refreshSetList(force){
-  const c=cget("pcs-sets-v1");if(!force&&c&&c.sets&&c.sets.length&&Date.now()-c.t<7*864e5)return;
-  if(SETLIST_ST==="loading")return;SETLIST_ST="loading";if(M==="sets")renderM();
-  const url=API+"sets?select=id,name,series,releaseDate,total,printedTotal,images&orderBy=-releaseDate&pageSize=250";
-  const get=a=>jget(url,45000).catch(e=>a<2?new Promise(r=>setTimeout(r,2500*(a+1))).then(()=>get(a+1)):Promise.reject(e));
-  get(0).then(j=>{if(!j||!j.data||!j.data.length)throw 0;cput("pcs-sets-v1",{t:Date.now(),sets:j.data});const before=SETDEF.length;j.data.forEach(mkSetDef);SETLIST_ST="ok";
-    if(SETDEF.length>before)toast(`🗂️ ${SETDEF.length} colecciones disponibles en Más → Colecciones`);if(M==="sets")renderM()})
-  .catch(()=>{SETLIST_ST="fail";if(M==="sets")renderM()});
-}
-function mapCard(d,sd){
-  const r=rarOf(d),p=(d.cardmarket&&d.cardmarket.prices)||{};
-  const b=p.trendPrice||p.averageSellPrice||p.avg30||p.lowPrice||RAR[r].def;
-  return {id:d.id,s:sd.id,name:d.name,num:d.number,r,img:d.images&&d.images.small,b:Math.max(.02,b),
-    hp:d.hp?+d.hp:null,types:d.types||null,sup:d.supertype||null,rv:p.reverseHoloTrend||null,seed:(p.avg30&&p.avg7&&p.avg1)?[p.avg30,p.avg7,p.avg1]:null};
-}
-const IDB=(()=>{let dbp=null;
-  const open=()=>dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB.open("pcs",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
-  const tx=(m,f)=>open().then(db=>new Promise((res,rej)=>{const t=db.transaction("kv",m),q=f(t.objectStore("kv"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)}));
-  return {get:k=>tx("readonly",s=>s.get(k)).catch(()=>null),put:(k,v)=>tx("readwrite",s=>s.put(v,k)).catch(()=>null)};
-})();
-const FAILED=new Set(),STALE=new Set();
-function cacheGet(api){return IDB.get("set:"+api).then(v=>v||cget("pcs-set2-"+api)||cget("pcs-set-"+api))}
-function fetchSetCards(sd,force){
-  return cacheGet(sd.api).then(c=>{
-    const has=c&&c.cards&&c.cards.length;
-    if(has&&!force&&Date.now()-c.t<18*36e5){FAILED.delete(sd.id);return c.cards}
-    const q=n=>API+"cards?q=set.id:"+sd.api+"&pageSize=250&page="+n+"&select=id,name,number,rarity,images,cardmarket,hp,types,supertype";
-    const get=(url,att)=>jget(url,40000).catch(e=>att<2?new Promise(r=>setTimeout(r,1500*(att+1)+rnd(800))).then(()=>get(url,att+1)):Promise.reject(e));
-    return get(q(1),0).then(j=>{
-      const pages=Math.ceil((j.totalCount||j.data.length)/250);let all=j.data;if(pages<=1)return all;
-      const more=[];for(let n=2;n<=pages;n++)more.push(get(q(n),0).then(x=>x.data));
-      return Promise.all(more).then(arr=>all.concat(...arr));
-    }).then(data=>{
-      const cards=data.filter(d=>d&&d.id).map(d=>mapCard(d,sd));
-      if(!cards.length)throw 0;
-      const rec={t:Date.now(),cards};
-      IDB.put("set:"+sd.api,rec).then(ok=>{if(ok==null)cput("pcs-set2-"+sd.api,rec);else try{localStorage.removeItem("pcs-set-"+sd.api);localStorage.removeItem("pcs-set2-"+sd.api)}catch(e){}});
-      FAILED.delete(sd.id);STALE.delete(sd.id);return cards;
-    }).catch(()=>{if(has){STALE.add(sd.id);FAILED.delete(sd.id);return c.cards}FAILED.add(sd.id);return []});
-  });
-}
-function loadMany(ids,onp){
-  let i=0,done=0;const out=[];
-  const work=()=>{if(i>=ids.length)return Promise.resolve();const id=ids[i++],sd=SETDEF.find(d=>d.id===id);if(!sd)return work();
-    return fetchSetCards(sd).then(cs=>{cs.forEach(c=>c.s=sd.id);out.push(...cs);done++;if(onp)onp(done,ids.length,sd)}).then(work)};
-  return Promise.all([work(),work(),work()]).then(()=>out);
-}
+let SETS=[],MODE="offline",NOTE="";
 function retrySets(){
   const ids=[...FAILED];if(!ids.length){toast("No hay colecciones pendientes");return}
   toast(`Reintentando ${ids.length} colección(es)…`);
-  loadMany(ids).then(cs=>{CARDS=CARDS.filter(c=>!ids.includes(c.s)).concat(cs);indexCards();ensure();saveNow();if(MODE==="real")NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";hud();
+  loadMany(ids).then(cs=>{setCards(CARDS.filter(c=>!ids.includes(c.s)).concat(cs));indexCards();ensure();saveNow();if(MODE==="real")NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";hud();
     toast(FAILED.size?`⚠️ Aún faltan ${FAILED.size}. Prueba más tarde`:"✅ Todas las colecciones cargadas");if(M)renderM()});
 }
 /* --- modo sin conexión --- */
-function offlineCards(){
-  const COM=["Pidgey","Rattata","Zubat","Magikarp","Geodude","Oddish","Weedle","Psyduck"],UNC=["Pidgeotto","Machoke","Haunter","Kadabra","Growlithe"],RAREN=["Ninetales","Arcanine","Gyarados"];
-  const H={
-   mew:[["Charizard ex","SIR",180],["Mew ex","SIR",85],["Invitación de Erika","SIR",120],["Blastoise ex","SIR",45],["Venusaur ex","SIR",35],["Alakazam ex","SIR",28],["Zapdos ex","SIR",22],["Pikachu","IR",22],["Charmander","IR",14],["Squirtle","IR",12],["Charizard ex","DR",9],["Mew ex","DR",3],["Kangaskhan ex","DR",2],["Mewtwo","UR",6],["Energía Psíquica","HR",8]],
-   pre:[["Umbreon ex","SIR",900],["Sylveon ex","SIR",240],["Espeon ex","SIR",130],["Vaporeon ex","SIR",110],["Leafeon ex","SIR",95],["Glaceon ex","SIR",85],["Jolteon ex","SIR",80],["Flareon ex","SIR",75],["Eevee","IR",30],["Umbreon ex","DR",12],["Sylveon ex","DR",7],["Espeon ex","DR",5],["Pikachu","UR",8],["Energía Fuego","HR",10]],
-   obf:[["Charizard ex","SIR",95],["Tyranitar ex","SIR",30],["Pidgeot ex","SIR",18],["Charmander","IR",6],["Dreepy","IR",5],["Bellibolt ex","IR",4],["Charizard ex","DR",4],["Tyranitar ex","DR",2],["Pidgeot ex","DR",2],["Charizard ex","UR",7],["Energía Fuego","HR",4]]};
-  const out=[];
-  SETDEF.filter(sd=>H[sd.id]).forEach(sd=>{
-    const add=(name,r,b)=>out.push({id:sd.id+"-"+out.length,s:sd.id,name,num:null,r,img:null,b,rv:null,seed:null});
-    COM.forEach(n=>add(n,"C",.05));UNC.forEach(n=>add(n,"U",.1));RAREN.forEach(n=>add(n,"R",.35));
-    H[sd.id].forEach(h=>add(h[0],h[1],h[2]));
-  });
-  return out;
-}
-function indexCards(){
-  BYID={};BYSR={};BYR={};BYS={};
-  CARDS.forEach(c=>{BYID[c.id]=c;(BYSR[c.s+c.r]=BYSR[c.s+c.r]||[]).push(c);(BYR[c.r]=BYR[c.r]||[]).push(c);(BYS[c.s]=BYS[c.s]||[]).push(c)});
-}
 
 /* ===================== ESTADO ===================== */
 let S=null,M=null,speed=1,EVC={};
-const DAYLEN=100,RENT=15;
 const skey=()=>"pcs-save-"+MODE+"-v3";
 const save=()=>saveNow();
-const rvr=c=>c.rv&&c.b?clamp(c.rv/c.b,1.2,8):2.5;
 const price=id=>S.prices[id].p;
 const itemVal=it=>{if(it.fkK)return 0;const c=BYID[it.c];return price(it.c)*(it.rv?rvr(c):1)*(it.gr?GMULT[it.gr]:COND[it.k])};
 const invValue=()=>S.items.reduce((a,it)=>a+itemVal(it),0);
 const sealedCount=()=>SETS.reduce((a,sd)=>a+S.sealed[sd.id],0);
 const netWorth=()=>S.money+invValue()+SETS.reduce((a,sd)=>a+S.sealed[sd.id]*S.pack[sd.id].w,0)+prodValue();
-const LV=[0,1600,3200,6500,14000,30000,70000,180000,700000];
 const level=()=>{const n=netWorth();let l=1;LV.forEach((v,i)=>{if(n>=v)l=i+1});return l};
 const caseCap=()=>8+8*S.up.case;
 const caseItems=()=>S.items.filter(i=>i.case!=null&&!i.lux);
@@ -134,18 +39,6 @@ function assignSlots(){
   SETS.forEach(sd=>{if(S.sealed[sd.id]>0&&!S.slots.includes(sd.id)){const i=S.slots.indexOf(null);if(i>=0)S.slots[i]=sd.id}});
 }
 
-function step(p,vol){
-  p.t=p.t*.85+(Math.random()-.5)*.012*vol;
-  p.p=Math.max(.02,p.p*Math.exp(p.t+gauss()*.03*vol)+(p.b-p.p)*.03);
-  p.h.push(p.p);if(p.h.length>60)p.h.shift();
-}
-const VOL={C:.3,U:.3,R:.5,DR:.8,IR:1,UR:1,SIR:1.2,HR:1.3};
-function initPrice(c){
-  const h=[];
-  if(c.seed){const s=c.seed;for(let i=0;i<30;i++){const f=i/29,v=f<.77?s[0]+(s[1]-s[0])*(f/.77):s[1]+(c.b-s[1])*((f-.77)/.23);h.push(v*(1+(Math.random()-.5)*.01))}h[29]=c.b}
-  else{const p={p:c.b*(.92+Math.random()*.16),t:0,b:c.b,h:[]};for(let i=0;i<30;i++)step(p,VOL[c.r]);return p}
-  return {p:c.b,t:0,b:c.b,h};
-}
 function ensure(){
   if(!S.dex){S.dex={};S.items.forEach(i=>S.dex[i.c]=1)}
   if(!S.sets)S.sets=DEFAULT_SETS.slice();if(!S.up.shelf)S.up.shelf=0;syncSets();
@@ -199,14 +92,6 @@ function roll(sid){
 }
 
 /* ===================== CLIENTES ===================== */
-const CT={
-  kid:{w:.30,col:"#4a90d9",hair:"#4b2e1a",sc:.85,mult:.95},
-  collector:{w:.28,col:"#4fa36a",hair:"#222",sc:1,mult:1.02},
-  investor:{w:.12,col:"#3d4257",hair:"#111",sc:1,mult:.96},
-  whale:{w:.05,col:"#d0a52a",hair:"#8a6a1a",sc:1.05,mult:1.12},
-  seller:{w:.25,col:"#a25fb5",hair:"#5a3a2a",sc:1,mult:1},
-  lot:{w:0,col:"#8a5a2b",hair:"#cfcfcf",sc:1,mult:1}
-};
 const W=800,H=640;
 const LAY={
   shelf:i=>({x:40+(i%3)*205,y:i<3?46:170,w:150,h:54}),
@@ -372,12 +257,9 @@ function pokeball(x,y,r){cx.fillStyle="#e3350d";cx.beginPath();cx.arc(x,y,r,Math
 function plant(x,y){cx.fillStyle="rgba(0,0,0,.18)";cx.beginPath();cx.ellipse(x,y+16,13,4,0,0,7);cx.fill();cx.fillStyle="#7a4a2b";cx.beginPath();cx.moveTo(x-9,y);cx.lineTo(x+9,y);cx.lineTo(x+6,y+16);cx.lineTo(x-6,y+16);cx.fill();cx.fillStyle="#2f7d43";[[-8,-4],[8,-4],[0,-12],[-3,-2],[5,-9]].forEach(p=>{cx.beginPath();cx.arc(x+p[0],y+p[1],8,0,7);cx.fill()});cx.fillStyle="#48a862";cx.beginPath();cx.arc(x,y-8,6,0,7);cx.fill()}
 /* ===================== DIBUJO 2.5D ===================== */
 const FLOOR_T=48,FRONT_Y=556;
-const TIERS=[{n:"Poké Cards",sub:"Tienda de barrio"},{n:"Poké Cards",sub:"Tienda de cartas"},{n:"Poké Cards Center",sub:"Tienda especializada"},{n:"Poké Cards MEGASTORE",sub:"Megastore"}];
 const tierOf=l=>l>=7?3:l>=5?2:l>=3?1:0;
 const VIS={shut:1,endAt:0,lastRep:null,ped:[],pedT:1,lt:0};
-const SEAS={auto:"Automática",spring:"🌸 Primavera",summer:"☀️ Verano",autumn:"🍂 Otoño",hallo:"🎃 Halloween",winter:"❄️ Invierno",xmas:"🎄 Navidad"};
 function season(){const o=(S&&S.season)||"auto";if(o!=="auto")return o;const d=new Date(),m=d.getMonth()+1,dd=d.getDate();if(m===12||(m===1&&dd<=6))return "xmas";if((m===10&&dd>=15)||(m===11&&dd<=2))return "hallo";return m>=3&&m<=5?"spring":m>=6&&m<=8?"summer":m>=9&&m<=11?"autumn":"winter"}
-const srand=s=>()=>{s=(s*16807)%2147483647;return (s-1)/2147483646};
 let BG=null,BGk=-1;
 function buildBG(t){
   const c=document.createElement("canvas");c.width=W*2;c.height=FRONT_Y*2;const g=c.getContext("2d");g.scale(2,2);const R=srand(11+t*7);
@@ -781,6 +663,7 @@ function draw(){
 }
 
 /* ===================== HUD ===================== */
+on("toast",(t,o)=>toast(t,o));on("sets",()=>{if(M==="sets")renderM()});
 function toast(t,o){o=o||{};if(!o.nolog){VIS.notes=VIS.notes||[];VIS.notes.unshift({t,at:Date.now()});if(VIS.notes.length>40)VIS.notes.length=40;VIS.unread=(VIS.unread||0)+1;if(typeof updBadges==="function")updBadges()}
   const e=$("#toast");if(!e)return;const d=document.createElement("div");d.className="toast";d.innerHTML=t+(o.undo?' <button class="undo" data-a="undo">Deshacer</button>':"");if(o.undo)d.style.pointerEvents="auto";e.appendChild(d);while(e.children.length>2)e.firstChild.remove();setTimeout(()=>d.remove(),o.undo?7000:2600)}
 let paused=false;
@@ -905,11 +788,6 @@ function mSets(){
   <div class="serchips"><button class="b ${setQ?"":"on"}" data-a="serf" data-k="">Todas</button>${ser.map(x=>`<button class="b ${cur&&cur.n===x.n?"on":""}" data-a="serf" data-k="${x.n.replace(/"/g,"")}">${x.n} (${x.c})</button>`).join("")}</div>
   ${cur&&miss?`<button class="b pri big" data-a="addseries" style="margin:0 0 10px">➕ Añadir ${miss===1?"el set que falta":"los "+miss+" sets"} de ${cur.n}</button>`:""}<input class="inp" data-i="setq" placeholder="Buscar: Evolving Skies, Base Set, 2019…" value="${setQ.replace(/"/g,"")}"><p class="mu">Cada set trae todas sus cartas con precio de Cardmarket. Muchos sets a la vez pueden tardar en cargar al abrir el juego.</p><div id="setlist">${setRows()}</div>`;
 }
-const UPS=[
-  {k:"ads",n:"Publicidad local",d:"Entran más clientes cada día.",cost:[250,600,1400],max:3},
-  {k:"case",n:"Vitrina grande",d:"Sube la capacidad de la vitrina de 8 a 16 cartas.",cost:[500],max:1},
-  {k:"shelf",n:"Segunda fila de estanterías",d:"Pasas de 3 a 6 sets de sobres en las estanterías a la vez.",cost:[350],max:1}
-];
 function mUp(){
   const dec=DECOR.map(d=>`<div class="pn"><div class="row"><b>${d.ic} ${d.n}</b>${S.decor[d.k]?'<span class="up">Colocado ✔</span>':`<button class="b pri" data-a="decor" data-k="${d.k}"${S.money<d.cost?" disabled":""}>${fmt(d.cost)}</button>`}</div><div class="mu">${d.d}</div></div>`).join("");
   const stf=STAFF.map(x=>`<div class="pn"><div class="row"><b>${x.ic} ${x.n}</b><button class="b ${S.staff[x.k]?"on":"pri"}" data-a="staff" data-k="${x.k}">${S.staff[x.k]?"Contratado · despedir":"Contratar"}</button></div><div class="mu">${x.d} Sueldo: ${fmt(x.sal)}/día.</div></div>`).join("");
@@ -1102,22 +980,6 @@ function zoom(id,rv){
 
 /* ===================== V5: SISTEMAS ===================== */
 const repv=()=>Math.floor(S.sales/6)+(S.repB||0)+trophyRep();
-const DECOR=[
-  {k:"plants",ic:"🪴",n:"Más plantas",d:"Tienda más acogedora: +5 % clientes.",cost:120,sp:.05},
-  {k:"poster",ic:"🖼️",n:"Pósters de coleccionista",d:"Los clientes aceptan precios un 4 % más altos.",cost:250,tol:.04},
-  {k:"rug",ic:"⭕",n:"Alfombra Pokéball",d:"+10 % clientes.",cost:300,sp:.1},
-  {k:"coffee",ic:"☕",n:"Máquina de café",d:"+25 % de paciencia en la cola.",cost:350,pat:.25},
-  {k:"sofa",ic:"🛋️",n:"Sofá de espera",d:"+20 % de paciencia en la cola.",cost:450,pat:.2},
-  {k:"lights",ic:"💡",n:"Focos para la vitrina",d:"Las cartas de la vitrina se aceptan un 6 % más caras.",cost:500,tol:.06},
-  {k:"neon",ic:"✨",n:"Letrero de neón",d:"+15 % clientes.",cost:600,sp:.15},
-  {k:"table",ic:"🎲",n:"Mesa de juego",d:"Permite organizar torneos en la tienda.",cost:800},
-  {k:"lux",ic:"💎",n:"Peanas de lujo",d:"3 peanas con foco para tus mejores cartas: se aceptan un 12 % más caras.",cost:1500}
-];
-const STAFF=[
-  {k:"cashier",ic:"🧑‍💼",n:"Cajero/a",d:"Cobra por ti a los clientes que compran (sin minijuego de caja).",sal:20},
-  {k:"appraiser",ic:"🧐",n:"Tasador/a",d:"Revisa gratis 10 cartas de cada lote y afina a la mitad la estimación.",sal:25},
-  {k:"cm",ic:"📣",n:"Community manager",d:"+1 de reputación al día y +10 % clientes.",sal:30}
-];
 const dsum=k=>DECOR.reduce((a,d)=>a+(S.decor[d.k]&&d[k]?d[k]:0),0);
 function evMul(){const t=S.ev&&S.ev.t;return (t==="launch"?1.8:t==="rain"?.65:t==="vip"?1.25:1)*(S.tour?1.35:1)*({xmas:1.25,hallo:1.1,summer:.95}[season()]||1)}
 const spMul=()=>(1+dsum("sp")+(S.staff.cm?.1:0)+(S.annex?.1:0)+REGS.filter(r=>S.regs&&S.regs[r.id]&&S.regs[r.id].loy>=80).length*.03)*evMul()*rivalMul();
@@ -1134,60 +996,22 @@ function evLabel(){
 function evShort(){const e=S.ev,a=[];if(e&&e.t==="launch")a.push("🎉 Lanzamiento: "+setName(e.s));if(e&&e.t==="rain")a.push("🌧️ Lluvia");if(e&&e.t==="vip")a.push("⭐ Día VIP");if(S.tour)a.push("🏆 Torneo");return a.join(" · ")}
 
 /* ----- épocas de sobres ----- */
-const ERA={
-  wotc:{C:7,U:3,rv:false,slot:[["DR",.33],["R",.67]],d:"Época clásica (1999–2002): 11 cartas y 1 holo de cada 3 sobres."},
-  mid:{C:5,U:3,rv:true,slot:[["HR",.025],["IR",.02],["UR",.1],["DR",.3],["R",.555]],d:"2003–2022: reverse en cada sobre, holo 1 de cada 3 y ultra rara ~1 de cada 10."},
-  sv:{C:5,U:3,rv:true,slot:[["HR",.007],["UR",.02],["SIR",.018],["IR",.06],["DR",.18],["R",.715]],d:"Escarlata y Púrpura: ilustraciones especiales, hyper raras y doble raras."}
-};
 function eraCfg(sid){const sd=SETDEF.find(d=>d.id===sid)||{},y=sd.year||2023,e=y<2003?"wotc":y<2023?"mid":"sv",c=Object.assign({id:e},ERA[e]);if(e==="wotc"&&/e-card/i.test(sd.series||""))c.rv=true;return c}
-const RORD=["HR","SIR","UR","IR","DR","R","U","C"];
 function poolR(sid,r){for(let i=RORD.indexOf(r);i<RORD.length;i++){const l=BYSR[sid+RORD[i]];if(l&&l.length)return l}return BYS[sid]||[]}
 const avgL=l=>l.length?l.reduce((a,c)=>a+price(c.id),0)/l.length:0;
 function rvPool(sid){const l=["C","U","R"].flatMap(x=>BYSR[sid+x]||[]);return l.length?l:(BYS[sid]||[])}
 const rvAvg=sid=>{const l=rvPool(sid);return l.length?l.reduce((a,c)=>a+price(c.id)*rvr(c),0)/l.length:0};
 
 /* ----- gradeo ----- */
-const GMULT={10:4,9:1.7,8:1.2,7:.95,6:.8,5:.7,4:.6,3:.55,2:.5,1:.45};
-const GTXT={10:"GEM MINT",9:"MINT",8:"NM-MT",7:"NEAR MINT",6:"EX-MT",5:"EXCELLENT",4:"VG-EX",3:"VERY GOOD",2:"GOOD",1:"POOR"};
-const GSVC={std:{n:"Estándar",cost:12,days:4},exp:{n:"Exprés",cost:35,days:1}};
 function rollGrade(k){const g=+wpick({10:14,9:34,8:26,7:14,6:7,5:3,4:2})-(k==="LP"?2:k==="MP"?3:0);return Math.max(1,g)}
 const gk=it=>it.c+"|"+it.k+"|"+(it.rv?1:0)+"|"+(it.gr||0)+"|"+(it.gq?1:0)+(it.fkK?"|F":"")+(it.fav?"|V":"");
 
 /* ----- encargos, misiones y logros ----- */
-const NAMES=["Lucía","Dani","Marcos","Aitana","Pablo","Sara","Iker","Noa","Hugo","Carla","Jorge","Irene"];
 function genOrder(){const pool=CARDS.filter(c=>S.sets.includes(c.s)&&S.prices[c.id]&&price(c.id)>=1.5&&price(c.id)<=250);if(!pool.length)return;const c=pick(pool),rid=pick(["lucia","iker","marcos","aitana","hugo"]),rl=regS(rid).loy;S.orders.push({id:S.nid++,c:c.id,pay:r05(price(c.id)*(1.25+Math.random()*.4)*(1+rl/500)),due:S.day+3+rnd(4),who:RG(rid).n,reg:rid})}
 function ownFor(o){const l=S.items.filter(i=>i.c===o.c&&!i.fav&&!i.gq&&!i.res&&!i.fkK);return l.find(i=>i.case==null)||l[0]}
-const MT=[
-  {k:"open",n:"Abre {g} sobres",g:[2,4,6],r:[20,35,60]},
-  {k:"sellpack",n:"Vende {g} sobres en la tienda",g:[4,7,12],r:[20,40,70]},
-  {k:"serve",n:"Atiende a {g} clientes",g:[5,9,14],r:[25,45,70]},
-  {k:"earn",n:"Ingresa {g} € en caja",g:[40,90,180],r:[20,45,80]},
-  {k:"buycard",n:"Compra {g} carta(s) a clientes",g:[1,2,3],r:[15,30,50]},
-  {k:"exact",n:"Da el cambio exacto {g} veces",g:[2,3,5],r:[20,30,50]},
-  {k:"cardpay",n:"Cobra {g} veces con tarjeta",g:[2,3,4],r:[15,25,40]},
-  {k:"bigsale",n:"Vende en vitrina una carta de {g} € o más",g:[5,15,30],r:[25,50,90]},
-  {k:"sellprod",n:"Vende {g} productos sellados o accesorios",g:[2,4,7],r:[25,45,80]}
-];
 function genMissions(){const tier=Math.min(2,Math.floor((S.day-1)/6));S.dm={day:S.day,list:MT.slice().sort(()=>Math.random()-.5).slice(0,3).map(m=>({k:m.k,t:m.n.replace("{g}",m.g[tier]),g:m.g[tier],p:0,r:m.r[tier],done:0,cl:0}))}}
-const ACH=[
-  {id:"pack1",n:"Primer sobre",d:"Abre tu primer sobre.",st:"packs",g:1,r:20},
-  {id:"pack100",n:"Adicto a los sobres",d:"Abre 100 sobres.",st:"packs",g:100,r:300},
-  {id:"serve50",n:"Atención al cliente",d:"Atiende a 50 clientes.",st:"served",g:50,r:150},
-  {id:"serve500",n:"Tienda de barrio",d:"Atiende a 500 clientes.",st:"served",g:500,r:1000},
-  {id:"exact20",n:"Cajero de oro",d:"Da el cambio exacto 20 veces.",st:"exact",g:20,r:80},
-  {id:"hit",n:"¡Brilla!",d:"Consigue una Ilustración especial o una Hyper rara en un sobre.",st:"bighit",g:1,r:50},
-  {id:"gem",n:"Gem Mint",d:"Consigue un 10 en el gradeo.",st:"gem",g:1,r:100},
-  {id:"lot",n:"Cazador de lotes",d:"Compra un lote misterioso.",st:"lots",g:1,r:40},
-  {id:"order5",n:"Por encargo",d:"Completa 5 encargos.",st:"orders",g:5,r:120},
-  {id:"tour",n:"Organizador",d:"Organiza un torneo.",st:"tours",g:1,r:60},
-  {id:"alb50",n:"Media colección",d:"Llega al 50 % de un set en el álbum.",st:"alb50",g:1,r:150},
-  {id:"alb100",n:"Maestro del set",d:"Completa un set entero en el álbum.",st:"alb100",g:1,r:1000},
-  {id:"nw10k",n:"Empresario",d:"Valor de la empresa: 10.000 €.",st:"nw",g:10000,r:200},
-  {id:"nw100k",n:"Magnate",d:"Valor de la empresa: 100.000 €.",st:"nw",g:100000,r:2000}
-];
 function achVal(a){if(a.st==="nw")return netWorth();if(a.st==="alb50")return S.sets.some(s=>albPct(s)>=.5)?1:0;if(a.st==="alb100")return S.sets.some(s=>albPct(s)>=1)?1:0;return S.lt[a.st]||0}
 function checkAch(){checkMedals();ACH.forEach(a=>{if(!S.ach[a.id]&&achVal(a)>=a.g){S.ach[a.id]=1;S.money+=a.r;toast(`🏆 Logro: ${a.n} · +${fmt(a.r)}`);sfx.ach()}})}
-const LTK={open:"packs",serve:"served",exact:"exact",order:"orders",lot:"lots",tour:"tours",gem:"gem",bighit:"bighit"};
 function track(k,v){
   if(v==null)v=1;if(!S)return;
   if(LTK[k])S.lt[LTK[k]]=(S.lt[LTK[k]]||0)+v;
@@ -1195,7 +1019,6 @@ function track(k,v){
   checkAch();
 }
 function albPct(sid){const l=BYS[sid]||[];return l.length?l.filter(c=>S.dex[c.id]).length/l.length:0}
-const ALBR=[[.25,40,1],[.5,120,2],[.75,300,3],[1,1000,5]];
 function claimables(){
   let n=S.dm?S.dm.list.filter(m=>m.done&&!m.cl).length:0;
   n+=S.orders.filter(o=>ownFor(o)).length;
@@ -1416,7 +1239,7 @@ const exportStr=()=>JSON.stringify({app:"pcs",v:5,mode:MODE,date:new Date().toIS
 function loadSetsFor(ids){
   const miss=(ids||[]).filter(id=>!BYS[id]).map(id=>SETDEF.find(d=>d.id===id)).filter(Boolean);
   if(!miss.length||MODE!=="real")return Promise.resolve();
-  return Promise.all(miss.map(sd=>fetchSetCards(sd).then(cs=>{cs.forEach(c=>c.s=sd.id);return cs}))).then(arr=>{CARDS=CARDS.concat(...arr);indexCards()});
+  return Promise.all(miss.map(sd=>fetchSetCards(sd).then(cs=>{cs.forEach(c=>c.s=sd.id);return cs}))).then(arr=>{setCards(CARDS.concat(...arr));indexCards()});
 }
 function importData(txt){
   let o=null;txt=(txt||"").trim();
@@ -1429,15 +1252,6 @@ function importData(txt){
 }
 
 /* ===================== V6: PRODUCTOS, HABITUALES Y FALSIFICACIONES ===================== */
-const PTYPES={box:{n:"Caja de 36 sobres",ic:"🗃️",packs:36,f:.85},etb:{n:"Elite Trainer Box",ic:"🎁",packs:9,f:1.35},tin:{n:"Lata",ic:"🥫",packs:4,f:1.2},col:{n:"Colección premium",ic:"💎",packs:6,f:1.45}};
-const ACC=[
-  {id:"sleeves",n:"Fundas (65 u.)",ic:"🛡️",w:2.2,r:4.95,col:"#3f7fc4"},
-  {id:"toploader",n:"Toploaders (25 u.)",ic:"🧊",w:1.6,r:3.95,col:"#9ad7e8"},
-  {id:"deckbox",n:"Caja de mazo",ic:"📦",w:1.8,r:4.5,col:"#d9402a"},
-  {id:"dice",n:"Dados y marcadores",ic:"🎲",w:1.2,r:3.5,col:"#f2b705"},
-  {id:"playmat",n:"Tapete de juego",ic:"🟩",w:7,r:16.95,col:"#2fa557"},
-  {id:"binder",n:"Carpeta de 9 bolsillos",ic:"📒",w:8,r:17.95,col:"#2f2f38"}
-];
 function pInfo(pid){
   const [t,x]=pid.split(":");
   if(t==="acc"){const a=ACC.find(y=>y.id===x);return a?{t,n:a.n,ic:a.ic,w:a.w,ref:a.r,col:a.col}:null}
@@ -1448,7 +1262,6 @@ const pStock=pid=>S.prod[pid]||0;
 function pPrice(pid){if(S.pp[pid]==null){const i=pInfo(pid);S.pp[pid]=i?r05(i.ref):1}return S.pp[pid]}
 const prodValue=()=>Object.keys(S.prod).reduce((a,pid)=>{const i=pInfo(pid);return a+(i?i.w*pStock(pid):0)},0);
 LAY.prod={x:372,y:258,w:170,h:62};
-const PPREF={kid:{tin:3,acc:4},collector:{etb:3,acc:2,col:1,tin:1},investor:{box:5,col:1},whale:{col:3,etb:3,box:2},player:{acc:5,etb:1}};
 function pickProd(type){const pf=PPREF[type]||{acc:1},w={};Object.keys(S.prod).forEach(pid=>{if(pStock(pid)<1)return;const i=pInfo(pid);if(!i)return;const v=pf[i.t]||0;if(v)w[pid]=v});return Object.keys(w).length?wpick(w):null}
 let pTab="packs";
 let pF="all";
@@ -1459,15 +1272,6 @@ function prodRow(pid){
 }
 
 /* ----- clientes habituales ----- */
-const REGS=[
-  {id:"lucia",n:"Lucía",e:"👩",t:"collector",col:"#2fa557",skin:"#f2c9a0",hair:"#6b3a1e",d:"Coleccionista de ilustraciones raras."},
-  {id:"iker",n:"Iker",e:"🧒",t:"kid",col:"#4a90d9",skin:"#e0a878",hair:"#222",d:"Se gasta la paga en sobres."},
-  {id:"marcos",n:"Marcos",e:"🧑‍💼",t:"investor",col:"#3d4257",skin:"#f2c9a0",hair:"#111",d:"Invierte en cajas y cartas top."},
-  {id:"aitana",n:"Aitana",e:"🤑",t:"whale",col:"#d0a52a",skin:"#a9714b",hair:"#2a1a0a",d:"Gasta a lo grande."},
-  {id:"hugo",n:"Hugo",e:"🎮",t:"collector",col:"#8e4cb5",skin:"#f2c9a0",hair:"#c47a45",d:"Jugador competitivo: fundas, tapetes y cartas.",acc:true},
-  {id:"paco",n:"Don Paco",e:"👴",t:"lot",col:"#8a5a2b",skin:"#f2c9a0",hair:"#ddd",d:"Vende colecciones de toda la vida."},
-  {id:"rafa",n:"Rafa",e:"🕶️",t:"seller",col:"#3a3a3a",skin:"#e0a878",hair:"#111",d:"Siempre trae «chollos»… ojo con él."}
-];
 const RG=id=>REGS.find(r=>r.id===id);
 function regS(id){return S.regs[id]||(S.regs[id]={loy:30,visits:0,note:"",met:false,fav:pick(S.sets)})}
 function loy(id,d,note){if(!id)return;const r=regS(id);r.loy=clamp(r.loy+d,0,100);if(note)r.note=note;if(d>0){const c=custs.find(x=>x.reg===id);if(c)heartsAt(c.x,c.y-54,Math.min(4,Math.ceil(d/3)))}}
@@ -1759,19 +1563,13 @@ function tutTick(){
   }
 }
 /* ----- más cartas: rarezas sin mapear y series completas ----- */
-function rarOf(d){
-  const r=d.rarity;if(RMAP[r])return RMAP[r];if(!r)return "R";
-  if(/secret|rainbow|hyper|gold|black white/i.test(r))return "HR";if(/special illustration/i.test(r))return "SIR";if(/illustration|radiant|amazing|gallery/i.test(r))return "IR";
-  if(/ultra|shiny|shining|prism|star|vmax|vstar|gx|ex|lv\.x|break|legend/i.test(r))return "UR";if(/holo|double/i.test(r))return "DR";if(/uncommon/i.test(r))return "U";if(/common/i.test(r))return "C";return "R";
-}
-const RECO=["base1","swsh7","swsh12pt5","sv4pt5","sv8"];
 function seriesList(){const m={};SETDEF.forEach(d=>{if(!d.series)return;(m[d.series]=m[d.series]||{n:d.series,c:0,d:""}).c++;if((d.date||"")>m[d.series].d)m[d.series].d=d.date||""});return Object.values(m).sort((a,b)=>b.d.localeCompare(a.d))}
 function addSets(ids){
   ids=ids.filter(id=>!S.sets.includes(id)&&SETDEF.some(d=>d.id===id));if(!ids.length){toast("Ya están todas en tu catálogo");return Promise.resolve()}
   if(MODE!=="real"){toast("Sin conexión con la API: no se pueden añadir sets");return Promise.resolve()}
   let done=0,ok=0;const q=ids.slice();toast(`Cargando ${ids.length} colección(es)…`);
   const work=()=>{const id=q.shift();if(!id)return Promise.resolve();const sd=SETDEF.find(x=>x.id===id);
-    return fetchSetCards(sd).then(cs=>{done++;if(cs.length){cs.forEach(c=>c.s=sd.id);CARDS=CARDS.filter(c=>c.s!==sd.id).concat(cs);S.sets.push(sd.id);ok++}if(ids.length>2&&done%3===0)toast(`Cargando… ${done}/${ids.length}`)}).then(work)};
+    return fetchSetCards(sd).then(cs=>{done++;if(cs.length){cs.forEach(c=>c.s=sd.id);setCards(CARDS.filter(c=>c.s!==sd.id).concat(cs));S.sets.push(sd.id);ok++}if(ids.length>2&&done%3===0)toast(`Cargando… ${done}/${ids.length}`)}).then(work)};
   return Promise.all([work(),work(),work()]).then(()=>{indexCards();ensure();saveNow();toast(`✅ ${ok} colección(es) añadidas${ok<ids.length?" ("+(ids.length-ok)+" fallaron, reintenta)":""}`);if(M==="sets")renderM();hud()});
 }
 
@@ -1954,7 +1752,6 @@ function mTips(){
 }
 
 /* ===================== V15: PARA JUGAR EN FAMILIA ===================== */
-Object.assign(LTK,{sellpack:"psold",earn:"earned",trade:"trades",mgwin:"mgwins",goodbuy:"goodbuys",boxopen:"boxes",caught:"caught",gem9:"gem9"});
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()};
 /* ----- medallas ----- */
 const MEDALS=[
@@ -2355,9 +2152,6 @@ function drawCams(){if(!S.cams)return;const t=performance.now()/1000;[[24,58,1],
 
 
 /* ===================== V21: DIFICULTAD Y RENDIMIENTO ===================== */
-const DIFFS={facil:{n:"Fácil",d:"Sin tienda rival ni ladrones, pocas falsas, clientes más pacientes y alquiler más barato. Ideal para peques.",pat:1.5,tol:1.06,rent:.7,fake:.35,theft:0,rival:false,rStr:40},
-  normal:{n:"Normal",d:"La experiencia completa.",pat:1,tol:1,rent:1,fake:1,theft:1,rival:true,rStr:55},
-  dificil:{n:"Difícil",d:"Rival desde el día 3 y más fuerte, más robos y falsas, clientes exigentes y alquiler caro.",pat:.8,tol:.95,rent:1.3,fake:1.3,theft:1.6,rival:true,rStr:70,rDay:3}};
 const DF=()=>DIFFS[(S&&S.diff)||"normal"]||DIFFS.normal;
 const LITE=()=>{const m=(S&&S.ui&&S.ui.perf)||"auto";return m==="lo"||(m==="auto"&&!!VIS.autoLite)};
 function perfTick(raw){if(!(raw>0))return;const f=1/Math.max(raw,1/240);VIS.fpsE=VIS.fpsE?VIS.fpsE*.95+f*.05:f;
@@ -2569,7 +2363,7 @@ const A={
     toast("Cargando "+sd.n+"…");
     fetchSetCards(sd).then(cs=>{
       if(!cs.length){toast("No se pudo cargar. Reintenta");return}
-      cs.forEach(c=>c.s=sd.id);CARDS=CARDS.filter(c=>c.s!==sd.id).concat(cs);indexCards();S.sets.push(sd.id);ensure();save();
+      cs.forEach(c=>c.s=sd.id);setCards(CARDS.filter(c=>c.s!==sd.id).concat(cs));indexCards();S.sets.push(sd.id);ensure();save();
       toast(sd.n+" añadida al catálogo");if(M==="sets")renderM();
     });
   },
@@ -2671,14 +2465,14 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden&&S&&S.phase
     return loadMany(ids,(d,n,sd)=>{txt.textContent=`Cargando colecciones ${d}/${n} · ${sd.n}…`});
   }).then(all=>{
     if(all.length<100)throw 0;
-    CARDS=all;MODE="real";NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";
+    setCards(all);MODE="real";NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";
   }).catch(()=>{
-    if(cget("pcs-save-real-v3"))return new Promise(res=>{$("#load").innerHTML=`<div><h2>No se pudieron cargar las cartas</h2><p class="mu">La API de cartas no responde ahora mismo. Tu partida está guardada y no se pierde.</p><div class="btns" style="justify-content:center"><button class="b pri" id="lretry">Reintentar</button><button class="b" id="loff">Jugar sin conexión (partida aparte)</button></div></div>`;$("#lretry").onclick=()=>location.reload();$("#loff").onclick=()=>{CARDS=offlineCards();MODE="offline";NOTE="Sin conexión: partida aparte con cartas ilustradas";res()}});
-    CARDS=offlineCards();MODE="offline";NOTE="Sin conexión con la API: cartas ilustradas y precios simulados";
+    if(cget("pcs-save-real-v3"))return new Promise(res=>{$("#load").innerHTML=`<div><h2>No se pudieron cargar las cartas</h2><p class="mu">La API de cartas no responde ahora mismo. Tu partida está guardada y no se pierde.</p><div class="btns" style="justify-content:center"><button class="b pri" id="lretry">Reintentar</button><button class="b" id="loff">Jugar sin conexión (partida aparte)</button></div></div>`;$("#lretry").onclick=()=>location.reload();$("#loff").onclick=()=>{setCards(offlineCards());MODE="offline";NOTE="Sin conexión: partida aparte con cartas ilustradas";res()}});
+    setCards(offlineCards());MODE="offline";NOTE="Sin conexión con la API: cartas ilustradas y precios simulados";
   })
   .then(()=>{indexCards();loadOrNew();$("#load").remove();paintNav();fitCanvas();setMusic(MUSIC);hud();requestAnimationFrame(frame);refreshSetList(false);setTimeout(giftCheck,1500);if(FAILED.size)setTimeout(()=>toast(`⚠️ ${FAILED.size} colección(es) no cargaron. Reinténtalo en Más → Colecciones`),800)});
 })();
 
-/* ===================== R1: ACCESO PARA LOS TESTS ===================== */
-/* window.__pcs lee y escribe las variables del juego por su nombre (ver tests/README.md). */
-window.__pcs=new Proxy({},{get:(_,n)=>typeof n==="string"?eval(n):undefined,set:(_,n,v)=>{eval(n+"=v");return true}});
+/* ===================== ACCESO PARA LOS TESTS ===================== */
+/* Lo que aún vive en este archivo se lee y escribe por su nombre (ver src/debug.js). */
+export const __get=n=>eval(n),__set=(n,v)=>{eval(n+"=v")};

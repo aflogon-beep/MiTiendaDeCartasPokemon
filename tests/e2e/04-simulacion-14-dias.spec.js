@@ -8,7 +8,7 @@ test("4 · Simulación de 14 días: el bot llega a nivel 2 antes del día 7 y la
   const net0 = await game(page, (P) => P.netWorth());
 
   // speed 40: los tests aceleran el reloj del juego (el jugador solo puede llegar a 4×)
-  const log = await game(page, botPlay, { days: 14, speed: 40, claim: false, maxMs: 360_000 });
+  const log = await game(page, botPlay, { days: 14, speed: 40, claim: true, maxMs: 360_000 });
   console.log(log.map((d) => `día ${d.day}: nivel ${d.level} · empresa ${d.net} € · caja ${d.money} € · ventas ${d.inc} € · clientes ${d.cust} (${d.lost} sin comprar)`).join("\n"));
 
   expect(log.map((d) => d.day)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
