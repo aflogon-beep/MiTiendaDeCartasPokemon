@@ -48,10 +48,26 @@ test("17a · Primera vez: pantalla de carga y título solo con «Nueva partida»
   await t.locator('[data-a="tnew"]').click();
   await expect(t.locator(".title-slot")).toHaveCount(3);
   await t.locator('[data-a="tnewin"][data-n="1"]').click();
+
+  // Prepara tu aventura: Álvaro, dificultad (Fácil recomendada para peques) y mascota
+  await expect(t.locator("h2")).toHaveText("🎒 Prepara tu aventura");
+  await expect(t.locator(".adv-hero")).toContainText("¡Eres Álvaro!");
+  await expect(t.locator('[data-a="tadvd"]')).toHaveText([/Fácil.*Recomendado para peques/, /^Normal/, /^Difícil/]);
+  await expect(t.locator('[data-a="tadvd"].on')).toContainText("Normal"); // por defecto
+  await expect(t.locator('[data-a="tadvp"]')).toHaveText(["🐱 Gato", "🐶 Perro", "🐰 Conejo", "Sin mascota"]);
+  // el retrato de Álvaro está dibujado
+  expect(await page.evaluate(() => document.querySelector("#advpj").toDataURL().length)).toBeGreaterThan(5000);
+  await t.locator('[data-a="tadvd"][data-k="facil"]').click();
+  await t.locator('[data-a="tadvp"][data-k="dog"]').click();
+  await expect(t.locator('[data-a="tadvd"].on')).toContainText("Fácil");
+  await expect(t.locator('[data-a="tadvp"].on')).toHaveText("🐶 Perro");
+  await t.locator('[data-a="tadvgo"]').click();
+
+  // ¡Empezar! → juego con el tutorial, con la dificultad y la mascota elegidas
   await expect(page.locator("#title")).toHaveCount(0);
   await expect(page.locator("#tut")).toBeVisible();
   const s = await page.evaluate(() => JSON.parse(localStorage.getItem("pcs-save-real-v3")));
-  expect(s.day).toBe(1);
+  expect([s.day, s.diff, s.pet]).toEqual([1, "facil", "dog"]);
 });
 
 test("17b · Continuar abre la última ranura; Cargar permite elegir otra; volver al título guarda", async ({
@@ -124,7 +140,8 @@ test("17c · Sobrescribir y borrar piden confirmación; importar un código en u
   await t.locator('[data-a="tnew"]').click();
   await t.locator('[data-a="tnewin"][data-n="1"]').click();
   expect(dialogs.pop()).toBe(`¿Sobrescribir la tienda «${SAVE.shopName}»? No se puede deshacer.`);
-  expect(await game(page, (P) => [P.SLOT, P.S.day])).toEqual([1, 1]);
+  await t.locator('[data-a="tadvgo"]').click();
+  expect(await game(page, (P) => [P.SLOT, P.S.day, P.S.diff, P.S.pet])).toEqual([1, 1, "normal", "cat"]);
 
   // Borrar la ranura 3
   await game(page, (P) => P.A.totitle());

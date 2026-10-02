@@ -6,7 +6,8 @@
 // Título: encima del juego (la tienda y la calle siguen animándose detrás, oscurecidas). Mientras se
 // ve el título, la partida de fondo NO se guarda (G.TITLE): es solo decorado.
 //   Continuar  → la última ranura usada
-//   Nueva partida → elegir ranura (pide confirmación si está ocupada) → juego con el tutorial
+//   Nueva partida → elegir ranura (pide confirmación si está ocupada) → Prepara tu aventura
+//                   (dificultad y mascota; el protagonista es Álvaro) → juego con el tutorial
 //   Cargar partida → elegir ranura, borrar ranuras o importar (archivo o código)
 //   ⚙️ → sonido, música y texto grande
 // Desde el juego: Más → Título (guarda antes de salir).
@@ -19,6 +20,8 @@ import { custs, queue } from "../core/customers/move.js";
 import { fmt } from "../core/util.js";
 import { giftCheck } from "../core/gift.js";
 import { MUSIC, setMusic } from "../audio/sfx.js";
+import { DIFFS, PETS } from "../core/constants.js";
+import { CHARS, drawPortrait } from "../render/characters.js";
 import { A } from "./actions.js";
 import { closeM } from "./modals.js";
 import { hud, setPause, applyUI } from "./hud.js";
@@ -75,7 +78,8 @@ export function loadDone(skipWait) {
 }
 
 /* ===================== TÍTULO ===================== */
-let view = "main", // main | new | load | imp | set
+let view = "main", // main | new | adv | load | imp | set
+  adv = null, // Prepara tu aventura: { slot, diff, pet }
   pendingImport = null,
   bigPref = null, // «texto grande» elegido en el título: se aplica a la partida que se abra
   firstStart = true;
@@ -158,12 +162,41 @@ export function paintTitle() {
         .map((s) => slotRow(s, "imp"))
         .join("")}</div>${back}`
       : `<h2>📥 Importar partida</h2>${impBox()}${back}`;
+  else if (view === "adv")
+    body = `<h2>🎒 Prepara tu aventura</h2>
+      <div class="adv-hero"><canvas id="advpj" width="240" height="300" aria-hidden="true"></canvas><div><b>¡Eres Álvaro!</b><span>Le encantan los Pokémon, coleccionar y los animales… y se cae por todas partes. Su ropa, la mascota y el nombre de la tienda se pueden cambiar después en Más → Personalizar.</span></div></div>
+      <h3>Dificultad</h3><div class="adv-opts">${Object.keys(DIFFS)
+        .map(
+          (k) =>
+            `<button class="adv-opt${adv.diff === k ? " on" : ""}" data-a="tadvd" data-k="${k}"><b>${DIFFS[k].n}</b>${k === "facil" ? "<em>Recomendado para peques</em>" : ""}<span>${DIFFS[k].d}</span></button>`,
+        )
+        .join("")}</div>
+      <h3>Mascota</h3><div class="adv-pets">${Object.keys(PETS)
+        .map(
+          (k) =>
+            `<button class="adv-opt${adv.pet === k ? " on" : ""}" data-a="tadvp" data-k="${k}">${PETS[k]}</button>`,
+        )
+        .join("")}</div>
+      <button class="b pri big adv-go" data-a="tadvgo">¡Empezar!</button>
+      <button class="b title-back" data-a="tnew">← Volver</button>`;
   else if (view === "set")
     body = `<h2>⚙️ Ajustes</h2><div class="tgrid">
       <button class="tilebtn" data-a="tsnd"><span>${G.SOUND ? "🔊" : "🔇"}</span>Sonido: ${G.SOUND ? "sí" : "no"}</button>
       <button class="tilebtn" data-a="tmus"><span>🎵</span>Música: ${MUSIC ? "sí" : "no"}</button>
       <button class="tilebtn" data-a="tbig"><span>🔠</span>Texto: ${big ? "grande" : "normal"}</button></div>${back}`;
   el.innerHTML = `<div class="title-in title-${view}">${view === "main" ? `<button class="title-gear" data-a="tset" aria-label="Ajustes">⚙️</button>` : ""}${body}</div>`;
+  // En el menú principal la tienda se ve detrás; en las pantallas interiores, casi nada (se leen mejor)
+  el.classList.toggle("solid", view !== "main");
+  if (view === "adv") paintHero();
+}
+
+/** Retrato de Álvaro en «Prepara tu aventura» (con ojos de estrella al elegir). */
+function paintHero() {
+  const c = $("#advpj");
+  if (!c) return;
+  const x = c.getContext("2d");
+  x.clearRect(0, 0, c.width, c.height);
+  drawPortrait(x, CHARS.alvaro, adv.wow ? "stars" : "happy", c.width);
 }
 
 const impBox = () =>
@@ -231,8 +264,18 @@ Object.assign(A, {
   tnewin: (d) => {
     const n = +d.n;
     if (!ask(slotInfo(n), "Sobrescribir")) return;
-    useSlot(n);
+    adv = { slot: n, diff: "normal", pet: "cat" };
+    view = "adv";
+    paintTitle();
+  },
+  tadvd: (d) => ((adv.diff = d.k), (adv.wow = true), paintTitle()),
+  tadvp: (d) => ((adv.pet = d.k), (adv.wow = true), paintTitle()),
+  tadvgo: () => {
+    useSlot(adv.slot);
     newState();
+    S.diff = adv.diff;
+    S.pet = adv.pet;
+    adv = null;
     startGame();
   },
   topen: (d) => enterSlot(+d.n),
