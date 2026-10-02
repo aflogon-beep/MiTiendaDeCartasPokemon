@@ -55,3 +55,4 @@ export function rarOf(d){
   if(/secret|rainbow|hyper|gold|black white/i.test(r))return "HR";if(/special illustration/i.test(r))return "SIR";if(/illustration|radiant|amazing|gallery/i.test(r))return "IR";
   if(/ultra|shiny|shining|prism|star|vmax|vstar|gx|ex|lv\.x|break|legend/i.test(r))return "UR";if(/holo|double/i.test(r))return "DR";if(/uncommon/i.test(r))return "U";if(/common/i.test(r))return "C";return "R";
 }
+export function seriesList(){const m={};SETDEF.forEach(d=>{if(!d.series)return;(m[d.series]=m[d.series]||{n:d.series,c:0,d:""}).c++;if((d.date||"")>m[d.series].d)m[d.series].d=d.date||""});return Object.values(m).sort((a,b)=>b.d.localeCompare(a.d))}

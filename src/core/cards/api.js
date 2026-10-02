@@ -4,6 +4,10 @@ import { emit } from "../bus.js";
 import { rnd } from "../rng.js";
 import { cget, cput, IDB, cacheGet } from "./cache.js";
 import { SETDEF, mkSetDef, mapCard } from "./sets.js";
+import { ui } from "../bus.js";
+import { BYS, CARDS, indexCards, setCards } from "./sets.js";
+import { G, S, ensure } from "../state.js";
+import { saveNow } from "../save.js";
 
 export const API="https://api.pokemontcg.io/v2/";
 export function jget(url,ms){
@@ -47,4 +51,23 @@ export function loadMany(ids,onp){
   const work=()=>{if(i>=ids.length)return Promise.resolve();const id=ids[i++],sd=SETDEF.find(d=>d.id===id);if(!sd)return work();
     return fetchSetCards(sd).then(cs=>{cs.forEach(c=>c.s=sd.id);out.push(...cs);done++;if(onp)onp(done,ids.length,sd)}).then(work)};
   return Promise.all([work(),work(),work()]).then(()=>out);
+}
+export function retrySets(){
+  const ids=[...FAILED];if(!ids.length){ui.toast("No hay colecciones pendientes");return}
+  ui.toast(`Reintentando ${ids.length} colección(es)…`);
+  loadMany(ids).then(cs=>{setCards(CARDS.filter(c=>!ids.includes(c.s)).concat(cs));indexCards();ensure();saveNow();if(G.MODE==="real")G.NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";ui.hud();
+    ui.toast(FAILED.size?`⚠️ Aún faltan ${FAILED.size}. Prueba más tarde`:"✅ Todas las colecciones cargadas");if(G.M)ui.renderM()});
+}
+export function loadSetsFor(ids){
+  const miss=(ids||[]).filter(id=>!BYS[id]).map(id=>SETDEF.find(d=>d.id===id)).filter(Boolean);
+  if(!miss.length||G.MODE!=="real")return Promise.resolve();
+  return Promise.all(miss.map(sd=>fetchSetCards(sd).then(cs=>{cs.forEach(c=>c.s=sd.id);return cs}))).then(arr=>{setCards(CARDS.concat(...arr));indexCards()});
+}
+export function addSets(ids){
+  ids=ids.filter(id=>!S.sets.includes(id)&&SETDEF.some(d=>d.id===id));if(!ids.length){ui.toast("Ya están todas en tu catálogo");return Promise.resolve()}
+  if(G.MODE!=="real"){ui.toast("Sin conexión con la API: no se pueden añadir sets");return Promise.resolve()}
+  let done=0,ok=0;const q=ids.slice();ui.toast(`Cargando ${ids.length} colección(es)…`);
+  const work=()=>{const id=q.shift();if(!id)return Promise.resolve();const sd=SETDEF.find(x=>x.id===id);
+    return fetchSetCards(sd).then(cs=>{done++;if(cs.length){cs.forEach(c=>c.s=sd.id);setCards(CARDS.filter(c=>c.s!==sd.id).concat(cs));S.sets.push(sd.id);ok++}if(ids.length>2&&done%3===0)ui.toast(`Cargando… ${done}/${ids.length}`)}).then(work)};
+  return Promise.all([work(),work(),work()]).then(()=>{indexCards();ensure();saveNow();ui.toast(`✅ ${ok} colección(es) añadidas${ok<ids.length?" ("+(ids.length-ok)+" fallaron, reintenta)":""}`);if(G.M==="sets")ui.renderM();ui.hud()});
 }
