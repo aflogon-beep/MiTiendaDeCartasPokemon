@@ -7,23 +7,22 @@ import { cget, cput, IDB, cacheGet } from "./core/cards/cache.js";
 import { step, initPrice, rvr } from "./core/cards/prices.js";
 import { setCards, hue, SETDEF, setName, setCol, mkSetDef, rarOf, mapCard, offlineCards, indexCards, CARDS, BYID, BYSR, BYR, BYS } from "./core/cards/sets.js";
 import { API, jget, SETLIST_ST, loadSetList, refreshSetList, FAILED, STALE, fetchSetCards, loadMany } from "./core/cards/api.js";
+import { S, G, hasState, replaceState, SETS, slotCount, syncSets, assignSlots } from "./core/state.js";
+import { skey, save, saveNow, exportStr } from "./core/save.js";
 /* ===================== DATOS ===================== */
 const $=s=>document.querySelector(s);
 
 /* Sets: lista completa desde pokemontcg.io. Los 3 primeros conservan su id antiguo para no perder partidas. */
-let SETS=[],MODE="offline",NOTE="";
 function retrySets(){
   const ids=[...FAILED];if(!ids.length){toast("No hay colecciones pendientes");return}
   toast(`Reintentando ${ids.length} colección(es)…`);
-  loadMany(ids).then(cs=>{setCards(CARDS.filter(c=>!ids.includes(c.s)).concat(cs));indexCards();ensure();saveNow();if(MODE==="real")NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";hud();
+  loadMany(ids).then(cs=>{setCards(CARDS.filter(c=>!ids.includes(c.s)).concat(cs));indexCards();ensure();saveNow();if(G.MODE==="real")G.NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";hud();
     toast(FAILED.size?`⚠️ Aún faltan ${FAILED.size}. Prueba más tarde`:"✅ Todas las colecciones cargadas");if(M)renderM()});
 }
 /* --- modo sin conexión --- */
 
 /* ===================== ESTADO ===================== */
-let S=null,M=null,speed=1,EVC={};
-const skey=()=>"pcs-save-"+MODE+"-v3";
-const save=()=>saveNow();
+let M=null,speed=1,EVC={};
 const price=id=>S.prices[id].p;
 const itemVal=it=>{if(it.fkK)return 0;const c=BYID[it.c];return price(it.c)*(it.rv?rvr(c):1)*(it.gr?GMULT[it.gr]:COND[it.k])};
 const invValue=()=>S.items.reduce((a,it)=>a+itemVal(it),0);
@@ -32,12 +31,6 @@ const netWorth=()=>S.money+invValue()+SETS.reduce((a,sd)=>a+S.sealed[sd.id]*S.pa
 const level=()=>{const n=netWorth();let l=1;LV.forEach((v,i)=>{if(n>=v)l=i+1});return l};
 const caseCap=()=>8+8*S.up.case;
 const caseItems=()=>S.items.filter(i=>i.case!=null&&!i.lux);
-const slotCount=()=>3+3*S.up.shelf+(S.annex?2:0);
-function syncSets(){SETS=S.sets.map(id=>SETDEF.find(d=>d.id===id)).filter(d=>d&&BYS[d.id])}
-function assignSlots(){
-  const n=slotCount();S.slots=(S.slots||[]).slice(0,n);while(S.slots.length<n)S.slots.push(null);
-  SETS.forEach(sd=>{if(S.sealed[sd.id]>0&&!S.slots.includes(sd.id)){const i=S.slots.indexOf(null);if(i>=0)S.slots[i]=sd.id}});
-}
 
 function ensure(){
   if(!S.dex){S.dex={};S.items.forEach(i=>S.dex[i.c]=1)}
@@ -56,11 +49,11 @@ function ensure(){
   if(!S.dm||S.dm.day!==S.day)genMissions();
 }
 function newState(){
-  S={tut:{on:true,i:0},money:1000,day:1,sales:0,nid:1,items:[],sealed:{},shelf:{},pack:{},prices:{},up:{cashier:0,ads:0,case:0,shelf:0},sets:DEFAULT_SETS.slice(),log:[],phase:"closed",clock:0,stats:{inc:0,cust:0,lost:0,bought:0}};
+  replaceState({tut:{on:true,i:0},money:1000,day:1,sales:0,nid:1,items:[],sealed:{},shelf:{},pack:{},prices:{},up:{cashier:0,ads:0,case:0,shelf:0},sets:DEFAULT_SETS.slice(),log:[],phase:"closed",clock:0,stats:{inc:0,cust:0,lost:0,bought:0}});
   ensure();
 }
 function loadOrNew(){
-  try{const r=localStorage.getItem(skey())||localStorage.getItem(skey().replace("v3","v2"));if(r){S=JSON.parse(r);S.phase="closed";S.clock=0;ensure();return}}catch(e){}
+  try{const r=localStorage.getItem(skey())||localStorage.getItem(skey().replace("v3","v2"));if(r){replaceState(JSON.parse(r));S.phase="closed";S.clock=0;ensure();return}}catch(e){}
   newState();
 }
 /* valor esperado y apertura según la época del set */
@@ -74,7 +67,7 @@ function evBreak(sid){
 function refreshPacks(first){
   SETS.forEach(sd=>{
     const s=sd.id;EVC[s]=calcEV(s);
-    if(MODE==="real"){
+    if(G.MODE==="real"){
       const hi=sd.year>=2020?7:sd.year>=2010?14:sd.year>=2003?60:400,t=clamp(r05(EVC[s]*1.12),3,hi);
       S.pack[s].w=first?t:r05(S.pack[s].w*.7+t*.3);S.pack[s].init=1;
       S.pack[s].ref=r05(S.pack[s].w*1.45);
@@ -259,7 +252,7 @@ function plant(x,y){cx.fillStyle="rgba(0,0,0,.18)";cx.beginPath();cx.ellipse(x,y
 const FLOOR_T=48,FRONT_Y=556;
 const tierOf=l=>l>=7?3:l>=5?2:l>=3?1:0;
 const VIS={shut:1,endAt:0,lastRep:null,ped:[],pedT:1,lt:0};
-function season(){const o=(S&&S.season)||"auto";if(o!=="auto")return o;const d=new Date(),m=d.getMonth()+1,dd=d.getDate();if(m===12||(m===1&&dd<=6))return "xmas";if((m===10&&dd>=15)||(m===11&&dd<=2))return "hallo";return m>=3&&m<=5?"spring":m>=6&&m<=8?"summer":m>=9&&m<=11?"autumn":"winter"}
+function season(){const o=(hasState()&&S.season)||"auto";if(o!=="auto")return o;const d=new Date(),m=d.getMonth()+1,dd=d.getDate();if(m===12||(m===1&&dd<=6))return "xmas";if((m===10&&dd>=15)||(m===11&&dd<=2))return "hallo";return m>=3&&m<=5?"spring":m>=6&&m<=8?"summer":m>=9&&m<=11?"autumn":"winter"}
 let BG=null,BGk=-1;
 function buildBG(t){
   const c=document.createElement("canvas");c.width=W*2;c.height=FRONT_Y*2;const g=c.getContext("2d");g.scale(2,2);const R=srand(11+t*7);
@@ -689,7 +682,7 @@ function hud(){
     else{const tp=tipsList(null)[0];h=tp?"💡 "+tp:"Todo listo. Ajusta precios, coloca cartas en la vitrina y abre la tienda."}
   }else if(S.phase==="open")h="Los clientes hacen cola en la caja: toca «Cobrar» o pulsa sobre el cliente. Cuidado con el aburrimiento de la cola.";
   else h="No entran más clientes. Atiende a los que quedan.";
-  const ev=evLabel();$("#hint").textContent=(ev?ev+" ":"")+h+(S.phase==="closed"?" Pellizca la tienda para hacer zoom.":"")+(NOTE?"  ·  "+NOTE:"");
+  const ev=evLabel();$("#hint").textContent=(ev?ev+" ":"")+h+(S.phase==="closed"?" Pellizca la tienda para hacer zoom.":"")+(G.NOTE?"  ·  "+G.NOTE:"");
 }
 $("#act").addEventListener("click",()=>{
   if(M)return;if(paused){setPause(false);return}const f=front();
@@ -768,7 +761,7 @@ function groups(){
 function mMkt(){
   const pool=CARDS.filter(c=>c.b>=1),arr=pool.map(c=>({c,d:chg(c.id,7)})).sort((a,b)=>b.d-a.d);
   const row=x=>`<div class="pn row"><div style="min-width:0"><b>${x.c.name}</b> <span class="mu">${setName(x.c.s)} · ${RAR[x.c.r].n}</span><div>${fmt(price(x.c.id))} · 7 d <span class="${cls(x.d)}">${pct(x.d)}</span> · 30 d <span class="${cls(chg(x.c.id,30))}">${pct(chg(x.c.id,30))}</span></div></div>${spark(x.c.id)}</div>`;
-  return `<h2>Mercado</h2><p class="mu">${MODE==="real"?"Precios de Cardmarket (tendencia, €) vía pokemontcg.io, con movimientos diarios del juego encima.":"Modo sin conexión: precios simulados."}</p><h3>Top subidas (7 días)</h3>${arr.slice(0,6).map(row).join("")}<h3>Top bajadas (7 días)</h3>${arr.slice(-6).reverse().map(row).join("")}`;
+  return `<h2>Mercado</h2><p class="mu">${G.MODE==="real"?"Precios de Cardmarket (tendencia, €) vía pokemontcg.io, con movimientos diarios del juego encima.":"Modo sin conexión: precios simulados."}</p><h3>Top subidas (7 días)</h3>${arr.slice(0,6).map(row).join("")}<h3>Top bajadas (7 días)</h3>${arr.slice(-6).reverse().map(row).join("")}`;
 }
 let setQ="";
 function setRows(){
@@ -783,8 +776,8 @@ function setRows(){
 }
 function mSets(){
   const ser=seriesList(),cur=ser.find(x=>x.n===setQ.trim()),miss=cur?SETDEF.filter(d=>d.series===cur.n&&!S.sets.includes(d.id)).length:0,reco=RECO.filter(id=>SETDEF.some(d=>d.id===id)&&!S.sets.includes(id));
-  return `<h2>Colecciones</h2>${SETLIST_ST!=="ok"||SETDEF.length<=3?`<div class="pn">${SETLIST_ST==="loading"?"⏳ Descargando la lista completa de colecciones… La API puede tardar hasta un minuto.":`⚠️ No se ha podido descargar la lista completa de colecciones: la API de pokemontcg.io va lenta o no responde ahora mismo.<div class="btns"><button class="b pri" data-a="setlist">Reintentar</button></div>`}</div>`:""}${FAILED.size?`<div class="pn"><div class="down">⚠️ ${FAILED.size} colección(es) de tu catálogo no han cargado (la API va lenta o limita peticiones).</div><div class="btns"><button class="b pri" data-a="retrysets">Reintentar ahora</button></div></div>`:""}<p class="mu">Añade sets a tu catálogo para comprar sus sobres. En catálogo: <b>${S.sets.length}</b> de ${SETDEF.length}. ${MODE==="real"?"":"Sin conexión: solo están los 3 sets básicos."}</p>
-  ${MODE==="real"&&reco.length?`<button class="b pri big" data-a="addreco" style="margin:0 0 10px">⭐ Añadir ${reco.length} sets populares (Base Set, Evolving Skies…)</button>`:""}
+  return `<h2>Colecciones</h2>${SETLIST_ST!=="ok"||SETDEF.length<=3?`<div class="pn">${SETLIST_ST==="loading"?"⏳ Descargando la lista completa de colecciones… La API puede tardar hasta un minuto.":`⚠️ No se ha podido descargar la lista completa de colecciones: la API de pokemontcg.io va lenta o no responde ahora mismo.<div class="btns"><button class="b pri" data-a="setlist">Reintentar</button></div>`}</div>`:""}${FAILED.size?`<div class="pn"><div class="down">⚠️ ${FAILED.size} colección(es) de tu catálogo no han cargado (la API va lenta o limita peticiones).</div><div class="btns"><button class="b pri" data-a="retrysets">Reintentar ahora</button></div></div>`:""}<p class="mu">Añade sets a tu catálogo para comprar sus sobres. En catálogo: <b>${S.sets.length}</b> de ${SETDEF.length}. ${G.MODE==="real"?"":"Sin conexión: solo están los 3 sets básicos."}</p>
+  ${G.MODE==="real"&&reco.length?`<button class="b pri big" data-a="addreco" style="margin:0 0 10px">⭐ Añadir ${reco.length} sets populares (Base Set, Evolving Skies…)</button>`:""}
   <div class="serchips"><button class="b ${setQ?"":"on"}" data-a="serf" data-k="">Todas</button>${ser.map(x=>`<button class="b ${cur&&cur.n===x.n?"on":""}" data-a="serf" data-k="${x.n.replace(/"/g,"")}">${x.n} (${x.c})</button>`).join("")}</div>
   ${cur&&miss?`<button class="b pri big" data-a="addseries" style="margin:0 0 10px">➕ Añadir ${miss===1?"el set que falta":"los "+miss+" sets"} de ${cur.n}</button>`:""}<input class="inp" data-i="setq" placeholder="Buscar: Evolving Skies, Base Set, 2019…" value="${setQ.replace(/"/g,"")}"><p class="mu">Cada set trae todas sus cartas con precio de Cardmarket. Muchos sets a la vez pueden tardar en cargar al abrir el juego.</p><div id="setlist">${setRows()}</div>`;
 }
@@ -851,7 +844,7 @@ function pcHTML(c,rv,back,lv){
   return `<div class="pc${back?" back charge":""}${back&&lv>=3?" l3":""}" style="--rc:${RAR[c.r].c};--ho:${h.ho}"><div class="ent"><div class="wob"><div class="inner"><div class="fr">${faceBig(c,rv)}<div class="holo ${h.cl}"></div><div class="glare"></div></div><div class="bk"><div class="pball"></div></div></div></div></div></div>`;
 }
 function confetti(lv,col){
-  if(RM||(S&&S.ui&&S.ui.calm))return;const root=$("#px")||$("#zv");if(!root)return;
+  if(RM||(hasState()&&S.ui&&S.ui.calm))return;const root=$("#px")||$("#zv");if(!root)return;
   const cv=document.createElement("canvas");cv.className="conf";root.appendChild(cv);
   const dpr=Math.min(2,devicePixelRatio||1),W0=innerWidth,H0=innerHeight;cv.width=W0*dpr;cv.height=H0*dpr;const g=cv.getContext("2d");g.scale(dpr,dpr);
   const cols=[col,"#ffd54a","#ffffff","#7fe3ff","#ff7ab8"],n=lv>=3?190:lv===2?90:40,P=[];
@@ -1013,7 +1006,7 @@ function genMissions(){const tier=Math.min(2,Math.floor((S.day-1)/6));S.dm={day:
 function achVal(a){if(a.st==="nw")return netWorth();if(a.st==="alb50")return S.sets.some(s=>albPct(s)>=.5)?1:0;if(a.st==="alb100")return S.sets.some(s=>albPct(s)>=1)?1:0;return S.lt[a.st]||0}
 function checkAch(){checkMedals();ACH.forEach(a=>{if(!S.ach[a.id]&&achVal(a)>=a.g){S.ach[a.id]=1;S.money+=a.r;toast(`🏆 Logro: ${a.n} · +${fmt(a.r)}`);sfx.ach()}})}
 function track(k,v){
-  if(v==null)v=1;if(!S)return;
+  if(v==null)v=1;if(!hasState())return;
   if(LTK[k])S.lt[LTK[k]]=(S.lt[LTK[k]]||0)+v;
   if(S.dm)S.dm.list.forEach(m=>{if(m.k!==k||m.done)return;if(k==="bigsale"){if(v>=m.g)m.p=m.g}else m.p+=v;if(m.p>=m.g){m.p=m.g;m.done=1;toast("✅ Misión completada: "+m.t);sfx.ach()}});
   checkAch();
@@ -1229,16 +1222,9 @@ function mBackup(){
 }
 
 /* ----- guardado y copias ----- */
-function saveNow(){
-  if(!S)return false;S.savedAt=Date.now();const js=JSON.stringify(S);
-  try{localStorage.setItem(skey(),js);return true}catch(e){
-    try{Object.keys(localStorage).filter(k=>k.startsWith("pcs-set")).forEach(k=>localStorage.removeItem(k));localStorage.setItem(skey(),js);return true}
-    catch(e2){toast("⚠️ No se pudo guardar. Exporta una copia en Más → Partida");return false}}
-}
-const exportStr=()=>JSON.stringify({app:"pcs",v:5,mode:MODE,date:new Date().toISOString(),S});
 function loadSetsFor(ids){
   const miss=(ids||[]).filter(id=>!BYS[id]).map(id=>SETDEF.find(d=>d.id===id)).filter(Boolean);
-  if(!miss.length||MODE!=="real")return Promise.resolve();
+  if(!miss.length||G.MODE!=="real")return Promise.resolve();
   return Promise.all(miss.map(sd=>fetchSetCards(sd).then(cs=>{cs.forEach(c=>c.s=sd.id);return cs}))).then(arr=>{setCards(CARDS.concat(...arr));indexCards()});
 }
 function importData(txt){
@@ -1248,7 +1234,7 @@ function importData(txt){
   if(!ns||typeof ns.money!=="number"||!Array.isArray(ns.items)){toast("⚠️ Ese archivo o código no es una partida válida");return}
   if(!confirm(`¿Cargar la partida del día ${ns.day} con ${fmt(ns.money)}? Se sustituirá la actual.`))return;
   toast("Cargando partida…");
-  loadSetsFor(ns.sets).then(()=>{S=ns;S.phase="closed";S.clock=0;custs=[];queue=[];ensure();saveNow();closeM();hud();toast("✅ Partida cargada")});
+  loadSetsFor(ns.sets).then(()=>{replaceState(ns);S.phase="closed";S.clock=0;custs=[];queue=[];ensure();saveNow();closeM();hud();toast("✅ Partida cargada")});
 }
 
 /* ===================== V6: PRODUCTOS, HABITUALES Y FALSIFICACIONES ===================== */
@@ -1396,7 +1382,7 @@ function camFollow(dt){
   const cw=(V.cw/2-V.ox)/V.s,ch=(V.ch/2-V.oy)/V.s,tx=f?640:(queue.length?560:W/2),ty=f?300:H*.46,k=Math.min(1,dt*.7);
   const ns=V.s+(want-V.s)*k,nx=cw+(tx-cw)*k,ny=ch+(ty-ch)*k;V.s=ns;V.ox=V.cw/2-nx*ns;V.oy=V.ch/2-ny*ns;clampView();
 }
-const shake=v=>{if(S&&S.ui&&S.ui.calm)return;VIS.shake=Math.max(VIS.shake||0,Math.min(4,v*.4))};
+const shake=v=>{if(hasState()&&S.ui&&S.ui.calm)return;VIS.shake=Math.max(VIS.shake||0,Math.min(4,v*.4))};
 /* ----- gato de la tienda ----- */
 const CAT={x:120,y:470,tx:120,ty:470,st:"sleep",t:6,ph:0,dir:1,z:0};
 function catSpots(){const l=[[262,500],[80,470],[240,340],[470,480],[700,470],[160,240]];if(S.decor.sofa)l.push([560,522],[560,522]);return l}
@@ -1545,7 +1531,7 @@ function tutStep(){
   TUTV.i=T.i;TUTV.scrolled=false;
 }
 function tutTick(){
-  const T=S&&S.tut;if(!T||!T.on){const r=$("#tut");if(r){r.remove();TUTV.i=-1}return}
+  const T=hasState()&&S.tut;if(!T||!T.on){const r=$("#tut");if(r){r.remove();TUTV.i=-1}return}
   if(T.i>=TUT.length){tutEnd(true);return}
   const st=TUT[T.i];
   if(st.done&&st.done()){T.i++;TUTV.i=-1;saveNow();return}
@@ -1566,7 +1552,7 @@ function tutTick(){
 function seriesList(){const m={};SETDEF.forEach(d=>{if(!d.series)return;(m[d.series]=m[d.series]||{n:d.series,c:0,d:""}).c++;if((d.date||"")>m[d.series].d)m[d.series].d=d.date||""});return Object.values(m).sort((a,b)=>b.d.localeCompare(a.d))}
 function addSets(ids){
   ids=ids.filter(id=>!S.sets.includes(id)&&SETDEF.some(d=>d.id===id));if(!ids.length){toast("Ya están todas en tu catálogo");return Promise.resolve()}
-  if(MODE!=="real"){toast("Sin conexión con la API: no se pueden añadir sets");return Promise.resolve()}
+  if(G.MODE!=="real"){toast("Sin conexión con la API: no se pueden añadir sets");return Promise.resolve()}
   let done=0,ok=0;const q=ids.slice();toast(`Cargando ${ids.length} colección(es)…`);
   const work=()=>{const id=q.shift();if(!id)return Promise.resolve();const sd=SETDEF.find(x=>x.id===id);
     return fetchSetCards(sd).then(cs=>{done++;if(cs.length){cs.forEach(c=>c.s=sd.id);setCards(CARDS.filter(c=>c.s!==sd.id).concat(cs));S.sets.push(sd.id);ok++}if(ids.length>2&&done%3===0)toast(`Cargando… ${done}/${ids.length}`)}).then(work)};
@@ -1777,7 +1763,7 @@ function mountMedal(){
 }
 /* ----- regalo diario ----- */
 function giftCheck(){
-  if(!S||M||(S.tut&&S.tut.on)||MODE!=="real"&&MODE!=="offline")return;
+  if(!hasState()||M||(S.tut&&S.tut.on)||G.MODE!=="real"&&G.MODE!=="offline")return;
   const g=S.gift||(S.gift={last:"",streak:0}),t=today();if(g.last===t)return;
   const y=new Date();y.setDate(y.getDate()-1);const yk=y.getFullYear()+"-"+(y.getMonth()+1)+"-"+y.getDate();
   g.streak=g.last===yk?g.streak+1:1;g.last=t;const sd=pick(SETS);g.set=sd?sd.id:null;g.bonus=g.streak%7===0?50:g.streak%3===0?15:0;
@@ -1841,11 +1827,11 @@ function mHunt(){const h=huntDay(),got=h.p.filter(q=>q.g).length;return `<h2>⚪
 const pool4=f=>CARDS.filter(c=>S.sets.includes(c.s)&&f(c));
 function mgNew(k){
   if(k==="hl"){MG={k,round:0,ok:0,step:"pick"};mgHL()}
-  if(k==="who"){if(MODE!=="real"){toast("Este minijuego necesita las imágenes reales de las cartas");return}MG={k,round:0,ok:0,step:"pick"};mgWho()}
+  if(k==="who"){if(G.MODE!=="real"){toast("Este minijuego necesita las imágenes reales de las cartas");return}MG={k,round:0,ok:0,step:"pick"};mgWho()}
   if(k==="duel"){const mine=S.items.filter(i=>!i.res&&!i.gq&&!i.fkK);if(mine.length<3){toast("Necesitas al menos 3 cartas para un duelo");return}MG={k,sel:[],opp:pick(["hugo","lucia","iker"]),step:"choose",score:[0,0],round:0}}
   openM("mg");
 }
-function mgHL(){const l=pool4(c=>price(c.id)>=.3&&c.img||MODE!=="real"&&price(c.id)>=.3);let a,b,t=0;do{a=pick(l);b=pick(l);t++}while(t<60&&(a===b||Math.max(price(a.id),price(b.id))/Math.min(price(a.id),price(b.id))<1.3));MG.a=a;MG.b=b;MG.step="pick"}
+function mgHL(){const l=pool4(c=>price(c.id)>=.3&&c.img||G.MODE!=="real"&&price(c.id)>=.3);let a,b,t=0;do{a=pick(l);b=pick(l);t++}while(t<60&&(a===b||Math.max(price(a.id),price(b.id))/Math.min(price(a.id),price(b.id))<1.3));MG.a=a;MG.b=b;MG.step="pick"}
 const wname=n=>n.replace(/\s+(ex|EX|GX|V|VMAX|VSTAR|δ|☆|LV\.X|BREAK|Prime|Legend)\b.*$/,"").replace(/^(Dark|Light|Shining|Radiant|Team .*?'s|.*?'s)\s+/,"").trim();
 function mgWho(){const l=pool4(c=>c.img&&(c.sup?c.sup==="Pokémon":/^[A-Z]/.test(c.name)&&!/Energy|Ball|Potion|Professor|Rocket|Trainer|Stadium|Candy|Research|Switch|Catcher|Boss|Rod|Belt|Band|Helmet|Gear|Poffin|Stretcher|Invitation|Orders/i.test(c.name)));const c=pick(l);const names=[...new Set(l.map(x=>wname(x.name)))].filter(n=>n!==wname(c.name));
   MG.c=c;MG.opts=[wname(c.name),...names.sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);MG.step="pick";MG.t0=performance.now()}
@@ -1882,16 +1868,16 @@ const CHAP=[
 function chapVal(k){if(k==="alb")return Math.round(Math.max(0,...S.sets.map(albPct))*100);if(k==="fans")return REGS.filter(r=>S.regs[r.id]&&S.regs[r.id].loy>=60).length;if(k==="med")return medCount();return S.lt[k]||0}
 function story(){if(!S.story){S.story={ch:0,base:{},intro:false};CHAP[0].g.forEach(([,k])=>S.story.base[k]=chapVal(k))}return S.story}
 function chapProg(){const st=story(),c=CHAP[st.ch];if(!c)return null;return c.g.map(([n,k,g])=>{const abs=k==="alb"||k==="fans"||k==="med",v=abs?chapVal(k):chapVal(k)-(st.base[k]||0);return {n,v:Math.max(0,Math.min(g,v)),g}})}
-function storyTick(){if(!S||(S.tut&&S.tut.on))return;const st=story(),c=CHAP[st.ch];if(!c)return;const p=chapProg();if(p.every(x=>x.v>=x.g)&&!M&&!front()){S.money+=c.r;S.repB+=1;st.done=st.ch;st.ch++;st.intro=false;const n=CHAP[st.ch];if(n)n.g.forEach(([,k])=>st.base[k]=chapVal(k));openM("story")}}
+function storyTick(){if(!hasState()||(S.tut&&S.tut.on))return;const st=story(),c=CHAP[st.ch];if(!c)return;const p=chapProg();if(p.every(x=>x.v>=x.g)&&!M&&!front()){S.money+=c.r;S.repB+=1;st.done=st.ch;st.ch++;st.intro=false;const n=CHAP[st.ch];if(n)n.g.forEach(([,k])=>st.base[k]=chapVal(k));openM("story")}}
 function mStory(){const st=story(),prev=CHAP[st.done],cur=CHAP[st.ch],p=chapProg();
   const prevBox=prev&&!st.seenEnd?`<div class="pn"><b>✅ Capítulo completado: ${prev.t}</b><p>${prev.e}</p><div class="up">+${fmt(prev.r)} · +1 ⭐</div></div>`:"";st.seenEnd=true;
   return retoTabs("story")+`<div class="cust"><img src="${guideImg()}" alt="" style="width:60px;height:76px;border-radius:12px;background:#ffe9a8"><div class="sp">${cur?cur.i:"¡Has completado toda la historia! Eres una leyenda."}</div></div>${prevBox}
   ${cur?`<div class="pn"><b>Capítulo ${st.ch+1}/${CHAP.length}: ${cur.t}</b>${p.map(x=>`<div class="row" style="margin-top:6px"><span>${x.n}</span><span>${x.v}/${x.g}</span></div><div class="prog"><i style="width:${x.v/x.g*100}%"></i></div>`).join("")}<div class="mu">Premio: ${fmt(cur.r)}</div></div>`:""}`}
-function storyBadge(){const el=$("#stb");if(!el)return;const st=S&&!(S.tut&&S.tut.on)?story():null,c=st&&CHAP[st.ch];if(!c){el.style.display="none";return}const p=chapProg(),x=p.find(q=>q.v<q.g)||p[0];el.style.display="block";el.innerHTML=`📖 <b>${c.t}</b> · ${x.n}: ${x.v}/${x.g}`}
+function storyBadge(){const el=$("#stb");if(!el)return;const st=hasState()&&!(S.tut&&S.tut.on)?story():null,c=st&&CHAP[st.ch];if(!c){el.style.display="none";return}const p=chapProg(),x=p.find(q=>q.v<q.g)||p[0];el.style.display="block";el.innerHTML=`📖 <b>${c.t}</b> · ${x.n}: ${x.v}/${x.g}`}
 
 const fitS=(t,m,w)=>Math.min(m,w/(Math.max(1,t.length)*.62));
 /* ===================== V16: CIUDAD VIVA ===================== */
-const AX=()=>S&&S.annex?-276:0;
+const AX=()=>hasState()&&S.annex?-276:0;
 const XS0=1090,XS1=1160;
 function parkDraw(g,x,y,w,h,se,R){
   const snow=se==="xmas"||se==="winter";g.fillStyle=snow?"#e3ecef":"#5fa35a";g.fillRect(x,y,w,h);
@@ -1977,7 +1963,7 @@ function drawRival(){
 /* ----- furgoneta de reparto ----- */
 function delivSummary(){const d=S.deliv||[];if(!d.length)return "";const t={};d.forEach(o=>{Object.entries(o.sealed||{}).forEach(([k,v])=>t[setName(k)]=(t[setName(k)]||0)+v);Object.entries(o.prod||{}).forEach(([k,v])=>{const i=pInfo(k);if(i)t[i.n]=(t[i.n]||0)+v})});return Object.entries(t).map(([k,v])=>`${v}× ${k}`).join(", ")}
 function updVan(dt){
-  const d=S&&S.deliv;if(!d)return;let v=VIS.van;
+  const d=hasState()&&S.deliv;if(!d)return;let v=VIS.van;
   if(!v&&d.length){v=VIS.van={x:-160,y:637,dir:1,sp:150,v:150,van:true,st:"in",t:0,len:62,col:"#f4f4f4"};VIS.cars=VIS.cars||[];VIS.cars.push(v)}
   if(!v)return;
   if(v.st==="in"&&v.x>=410){v.st="unload";v.t=2.4;v.v=0;tone(520,0,.12,"square",.03);tone(520,.18,.12,"square",.03)}
@@ -2051,7 +2037,7 @@ function paintNav(){
 }
 const SEC={packs:"packs",coll:"coll",card:"coll",album:"coll",grading:"coll",tasks:"retos",medals:"retos",story:"retos",games:"retos",mg:"retos",hunt:"retos",sell:"home",insp:"home",lot:"home",ck:"home",hag:"home",trade:"home",custc:"home",sum:"home",open:"home"};
 function navAct(){const sec=M?(SEC[M]||"more"):"home";document.querySelectorAll("#nav [data-a=nav]").forEach(b=>b.classList.toggle("act",b.dataset.k===sec))}
-function updBadges(){if(!S)return;const set=(k,n)=>{const e=$(`#nav-${k} .nb`);if(e){e.textContent=n>9?"9+":n;e.style.display=n?"flex":"none"}};
+function updBadges(){if(!hasState())return;const set=(k,n)=>{const e=$(`#nav-${k} .nb`);if(e){e.textContent=n>9?"9+":n;e.style.display=n?"flex":"none"}};
   set("retos",claimables());set("packs",SETS.filter(sd=>S.slots.includes(sd.id)&&S.sealed[sd.id]<1).length);
   const b=$("#bellN");if(b){const u=VIS.unread||0;b.textContent=u>9?"9+":u;b.style.display=u?"flex":"none"}}
 const cardTabs=k=>{VIS.lastCards=k;if(k==="coll"&&collF==="fav")k="fav";return `<h2>🃏 Cartas</h2><div class="tabs t4">${[["coll","Colección"],["fav","❤️ Favoritas"],["album","📒 Álbum"],["grading","🔍 Gradeo"]].map(([x,n])=>`<button class="b ${x===k?"on":""}" ${x==="fav"?'data-a="cfav"':x==="coll"?'data-a="callc"':`data-a="m" data-k="${x}"`}>${n}</button>`).join("")}</div>`};
@@ -2107,7 +2093,7 @@ function bindCard(){const b=$("#cbig");if(!b)return;const pc=b.querySelector(".p
   b.addEventListener("pointerup",e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>50)A[dx<0?"cnext":"cprev"]()})}
 /* ----- lista antes de abrir ----- */
 function checklist(){
-  const el=$("#chk");if(!el)return;const hn=$("#hint");if(!S||S.phase!=="closed"||M||(S.tut&&S.tut.on)){el.innerHTML="";if(hn)hn.style.display="";return}if(hn)hn.style.display="none";
+  const el=$("#chk");if(!el)return;const hn=$("#hint");if(!hasState()||S.phase!=="closed"||M||(S.tut&&S.tut.on)){el.innerHTML="";if(hn)hn.style.display="";return}if(hn)hn.style.display="none";
   const sh=SETS.filter(sd=>S.slots.includes(sd.id)),withS=sh.filter(sd=>S.sealed[sd.id]>0),out=sh.length-withS.length,ci=caseItems().length,cap=caseCap(),bad=withS.filter(sd=>packAcc(sd.id)<.7).length;
   const C=(cls,t,a)=>`<button class="ck ${cls}" ${a}>${t}</button>`;
   el.innerHTML=`<span class="mu">Antes de abrir:</span>`
@@ -2124,7 +2110,7 @@ const HINT1={packs:"Aquí compras sobres y pones sus precios. ✅ en la etiqueta
 /* ----- deshacer ----- */
 function snap(){VIS.undo={items:JSON.stringify(S.items),money:S.money,orders:JSON.stringify(S.orders),at:Date.now()}}
 /* ----- comodidad ----- */
-function applyUI(){const u=(S&&S.ui)||{};document.documentElement.classList.toggle("ui-big",!!u.big);document.documentElement.classList.toggle("ui-calm",!!u.calm)}
+function applyUI(){const u=(hasState()&&S.ui)||{};document.documentElement.classList.toggle("ui-big",!!u.big);document.documentElement.classList.toggle("ui-calm",!!u.calm)}
 
 function dedupTips(l){const h=S.tipHist=S.tipHist||{},out=[];l.forEach(t=>{const k=t.replace(/[0-9,.€]/g,"").slice(0,30);if(h[k]!=null&&S.day-h[k]<=3&&out.length)return;out.push(t);h[k]=S.day});return out.slice(0,3)}
 /* ===================== V20: FAVORITAS Y LADRONES ===================== */
@@ -2152,10 +2138,10 @@ function drawCams(){if(!S.cams)return;const t=performance.now()/1000;[[24,58,1],
 
 
 /* ===================== V21: DIFICULTAD Y RENDIMIENTO ===================== */
-const DF=()=>DIFFS[(S&&S.diff)||"normal"]||DIFFS.normal;
-const LITE=()=>{const m=(S&&S.ui&&S.ui.perf)||"auto";return m==="lo"||(m==="auto"&&!!VIS.autoLite)};
+const DF=()=>DIFFS[(hasState()&&S.diff)||"normal"]||DIFFS.normal;
+const LITE=()=>{const m=(hasState()&&S.ui&&S.ui.perf)||"auto";return m==="lo"||(m==="auto"&&!!VIS.autoLite)};
 function perfTick(raw){if(!(raw>0))return;const f=1/Math.max(raw,1/240);VIS.fpsE=VIS.fpsE?VIS.fpsE*.95+f*.05:f;
-  if(document.hidden||M)return;const m=(S&&S.ui&&S.ui.perf)||"auto";if(m!=="auto"||VIS.autoLite)return;
+  if(document.hidden||M)return;const m=(hasState()&&S.ui&&S.ui.perf)||"auto";if(m!=="auto"||VIS.autoLite)return;
   VIS.slowT=VIS.fpsE<38?(VIS.slowT||0)+raw:Math.max(0,(VIS.slowT||0)-raw*.5);
   if(VIS.slowT>4){VIS.autoLite=true;fitCanvas();toast("⚡ He activado el modo ahorro para que vaya más fluido (Más → Ajustes → Rendimiento)")}}
 function mDiff(){return `<h2>🎚️ Dificultad</h2>${Object.keys(DIFFS).map(k=>`<div class="pn${(S.diff||"normal")===k?" favhd":""}"><div class="row"><b>${DIFFS[k].n}</b><button class="b ${(S.diff||"normal")===k?"":"pri"}" data-a="diffset" data-k="${k}"${(S.diff||"normal")===k?" disabled":""}>${(S.diff||"normal")===k?"Elegida ✔":"Elegir"}</button></div><div class="mu">${DIFFS[k].d}</div></div>`).join("")}<p class="mu">Puedes cambiarla cuando quieras.</p>`}
@@ -2420,7 +2406,7 @@ document.addEventListener("input",e=>{const b=e.target.closest("[data-i]");if(b&
 let last=performance.now(),hudT=0,saveT=0;
 function frame(now){
   const raw=Math.min(.05,(now-last)/1000);perfTick(raw);last=now;
-  if(S&&!M&&!paused){
+  if(hasState()&&!M&&!paused){
     const dt=raw*speed;updFx(dt);updPfx(dt);updPed(dt);updCars(dt);updBirds(dt);updVan(dt);updVCars(dt);VIS.drawer=Math.max(0,(VIS.drawer||0)-dt);
     if(S.phase==="open"||S.phase==="closing"){
       if(S.phase==="open"){
@@ -2440,17 +2426,17 @@ function frame(now){
     if(saveT>10){saveT=0;saveNow()}
     camFollow(raw);updCat(dt);
   }
-  if(S&&VIS.mShown!=null&&Math.abs(S.money-VIS.mShown)>.004){const d=S.money-VIS.mShown;VIS.mShown=Math.abs(d)<.02?S.money:VIS.mShown+d*Math.min(1,raw*7);const el=$("#money");if(el&&el.firstChild){el.firstChild.nodeValue=fmt(VIS.mShown);if(d>.5&&!el.classList.contains("gain")){el.classList.add("gain");setTimeout(()=>el.classList.remove("gain"),520)}}}
-  if(S&&M==="mg"&&MG&&MG.k==="who"&&MG.step==="pick"){const e=$("#whoimg");if(e)e.style.filter=`blur(${Math.max(0,14-(performance.now()-MG.t0)/400).toFixed(1)}px) saturate(.6)`}
-  if(S&&M&&!paused){const d2=Math.min(.05,raw)*speed;updPed(d2);updCars(d2);updBirds(d2);updVan(d2);updVCars(d2)}
-  if(S)draw();
-  if(S)tutTick();
+  if(hasState()&&VIS.mShown!=null&&Math.abs(S.money-VIS.mShown)>.004){const d=S.money-VIS.mShown;VIS.mShown=Math.abs(d)<.02?S.money:VIS.mShown+d*Math.min(1,raw*7);const el=$("#money");if(el&&el.firstChild){el.firstChild.nodeValue=fmt(VIS.mShown);if(d>.5&&!el.classList.contains("gain")){el.classList.add("gain");setTimeout(()=>el.classList.remove("gain"),520)}}}
+  if(hasState()&&M==="mg"&&MG&&MG.k==="who"&&MG.step==="pick"){const e=$("#whoimg");if(e)e.style.filter=`blur(${Math.max(0,14-(performance.now()-MG.t0)/400).toFixed(1)}px) saturate(.6)`}
+  if(hasState()&&M&&!paused){const d2=Math.min(.05,raw)*speed;updPed(d2);updCars(d2);updBirds(d2);updVan(d2);updVCars(d2)}
+  if(hasState())draw();
+  if(hasState())tutTick();
   requestAnimationFrame(frame);
 }
-window.addEventListener("beforeunload",()=>{if(S)saveNow()});
+window.addEventListener("beforeunload",()=>{if(hasState())saveNow()});
 $("#impfile").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importData(r.result);r.readAsText(f);e.target.value=""});
-document.addEventListener("keydown",e=>{if((e.code==="Space"||e.key==="p")&&!M&&S&&!/INPUT|TEXTAREA/.test(e.target.tagName)){e.preventDefault();setPause(!paused)}});
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&S&&S.phase!=="closed"&&!paused)setPause(true)});
+document.addEventListener("keydown",e=>{if((e.code==="Space"||e.key==="p")&&!M&&hasState()&&!/INPUT|TEXTAREA/.test(e.target.tagName)){e.preventDefault();setPause(!paused)}});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&hasState()&&S.phase!=="closed"&&!paused)setPause(true)});
 
 /* ===================== ARRANQUE ===================== */
 (function boot(){
@@ -2465,10 +2451,10 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden&&S&&S.phase
     return loadMany(ids,(d,n,sd)=>{txt.textContent=`Cargando colecciones ${d}/${n} · ${sd.n}…`});
   }).then(all=>{
     if(all.length<100)throw 0;
-    setCards(all);MODE="real";NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";
+    setCards(all);G.MODE="real";G.NOTE=FAILED.size?`⚠️ ${FAILED.size} colección(es) sin cargar: Más → Colecciones → Reintentar`:"Precios reales de Cardmarket";
   }).catch(()=>{
-    if(cget("pcs-save-real-v3"))return new Promise(res=>{$("#load").innerHTML=`<div><h2>No se pudieron cargar las cartas</h2><p class="mu">La API de cartas no responde ahora mismo. Tu partida está guardada y no se pierde.</p><div class="btns" style="justify-content:center"><button class="b pri" id="lretry">Reintentar</button><button class="b" id="loff">Jugar sin conexión (partida aparte)</button></div></div>`;$("#lretry").onclick=()=>location.reload();$("#loff").onclick=()=>{setCards(offlineCards());MODE="offline";NOTE="Sin conexión: partida aparte con cartas ilustradas";res()}});
-    setCards(offlineCards());MODE="offline";NOTE="Sin conexión con la API: cartas ilustradas y precios simulados";
+    if(cget("pcs-save-real-v3"))return new Promise(res=>{$("#load").innerHTML=`<div><h2>No se pudieron cargar las cartas</h2><p class="mu">La API de cartas no responde ahora mismo. Tu partida está guardada y no se pierde.</p><div class="btns" style="justify-content:center"><button class="b pri" id="lretry">Reintentar</button><button class="b" id="loff">Jugar sin conexión (partida aparte)</button></div></div>`;$("#lretry").onclick=()=>location.reload();$("#loff").onclick=()=>{setCards(offlineCards());G.MODE="offline";G.NOTE="Sin conexión: partida aparte con cartas ilustradas";res()}});
+    setCards(offlineCards());G.MODE="offline";G.NOTE="Sin conexión con la API: cartas ilustradas y precios simulados";
   })
   .then(()=>{indexCards();loadOrNew();$("#load").remove();paintNav();fitCanvas();setMusic(MUSIC);hud();requestAnimationFrame(frame);refreshSetList(false);setTimeout(giftCheck,1500);if(FAILED.size)setTimeout(()=>toast(`⚠️ ${FAILED.size} colección(es) no cargaron. Reinténtalo en Más → Colecciones`),800)});
 })();
