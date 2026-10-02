@@ -248,3 +248,63 @@ export function routeTo(c, gx, gy) {
   c.wps = pts;
   c.rg = { x: gx, y: gy }; // destino de la ruta (para recalcularla si cambia, p. ej. el hueco de la cola)
 }
+// Sitio de cada puesto de la cola (docs/pendientes.md §1, causa 2). La fila va de LAY.qy hacia abajo,
+// un hueco cada LAY.qs. Si un hueco no tiene camino desde la puerta (con mucho mobiliario), la fila se
+// corta ahí: ese cliente y los siguientes esperan de pie en los sitios libres más cercanos al final
+// de la fila, y pasan a ella según se liberan huecos. Si todos los huecos tienen camino, nada cambia.
+export const NQ = { sig: "", reach: null, line: 0, sp: [] };
+export function queueSpot(i) {
+  if (!NG.g || navSig() !== NG.sig) navBuild();
+  if (NQ.sig !== NG.sig) {
+    // Celdas a las que se llega desde la puerta
+    const C = NG.cols,
+      reach = new Uint8Array(C * NG.rows),
+      [dc, dr] = navFree(...navCell(358, 560)),
+      st = [dr * C + dc];
+    reach[st[0]] = 1;
+    while (st.length) {
+      const k = st.pop(),
+        c = k % C,
+        r = (k - c) / C;
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ])
+        if (navOk(c + dx, r + dy) && !reach[(r + dy) * C + c + dx]) {
+          reach[(r + dy) * C + c + dx] = 1;
+          st.push((r + dy) * C + c + dx);
+        }
+    }
+    let line = 0;
+    for (;;) {
+      const [c, r] = navCell(LAY.qx, LAY.qy + line * LAY.qs);
+      if (line > 40 || !navOk(c, r) || !reach[r * C + c]) break;
+      line++;
+    }
+    Object.assign(NQ, { sig: NG.sig, reach, line, sp: [] });
+  }
+  while (NQ.sp.length <= i) {
+    const n = NQ.sp.length;
+    if (n < NQ.line) {
+      NQ.sp.push({ x: LAY.qx, y: LAY.qy + n * LAY.qs });
+      continue;
+    }
+    // Fuera de la fila: la celda libre más cercana al último de la fila, separada de los demás sitios
+    const end = NQ.line ? NQ.sp[NQ.line - 1] : { x: LAY.qx, y: LAY.qy },
+      C = NG.cols;
+    let best = null,
+      bd = 1e9;
+    for (let k = 0; k < NQ.reach.length; k++) {
+      if (!NQ.reach[k]) continue;
+      const x = NG.x0 + ((k % C) + 0.5) * NG.cs,
+        y = NG.y0 + (Math.floor(k / C) + 0.5) * NG.cs;
+      if (y > FRONT_Y - 20 || NQ.sp.some((p) => Math.hypot(p.x - x, p.y - y) < 20)) continue;
+      const d = Math.hypot(x - end.x, y - end.y);
+      if (d < bd) ((bd = d), (best = { x, y }));
+    }
+    NQ.sp.push(best || { ...end });
+  }
+  return NQ.sp[i];
+}

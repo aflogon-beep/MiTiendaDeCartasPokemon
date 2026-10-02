@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { nuevaPartida } from "./partida.js";
 import { S } from "../../src/core/state.js";
 import { DECOR } from "../../src/core/constants.js";
-import { navPath, navLOS, navObstacles, routeTo, navCell, navOk, NG } from "../../src/world/nav.js";
+import { navPath, navLOS, navObstacles, routeTo, navCell, navOk, NG, queueSpot } from "../../src/world/nav.js";
 import { LAY, AX } from "../../src/world/layout.js";
 
 nuevaPartida();
@@ -90,9 +90,18 @@ describe("cola (docs/pendientes.md §1)", () => {
 });
 
 describe("cola larga con todo el mobiliario (docs/pendientes.md §1, causa 2)", () => {
-  // FALLO CONOCIDO: a partir del hueco 7.º no hay camino y el cliente va en línea recta.
-  // Cuando se decida y se arregle, cambiar it.fails por it (si empieza a pasar, Vitest lo marca en rojo).
-  it.fails("todos los huecos de la cola (hasta 10 clientes) tienen camino desde la puerta", async () => {
+  const reachable = (x, y) => {
+    if (navLOS(358, 520, x, y)) return true;
+    const p = navPath(358, 520, x, y);
+    return p.length > 0 && navLOS(p[p.length - 1].x, p[p.length - 1].y, x, y);
+  };
+
+  it("sin muebles, la cola es la fila de siempre", () => {
+    nuevaPartida();
+    for (let q = 0; q < 8; q++) expect(queueSpot(q)).toEqual({ x: LAY.qx, y: LAY.qy + q * LAY.qs });
+  });
+
+  it("todos los sitios de la cola (hasta 12 clientes) tienen camino; los que no caben esperan cerca del final", async () => {
     const { CARDS } = await import("../../src/core/cards/sets.js");
     const { price } = await import("../../src/core/economy.js");
     // La tienda al completo, como en el test 5 de Playwright
@@ -119,10 +128,16 @@ describe("cola larga con todo el mobiliario (docs/pendientes.md §1, causa 2)", 
           fav: i >= 3 && i < 6,
         }),
       );
-    for (let q = 0; q < 10; q++) {
-      const gy = LAY.qy + q * LAY.qs;
-      const ok = navLOS(358, 520, LAY.qx, gy) || navPath(358, 520, LAY.qx, gy).length > 0;
-      expect(ok, `hueco ${q + 1} (y = ${gy})`).toBe(true);
+    const sp = [];
+    for (let q = 0; q < 12; q++) {
+      const p = queueSpot(q);
+      expect(reachable(p.x, p.y), `sitio ${q + 1} (${p.x},${p.y})`).toBe(true);
+      expect(inside(p.x, p.y), `sitio ${q + 1} dentro de un mueble`).toBe(false);
+      for (const o of sp) expect(Math.hypot(o.x - p.x, o.y - p.y)).toBeGreaterThanOrEqual(20);
+      sp.push(p);
     }
+    // Los 6 primeros, en la fila de siempre; los demás, cerca del último de la fila
+    for (let q = 0; q < 6; q++) expect(sp[q]).toEqual({ x: LAY.qx, y: LAY.qy + q * LAY.qs });
+    for (let q = 6; q < 12; q++) expect(Math.hypot(sp[q].x - sp[5].x, sp[q].y - sp[5].y)).toBeLessThan(80);
   });
 });

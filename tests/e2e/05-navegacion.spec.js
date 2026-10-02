@@ -7,8 +7,8 @@ test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente
 }, info) => {
   // docs/pendientes.md §1. Causa 1 (al avanzar la cola, el último tramo iba recto al hueco nuevo):
   // arreglada en la versión de Vite; en el HTML original sigue fallando.
-  // Causa 2 (con todo el mobiliario, los huecos de la cola a partir del 7.º no tienen camino): pendiente
-  // de decidir. Esos clientes se cuentan aparte aquí; la comprobación está en tests/unit/nav.test.js.
+  // Causa 2 (con todo el mobiliario, los huecos de la cola a partir del 7.º no tienen camino): arreglada
+  // con la opción B (los que no caben esperan cerca del final de la fila; tests/unit/nav.test.js).
   test.fail(info.project.name === "referencia", "fallo conocido del HTML original (causa 1)");
   test.setTimeout(300_000);
   await freshGame(page, gamePath);
@@ -58,10 +58,11 @@ test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente
   // Vigilante: en cada fotograma, ningún cliente dentro de la tienda puede estar dentro
   // de un obstáculo (rectángulos de navObstacles sin el margen de seguridad).
   await game(page, (P) => {
-    const W = (window.__nav = { frames: 0, samples: 0, bad: [], longQ: 0, run: true });
+    const W = (window.__nav = { frames: 0, samples: 0, bad: [], maxQ: 0, run: true });
     const tick = () => {
       if (!W.run) return;
       W.frames++;
+      W.maxQ = Math.max(W.maxQ, P.queue.length); // con 7 o más, los que no caben esperan fuera de la fila
       const obs = P.navObstacles(),
         ax = P.AX();
       for (const c of P.custs) {
@@ -69,10 +70,6 @@ test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente
         W.samples++;
         for (const [x0, y0, x1, y1] of obs)
           if (c.x > x0 && c.x < x1 && c.y > y0 && c.y < y1) {
-            if (c.st === "toq" && P.queue.indexOf(c) >= 6) {
-              W.longQ++; // va a un hueco de la cola sin camino (causa 2, pendiente)
-              break;
-            }
             if (W.bad.length < 20)
               W.bad.push({ x: Math.round(c.x), y: Math.round(c.y), st: c.st, want: c.want.k, obst: [x0, y0, x1, y1] });
             break;
@@ -87,7 +84,7 @@ test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente
   const log = await game(page, botPlay, { days: 2, speed: 20, claim: false, maxMs: 240_000 });
   const W = await game(page, () => ((window.__nav.run = false), window.__nav));
   console.log(
-    `fotogramas ${W.frames} · posiciones revisadas ${W.samples} · clientes ${log.map((d) => d.cust).join("+")} · en huecos de cola sin camino (causa 2): ${W.longQ}`,
+    `fotogramas ${W.frames} · posiciones revisadas ${W.samples} · clientes ${log.map((d) => d.cust).join("+")} · cola más larga ${W.maxQ}`,
   );
   expect(log.reduce((a, d) => a + d.cust, 0)).toBeGreaterThan(20);
   expect(W.samples).toBeGreaterThan(1000);
