@@ -1,134 +1,109 @@
-# Pokémon Card Shop — Refactor a módulos
+# Pokémon Card Shop
 
-Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (pokemontcg.io / Cardmarket). Hoy es **un único HTML** (`reference/pokemon-card-shop-v22.html`, canvas 2D + HTML/CSS/JS sin frameworks). Funciona bien y se juega sobre todo en un **móvil Android (Xiaomi)**.
+Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (pokemontcg.io / Cardmarket). Canvas 2D + HTML/CSS/JS sin frameworks, en un **proyecto Vite con módulos ES**. Se juega sobre todo en un **móvil Android (Xiaomi)**, instalado como app (PWA) desde GitHub Pages.
 
-## Objetivo
+## Estado del proyecto
 
-Pasar el juego a un **proyecto Vite con módulos ES**, separando lógica, dibujo e interfaz, **sin cambiar nada de lo que hace el juego**.
+| Fase | Estado |
+|---|---|
+| R0 · Base y tests (Vite, Vitest, Playwright, API simulada) | ✅ |
+| R1 · Mismo juego servido por Vite | ✅ |
+| R2 · Separar en módulos | ✅ |
+| R3 · Limpieza (duplicados, código muerto, CSS por zonas, Prettier) | ✅ |
+| R4 · App instalable (PWA) | ✅ |
+| Fase I · Intro, título, ranuras, historia, Emma, frases y visitas de papá (`docs/intro/`) | ✅ |
+| Mejoras · Cartas gradeadas en su funda; aviso «Actualizar» con versión nueva | ✅ |
+| R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
+| R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-## Regla de oro
+Pendiente: `docs/pendientes.md` §1 (clientes que atraviesan muebles; es el «fallo conocido» del test 5) y §2 (recálculo del precio de los sobres al cargar). Los dos cambian comportamiento: **proponer el arreglo y preguntar** antes de tocarlos.
 
-**Refactor = mismo comportamiento.** Ni reglas nuevas, ni textos distintos, ni cambios de equilibrio o de aspecto.
-- Si ves un error o algo mejorable, **apúntalo en `docs/pendientes.md` y pregunta**; no lo arregles de paso.
-- Cada paso termina con `npm test` en verde y un commit pequeño.
+## Reglas
+
+- **Lo que ya existía se comporta igual.** Las funciones nuevas (como la Fase I) sí cambian el juego, pero solo en lo que se pidió. Si ves un error o algo mejorable fuera de lo pedido, **apúntalo en `docs/pendientes.md` y pregunta**; no lo arregles de paso.
+- Ante cualquier duda de comportamiento, textos o aspecto: **pregunta antes de decidir**.
+- Nada de textos que describan animaciones que no existen: si algo se cuenta, se ve (o no se pone).
+- Cada paso termina con `npm test` en verde y un commit pequeño en español. Al acabar algo visible: resumen con capturas (móvil 390 px).
+- Rendimiento: el juego debe ir igual de fluido en el móvil. Si algo empeora, avisa.
 
 ## Fuente de verdad
 
-- `reference/pokemon-card-shop-v22.html` es el juego completo. Antes de mover algo, léelo ahí.
-- El archivo se construyó **por capas de versiones** (bloques `/* V11 … */` hasta `/* V22 … */`). Muchas funciones de bloques antiguos se **redefinen o amplían** en bloques posteriores (`Object.assign(LTK,…)`, `Object.assign(ICON,…)`, `LAY.shelf` sobrescrito, `paintNav`/`mMore`/`mColl` reescritos…). **La versión que cuenta es la última definición.** Al separar, conserva solo esa, sin duplicados.
+- El juego es el código de `src/`. `reference/pokemon-card-shop-v22.html` es la versión original (antes del refactor): sirve para los tests que comparan con ella (`npm run test:ref` y el test 14 de estilos).
+- `docs/intro/` (INTRO.md, HISTORIA.md, personajes.html): especificación de la Fase I, el guion y los personajes.
+- `docs/app.md`: instalar la app, funcionamiento sin red y actualizaciones.
 
 ## Stack
 
-- **Vite + JavaScript (módulos ES)** en la fase de refactor. TypeScript llega después (fase R5), no antes.
-- Sin frameworks de interfaz: se mantiene el HTML/CSS actual y el sistema de acciones `data-a` / objeto `A`.
-- **Vitest** para tests de lógica y **Playwright** para tests del juego en el navegador.
-- Publicación en **GitHub Pages** con GitHub Actions.
+- **Vite + JavaScript (módulos ES)**. Sin frameworks de interfaz: HTML/CSS y el sistema de acciones `data-a` / objeto `A` (`ui/actions.js`; otros módulos añaden las suyas con `Object.assign(A, …)`).
+- **vite-plugin-pwa**: manifest, service worker y aviso de versión nueva (`ui/update.js`, modo «prompt»).
+- **Vitest** (lógica) y **Playwright** (juego en el navegador). **Prettier** (`npm run format`).
+- Publicación en **GitHub Pages** con GitHub Actions (`.github/workflows/deploy.yml`: tests, build y despliegue).
 
-## Estructura objetivo
+## Estructura
 
 ```
 index.html
 src/
-  main.js                arranque: carga de cartas, partida, bucle
-  core/                  lógica pura: NO toca DOM ni canvas
-    state.js             objeto S, partida nueva, ensure()/migraciones
-    save.js              guardado localStorage, exportar/importar, backup
-    constants.js         DAYLEN, RENT, LV, RAR/RMAP, DECOR, STAFF, CT…
-    rng.js               rnd, pick, wpick, srand
-    bus.js               emisor de eventos (toast, sfx, vibe…) para que core no dependa de ui
-    cards/               api.js (pokemontcg.io), cache.js (IndexedDB), sets.js, prices.js
-    packs.js             eraCfg, roll (sin repetidas), calcEV, refreshPacks
-    economy.js           precios, tolMul/patMul/spMul, accP y etiquetas de precio, netWorth, level
-    customers/           spawn.js, decide.js, move.js (updateCusts), checkout.js
-    deals.js lots.js fakes.js grading.js orders.js
-    missions.js achievements.js medals.js story.js regulars.js
-    events.js rival.js market.js theft.js trophies.js
-    difficulty.js stats.js tips.js gift.js minigames.js delivery.js
-  world/
-    layout.js            LAY, LUX, TROPHY, AX(), constantes de ciudad (CX0…)
-    nav.js               cuadrícula, A*, routeTo
-  render/
-    canvas.js camera.js  VIEW, fitCanvas, zoom, cámara automática
-    shop.js people.js city.js cars.js lighting.js bloom.js effects.js weather.js
+  main.js                arranque (carga de cartas, título), bucle del juego, eventos del bus
+  debug.js               window.__pcs para los tests
+  core/                  lógica: NO toca DOM ni canvas
+    state.js             S, G (variables que se reasignan), partida nueva, ensure()
+    save.js slots.js     guardado por ranuras (3), exportar/importar
+    bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
+    cards/ customers/    API y caché de cartas; clientes
+    quips.js             frases de Emma y Álvaro y visitas de papá (cuándo toca cada una)
+    …                    economía, sobres, tratos, lotes, gradeo, misiones, rival, ladrón, día…
+  world/                 layout.js (LAY…), nav.js (A*)
+  render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
+    characters.js        Emma, Álvaro y papá (drawPortrait, drawMini, charFace)
+  story/script.js        guion de la historia de inicio, como datos
   ui/
-    hud.js nav.js toast.js modals.js actions.js
-    screens/             stock.js cards.js cardSheet.js album.js retos.js more.js stats.js…
-    packOpening.js checkout.js inspect.js tutorial.js customize.js
+    title.js             pantalla de carga, título, ranuras, «Prepara tu aventura», importar
+    story.js             reproductor de la historia (escenas, bocadillo, nombre de la tienda)
+    quips.js             bocadillos de frases y visita de papá
+    slab.js              funda de plástico de las cartas gradeadas
+    update.js            aviso «Hay una versión nueva · Actualizar»
+    tutorial.js          tutorial con Emma
+    screens/ …           paneles del juego
   audio/sfx.js
-  styles/                CSS dividido por zonas (base, hud, sheets, cards, pack…)
+  styles/                01-base … 08-tutorial (juego) · 09-title · 10-story (Fase I)
+public/icons/            iconos de la app (se generan con docs/icono/iconos.py)
 tests/
-  e2e/                   Playwright
+  e2e/                   Playwright: 01–13 (tabla original), 14 estilos, 15 PWA, 16–19 Fase I, 20 mejoras
   unit/                  Vitest
-  fixtures/              API simulada de pokemontcg.io (sets y cartas inventados)
+  fixtures/              API simulada de pokemontcg.io y partida exportada de la v22
 reference/pokemon-card-shop-v22.html
-docs/pendientes.md
+docs/                    pendientes.md, app.md, intro/, icono/
 ```
 
-**Dependencias permitidas:** `core` → solo `core` y `world`. `render` → `core`, `world`. `ui` → todo. Nunca `core` → `ui`/`render`: si `core` necesita avisar (un toast, un sonido), emite un evento por `bus.js`.
+**Dependencias permitidas:** `core` → solo `core` y `world`. `render` → `core`, `world`. `ui` → todo. Nunca `core` → `ui`/`render`: si `core` necesita avisar (un toast, un sonido, una frase), emite un evento por `bus.js` (`ui.toast(…)`, `ui.quip("thief")`).
 
-## Estado global: cómo mover sin romper
+## Estado global
 
-El juego usa globales (`S`, `M`, `VIS`, `custs`, `queue`, `deal`, `LOT`, `CK`…).
-- Exporta cada uno desde un módulo y **no lo reasignes nunca desde fuera**: los imports de ES son de solo lectura.
-- `S`: objeto con identidad estable. Para cargar una partida usa `replaceState(obj)`, que vacía y hace `Object.assign`. Nada de `S = …`.
-- Arrays como `custs` y `queue`: se mutan en sitio (`length = 0`, `push`, `splice`).
-- Variables sueltas que se reasignan (`M`, `deal`, `LOT`, `CK`, `speed`, `paused`…): agrúpalas en un objeto `G` exportado (`G.M`, `G.deal`…). Este es el único cambio de nombres permitido en el refactor.
-- **No renombres** el resto de funciones ni variables (`mColl`, `tipsList`, `S.lt.psold`…): minimiza el diff.
+- `S`: objeto con identidad estable. Para cargar una partida, `replaceState(obj)`. Nada de `S = …`.
+- `custs`, `queue`: arrays que se mutan en sitio.
+- Lo que se reasigna va en `G` (`G.M`, `G.deal`, `G.SLOT`, `G.TITLE`, `G.STORY`…).
+- **Los nombres exportados deben ser únicos en todo `src/`**: `window.__pcs` busca cada nombre en todos los módulos (si hay dos iguales, los tests encuentran el que no es).
+- No renombres funciones ni variables del juego sin motivo: minimiza el diff.
 
 ## Compatibilidad obligatoria
 
-- Mismas claves de **localStorage** (`pcs-save-real-v3`, `pcs-save-offline-v3`, `pcs-sets-v1`…) y misma base **IndexedDB** (`pcs`, almacén `kv`). La partida de Alberto debe cargarse tal cual.
-- Mismo formato de exportación: `{app:"pcs", v:5, mode, date, S}`.
+- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`. **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
+- Formato de exportación: `{app:"pcs", v:5, mode, date, S}`.
 - Red: solo `api.pokemontcg.io`, `images.pokemontcg.io` y Google Fonts.
 
-## Red de seguridad (antes de mover nada)
+## Tests
 
-Tests de Playwright contra la **API simulada** (`tests/fixtures`: interceptar `https://api.pokemontcg.io/**` con sets y cartas inventados, rarezas variadas y precios `cardmarket`; imágenes con un PNG genérico). Se ejecutan primero contra `reference/…v22.html` (deben pasar) y después contra la versión de Vite.
+`npm test` = Vitest + Playwright contra la versión de Vite. `npm run test:ref` = los mismos tests de juego contra el HTML original. Detalles en `tests/README.md`. Claves:
 
-| # | Test | Comprueba |
-|---|---|---|
-| 1 | Arranque | Carga los 3 sets por defecto, sin errores de consola |
-| 2 | Tutorial completo | Los 12 pasos avanzan hasta el final |
-| 3 | Día completo | Con cajero: abrir, clientes, cierre, ticket del día |
-| 4 | Simulación de 14 días | Bot que repone, pone precios recomendados, llena la vitrina y cobra. En Normal llega a nivel 2 antes del día 7 y la empresa crece (rangos amplios: hay azar) |
-| 5 | Navegación | Con todo el mobiliario y la ampliación: 0 clientes dentro de obstáculos |
-| 6 | Móvil 360 y 390 px | Sin desbordamiento horizontal; la tienda mide lo mismo abierta y cerrada |
-| 7 | Sobres | 300 sobres sin cartas repetidas dentro del mismo |
-| 8 | Falsas | La inspección marca pistas y una falsa falla en 2 de 3 pruebas |
-| 9 | Favoritas | No se venden, no van a la vitrina, no se roban |
-| 10 | Ladrón | Se puede pillar (recupera la carta) y escapar (se pierde); máximo 1 al día |
-| 11 | Importar partida | Un JSON exportado desde la v22 carga sin pérdidas |
-| 12 | Colecciones | La lista y los sets fallidos se reintentan; aviso y botón visibles |
-| 13 | Modo ahorro | Con FPS bajos se activa solo |
-
-Además, tests de Vitest para la lógica pura según se vaya extrayendo: `roll`, `accP`, `tipsList`/`dedupTips`, `navPath`, `makeDeal` según la dificultad, `rivalUpd`, `level`, guardado e importación.
-
-## Fases (no avanzar sin que Alberto valide la anterior)
-
-**R0 · Base y tests.** Vite, Vitest, Playwright, la API simulada y los 13 tests **pasando contra el HTML de referencia**.
-
-**R1 · Mismo juego, servido por Vite.** CSS a `src/styles/`, JS a un único `src/legacy.js` sin cambios, HTML limpio. Tests en verde. Deploy a GitHub Pages.
-
-**R2 · Separar en módulos.** En este orden, con tests en verde tras cada paso:
-1. constantes, rng y datos de cartas
-2. estado y guardado
-3. lógica de juego (economía, clientes, eventos…)
-4. navegación y mundo
-5. dibujo
-6. interfaz
-
-**R3 · Limpieza.** Quitar duplicados de las capas de versiones, código muerto e imports sobrantes. Sin cambiar comportamiento.
-
-**R4 · App.** PWA instalable en el móvil (opcional).
-
-**R5 · TypeScript poco a poco.** Empezar por el tipo de `S` y `core/`.
-
-**R6 · (Opcional) Compartir `core/` con el proyecto 3D** (Three.js), como paquete o carpeta común.
+- **API simulada** (`tests/fixtures/api.js`): sets y cartas inventados; imágenes con un PNG genérico.
+- **Los tests saltan el título y la historia**: `openGame` pone `window.__pcsSkipTitle` y el juego entra directo en la última partida, como antes de la Fase I. Para probar el título: `openGame(page, gamePath, { title: true })`.
+- **Service worker bloqueado** en todos los tests salvo el 15 (`serviceWorkers: "block"`).
+- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual.
+- Test 5: `test.fail()` («fallo conocido», `docs/pendientes.md` §1). Test 4: 2 reintentos (partida con azar).
 
 ## Forma de trabajar
 
-- Antes de cada fase: plan breve y lista de archivos que vas a tocar.
-- Commits pequeños en español, uno por módulo movido.
-- Al acabar cada fase: resumen, cómo probarlo y estado de los tests.
-- Rendimiento: el juego debe ir igual de fluido en el móvil. Si algo empeora, avisa.
-- Ante cualquier duda sobre comportamiento: **pregunta antes de decidir**.
+- Antes de algo grande: plan breve y lista de archivos.
+- Commits pequeños en español; push a la rama de trabajo. No crear PR ni unir ramas sin que Alberto lo pida.
+- Al acabar: resumen, cómo probarlo, capturas y estado de los tests.
