@@ -36,12 +36,14 @@ import { repv, spMul } from "./core/economy.js";
 import { spawn } from "./core/customers/spawn.js";
 import { toast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
+import { quip, quipTick } from "./ui/quips.js";
 import { updBirds, updPed } from "./render/city.js";
 import { updCars, updVCars, updVan } from "./render/cars.js";
 import { updCat } from "./render/pets.js";
 
 /* ===================== AVISOS DE CORE (bus) ===================== */
 on("toast", (t, o) => toast(t, o));
+on("quip", (k) => quip(k));
 on("sets", () => {
   if (G.M === "sets") renderM();
 });
@@ -128,6 +130,7 @@ function frame(now) {
     }
     camFollow(raw);
     updCat(dt);
+    quipTick(dt);
   }
   if (hasState() && VIS.mShown != null && Math.abs(S.money - VIS.mShown) > 0.004) {
     const d = S.money - VIS.mShown;

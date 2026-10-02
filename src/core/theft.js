@@ -54,6 +54,7 @@ export function startTheft(c) {
   ui.sfx("alarm");
   ui.vibe([120, 60, 120]);
   ui.toast(`🚨 ¡Un ladrón se lleva ${BYID[it.c].name}! Tócalo antes de que escape`, { nolog: 1 });
+  ui.quip("thief");
 }
 export function catchThief(c) {
   c.caught = true;

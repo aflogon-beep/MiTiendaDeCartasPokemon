@@ -872,3 +872,17 @@ export function drawMini(ctx, ch, x, y, ph) {
   ctx.restore();
   ctx.restore();
 }
+
+/** Retrato pequeño (para el bocadillo de los planos generales), guardado por personaje y expresión. */
+const faces = {};
+export function charFace(who, ex) {
+  const k = who + ":" + ex;
+  if (!faces[k]) {
+    const c = document.createElement("canvas");
+    c.width = 96;
+    c.height = 120;
+    drawPortrait(c.getContext("2d"), CHARS[who], ex, 96);
+    faces[k] = c.toDataURL();
+  }
+  return faces[k];
+}

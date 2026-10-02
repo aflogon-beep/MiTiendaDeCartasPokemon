@@ -1,4 +1,5 @@
 // Acciones de la interfaz: objeto A (data-a) e I (data-i) y sus escuchadores.
+import { quip, quipOpen, quipCard } from "./quips.js";
 import { $, VIS } from "../render/canvas.js";
 import { ACC, ALBR, DECOR, GSVC, RECO, SEAS, STAFF, UPS } from "../core/constants.js";
 import { BYID, CARDS, SETDEF, indexCards, setCards, setName } from "../core/cards/sets.js";
@@ -202,6 +203,7 @@ export const A = {
         S.repB += 1;
         track("caught");
         toast("🕵️ ¡Bien visto! Era falsa · +1 ⭐");
+        quip("fake");
         sfx.ach();
         loy(d.reg, -5, "Le pillaste intentando colarte una falsa");
         closeDeal(d.cust, false);
@@ -1041,6 +1043,7 @@ export const A = {
     const o = G.openState;
     if (!o.fl) {
       o.fl = true;
+      if (o.cards[o.idx]) quipCard(o.cards[o.idx].c);
     } else {
       o.idx++;
       o.fl = false;
@@ -1152,6 +1155,10 @@ export const A = {
     }
     track("open", n);
     if (pulled.some((x) => x.c.r === "SIR" || x.c.r === "HR")) track("bighit");
+    quipOpen(
+      n,
+      pulled.map((x) => x.c),
+    );
     const val = pulled.reduce((a, x) => a + price(x.c.id) * (x.rv ? rvr(x.c) : 1), 0);
     const val1 = (x) => price(x.c.id) * (x.rv ? rvr(x.c) : 1);
     const shown =

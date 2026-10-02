@@ -38,3 +38,7 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Impacto:** pequeño. El precio de mayorista salta al valor objetivo en vez de acercarse poco a poco; no se pierde nada de la partida.
 
 **Propuesta:** durante el refactor mantenerlo igual (mismo comportamiento) y arreglarlo junto al punto 1, al terminar las fases. Al arreglarlo, el test 11 podrá dejar de excluir `pack`.
+
+## 3. Fase I · gag del tropiezo de Álvaro (sin hacer)
+
+`HISTORIA.md` pide que Álvaro, «a veces, al correr por la tienda, tropieza y se levanta» («¡Estoy bien! ¡Estoy bien!»). En el juego, el personaje del jugador está quieto detrás del mostrador: no corre por la tienda. Sin animación, la frase sola no se entendería (Alberto pidió no poner textos que describen animaciones que no hay), así que se ha dejado fuera. **Pendiente de decidir:** hacer que Álvaro se mueva por la tienda (p. ej. al reponer) con el tropiezo, o quitar el gag.

@@ -169,4 +169,9 @@ export function endDay() {
   ui.openM("sum");
   ui.sfx("print");
   ui.hud();
+  // Día muy bueno (récord de ventas y al menos 150 €): Emma ya huele a Sephora
+  if (st.inc >= 150 && st.inc > (S.bestInc || 0)) {
+    S.bestInc = st.inc;
+    ui.quip("bigday");
+  }
 }

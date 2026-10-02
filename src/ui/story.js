@@ -11,7 +11,7 @@ import { $, VIS } from "../render/canvas.js";
 import { VIEW, clampView } from "../render/camera.js";
 import { G, S, hasState, shopName } from "../core/state.js";
 import { saveNow } from "../core/save.js";
-import { CHARS, drawPortrait, drawMini, rrect } from "../render/characters.js";
+import { CHARS, drawPortrait, drawMini, rrect, charFace } from "../render/characters.js";
 import { storyScript, NAMES, NAME_SUGGESTIONS } from "../story/script.js";
 import { sfx } from "../audio/sfx.js";
 import { A } from "./actions.js";
@@ -34,20 +34,6 @@ const calm = () =>
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 let ST = null;
-
-/** Retrato pequeño (para el bocadillo de los planos generales), guardado por personaje y expresión. */
-const faces = {};
-function face(who, ex) {
-  const k = who + ":" + ex;
-  if (!faces[k]) {
-    const c = document.createElement("canvas");
-    c.width = 96;
-    c.height = 120;
-    drawPortrait(c.getContext("2d"), CHARS[who], ex, 96);
-    faces[k] = c.toDataURL();
-  }
-  return faces[k];
-}
 
 /**
  * Empieza la historia. replay: repetirla desde Más (sin volver a pedir el nombre).
@@ -161,7 +147,7 @@ function bubble(st) {
       st.shot === "wide" && who
         ? who
             .split("+")
-            .map((w) => `<img src="${face(w, ex)}" alt="">`)
+            .map((w) => `<img src="${charFace(w, ex)}" alt="">`)
             .join("")
         : "";
   b.className = "st-bub" + (who ? "" : " narr");
