@@ -9,7 +9,8 @@
 //   look    (close) "dramatic": luz desde abajo
 //   tilt    (close) personaje que sale tumbado («desde el suelo»)
 //   say     [quién, expresión, texto]; quién puede ser "emma+alvaro" (hablan a la vez) o null (narración)
-//   act     acción que se cuenta encima del bocadillo
+//   note    nota de dirección: lo que pasa en la escena (no se enseña; lo cuentan el plano y los efectos)
+//   pop     palabra de cómic que salta con el efecto (¡Miau!, ¡Guau!…)
 //   fx      efecto: sparkle, fall, keys, pet, notes, dong, calc, shutter
 //   ask     "name": pedir el nombre de la tienda (no se pide al repetir la historia)
 // Expresiones (personajes.html): happy, laugh, wow, angry, sweat, stars.
@@ -22,21 +23,21 @@ const PET = {
   cat: {
     un: "un gato",
     fx: "¡Miau!",
-    act: "El gato salta encima del mostrador.",
+    note: "El gato salta encima del mostrador.",
     kid: "¡Un gatito!",
     no: "Es naranja.",
   },
   dog: {
     un: "un perro",
     fx: "¡Guau!",
-    act: "El perro salta encima del mostrador.",
+    note: "El perro salta encima del mostrador.",
     kid: "¡Un perrito!",
     no: "Es un perro.",
   },
   bunny: {
     un: "un conejo",
     fx: "¡Boing!",
-    act: "El conejo salta encima del mostrador.",
+    note: "El conejo salta encima del mostrador.",
     kid: "¡Un conejito!",
     no: "Es un conejo.",
   },
@@ -45,7 +46,7 @@ const PET = {
 // Puntos del mundo (ver world/layout.js): mostrador y caja a la derecha, puerta abajo, calle debajo
 const SHOP = { x: 400, y: 330, z: 1 };
 const STREET = { x: 470, y: 660, z: 1.1 };
-const SIGN = { x: 400, y: 26, z: 2.6 };
+const SIGN = { x: 400, y: 26, z: 2.3 };
 const COUNTER = [735, 330];
 const SOFA = [170, 500];
 const DOOR_IN = [355, 640];
@@ -62,7 +63,7 @@ export function storyScript(pet = "cat") {
     cast: { alberto: { at: COUNTER }, emma: { at: SOFA }, alvaro: { at: DOOR_IN, to: [480, 430], pose: "run" } },
   });
   a({
-    act: "Papá levanta una mancuerna detrás del mostrador. Álvaro entra corriendo.",
+    note: "Papá levanta una mancuerna detrás del mostrador. Álvaro entra corriendo.",
     fx: "sparkle",
     say: ["alberto", "happy", "Chicos, venid. Tengo que contaros algo muy serio."],
   });
@@ -73,14 +74,14 @@ export function storyScript(pet = "cat") {
   a = sc(2, "¡Me jubilo!", { shot: "close" });
   a({
     who: [["alberto", "stars"]],
-    act: "Papá se pone una cinta en la frente. Las pesas brillan.",
+    note: "Papá se pone una cinta en la frente. Las pesas brillan.",
     fx: "sparkle",
     say: ["alberto", "stars", "¡ME JUBILO! Me voy al gimnasio… ¡a tiempo completo!"],
   });
   a({
     who: [["alvaro", "wow"]],
     tilt: "alvaro",
-    act: "Álvaro llega corriendo, tropieza con una caja y cae de cara. ¡Las cartas vuelan!",
+    note: "Álvaro llega corriendo, tropieza con una caja y cae de cara. ¡Las cartas vuelan!",
     fx: "fall",
     say: ["alvaro", "wow", "¡¿QUÉ?!"],
   });
@@ -88,7 +89,7 @@ export function storyScript(pet = "cat") {
   a({ who: [["alberto", "laugh"]], say: ["alberto", "laugh", "La tenía. ¡Ahora es vuestra!"] });
   a({
     who: [["alvaro", "sweat"]],
-    act: "Papá lanza las llaves. Álvaro salta a cogerlas, falla… y le caen en la cabeza.",
+    note: "Papá lanza las llaves. Álvaro salta a cogerlas, falla… y le caen en la cabeza.",
     fx: "keys",
     say: [null, null, "¡Clonk!"],
   });
@@ -126,7 +127,8 @@ export function storyScript(pet = "cat") {
         ["alvaro", "stars"],
         ["emma", "wow"],
       ],
-      act: `${p.act} ${p.fx}`,
+      note: p.act,
+      pop: p.fx,
       fx: "pet",
       say: ["alvaro", "stars", `${p.kid} Se llamará… ¡Gengar!`],
     });
@@ -154,7 +156,7 @@ export function storyScript(pet = "cat") {
   a = sc(4, "Las tres reglas del maestro", { shot: "close", look: "dramatic" });
   a({
     who: [["alberto", "happy"]],
-    act: "Papá cruza los brazos como un maestro Jedi.",
+    note: "Papá cruza los brazos como un maestro Jedi.",
     say: ["alberto", "happy", "Escuchadme, jóvenes padawans. Tres reglas tiene el buen tendero."],
   });
   a({ who: [["alberto", "happy"]], say: ["alberto", "happy", "Una: compra barato y vende con cariño."] });
@@ -169,7 +171,7 @@ export function storyScript(pet = "cat") {
       ["alvaro", "sweat"],
       ["emma", "happy"],
     ],
-    act: "Álvaro esconde un sobre detrás de la espalda.",
+    note: "Álvaro esconde un sobre detrás de la espalda.",
     say: ["alvaro", "sweat", "Ejem… ¿y si es solo uno?"],
   });
   a({
@@ -191,7 +193,7 @@ export function storyScript(pet = "cat") {
   a = sc(5, "Papá se va", { shot: "wide", cam: STREET });
   a({
     cast: { alberto: { at: [355, 600], to: [560, 700], pose: "run" } },
-    act: "Papá sale de la tienda en chándal, con la bolsa del gimnasio y tocando una guitarra imaginaria.",
+    note: "Papá sale de la tienda en chándal, con la bolsa del gimnasio y tocando una guitarra imaginaria.",
     fx: "notes",
     say: ["alberto", "laugh", "¡Me voy, que hoy toca pierna! ♪ ♫"],
   });
@@ -201,7 +203,7 @@ export function storyScript(pet = "cat") {
   });
   a({
     cast: { alberto: { at: [560, 700], to: [760, 720], pose: "run" } },
-    act: "Tropieza con una farola. Se recompone como si nada y sigue tarareando.",
+    note: "Tropieza con una farola. Se recompone como si nada y sigue tarareando.",
     fx: "dong",
     say: [null, null, "♪ ♫"],
   });
@@ -213,7 +215,7 @@ export function storyScript(pet = "cat") {
       ["alvaro", "happy"],
       ["emma", "happy"],
     ],
-    act: "Emma saca una calculadora enorme.",
+    note: "Emma saca una calculadora enorme.",
     fx: "calc",
     say: ["emma", "happy", "Bien. Tenemos 1.000 euros, una tienda vacía y un hermano peligroso."],
   });
@@ -237,7 +239,7 @@ export function storyScript(pet = "cat") {
       ["emma", "sweat"],
     ],
     tilt: "alvaro",
-    act: "Álvaro va a quejarse, da un paso y tropieza con el cubo de fregar.",
+    note: "Álvaro va a quejarse, da un paso y tropieza con el cubo de fregar.",
     fx: "fall",
     say: ["emma", "sweat", "…Y yo la que no se cae."],
   });
@@ -260,7 +262,7 @@ export function storyScript(pet = "cat") {
     cast: { emma: { at: SOFA }, alvaro: { at: [480, 430] }, kid: { at: [355, 680], to: DOOR_IN, pose: "kid" } },
   });
   a({
-    act: "La persiana sube y entra la luz de la mañana. En la puerta se asoma un niño.",
+    note: "La persiana sube y entra la luz de la mañana. En la puerta se asoma un niño.",
     fx: "shutter",
     say: ["alvaro", "stars", "¡Nuestro primer cliente!"],
   });
@@ -270,7 +272,7 @@ export function storyScript(pet = "cat") {
   });
   a({
     cast: { emma: { at: SOFA, pose: "fall" }, alvaro: { at: [480, 430] }, kid: { at: DOOR_IN } },
-    act: "Emma se tumba en el sofá con la calculadora.",
+    note: "Emma se tumba en el sofá con la calculadora.",
     say: ["emma", "happy", "…desde el sofá. Tú atiendes."],
   });
   a({

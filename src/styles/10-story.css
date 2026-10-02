@@ -274,3 +274,11 @@ html.st-on .cvctl,
 html.st-on .stb {
   visibility: hidden;
 }
+
+/* Sugerencias de nombre: claras, para que se lean sobre el bocadillo blanco */
+.st-sug .b {
+  background: #f3ecdd;
+  color: #1d1a15;
+  border: 1px solid #d8ccb4;
+  box-shadow: 0 2px 0 #d8ccb4;
+}

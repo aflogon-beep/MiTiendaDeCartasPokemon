@@ -9,9 +9,9 @@
 // directa y efectos quietos.
 import { $, VIS } from "../render/canvas.js";
 import { VIEW, clampView } from "../render/camera.js";
-import { G, S, hasState } from "../core/state.js";
+import { G, S, hasState, shopName } from "../core/state.js";
 import { saveNow } from "../core/save.js";
-import { CHARS, drawPortrait, drawMini } from "../render/characters.js";
+import { CHARS, drawPortrait, drawMini, rrect } from "../render/characters.js";
 import { storyScript, NAMES, NAME_SUGGESTIONS } from "../story/script.js";
 import { sfx } from "../audio/sfx.js";
 import { A } from "./actions.js";
@@ -129,7 +129,8 @@ function show(st) {
     ST.cast = null;
     paintClose(st);
   }
-  fx(st.fx);
+  fx(st.fx, st.pop);
+  ST.board = st.blankSign != null; // escena 7: el cartel, entero y encima de todo
   bubble(st);
 }
 
@@ -165,7 +166,7 @@ function bubble(st) {
         : "";
   b.className = "st-bub" + (who ? "" : " narr");
   b.innerHTML = `${faceImg ? `<div class="st-faces">${faceImg}</div>` : ""}<div class="st-txt">
-    ${who ? `<b>${NAMES[who]}</b>` : ""}${st.act ? `<i>${esc(st.act)}</i>` : ""}<p id="sttext"></p>
+    ${who ? `<b>${NAMES[who]}</b>` : ""}<p id="sttext"></p>
     ${st.ask === "name" ? askHTML() : `<span class="st-more">Toca para seguir ▸</span>`}</div>`;
   ST.full = text;
   clearInterval(ST.typing);
@@ -233,13 +234,14 @@ const FX = {
   calc: ["🧮", "➕", "➗"],
   shutter: ["☀️", "✨"],
 };
-function fx(k) {
+function fx(k, pop) {
   const box = $("#stfx");
   box.innerHTML = "";
   if (!k || !FX[k]) return;
+  const list = pop ? [pop, ...FX[k]] : FX[k];
   if (k === "shutter") sfx.shutter && sfx.shutter();
   if (k === "keys" || k === "fall" || k === "dong") sfx.hit && sfx.hit(2);
-  FX[k].forEach((t, i) => {
+  list.forEach((t, i) => {
     const e = document.createElement("span");
     e.className = "st-pop" + (t.length > 2 ? " word" : "");
     e.textContent = t;
@@ -339,14 +341,57 @@ function drawCast(now) {
       x.restore();
     }
   }
-  // La brocha, siguiendo al nombre que aparece en el cartel
-  if (ST.brush && VIS.signReveal != null) {
-    const wx = 400 - 160 + 320 * VIS.signReveal,
-      sx = V.ox + wx * V.s,
-      sy = V.oy + 22 * V.s;
-    x.font = `${Math.round(18 * k + 14)}px system-ui,sans-serif`;
+  if (ST.board) drawBoard(x, V);
+}
+
+/**
+ * Escena 7: el cartel de la tienda dibujado encima de todo y entero (en la tienda, las estanterías
+ * tapan casi todo el cartel). Vacío hasta elegir el nombre; después, el nombre aparece «con brocha».
+ */
+function drawBoard(x, V) {
+  const W2 = 140,
+    cxw = 400,
+    top = 6,
+    h = 36,
+    sx = (wx) => V.ox + wx * V.s,
+    sy = (wy) => V.oy + wy * V.s,
+    rv = ST.replay || VIS.signReveal == null ? 1 : VIS.signReveal,
+    s = V.s;
+  const rect = (x0, y0, w, hh, r, c) => {
+    x.fillStyle = c;
+    rrect(x, sx(x0), sy(y0), w * s, hh * s, r * s);
+    x.fill();
+  };
+  x.save();
+  x.shadowColor = "#0007";
+  x.shadowBlur = 10;
+  rect(cxw - W2, top, W2 * 2, h, 6, "#6b4527");
+  x.restore();
+  rect(cxw - W2 + 4, top + 4, W2 * 2 - 8, h - 8, 4, "#8a5a33");
+  if (rv > 0) {
+    const name = shopName().toUpperCase(),
+      font = (px) => `700 ${Math.round(px * 10) / 10}px Fredoka, "Trebuchet MS", system-ui, sans-serif`,
+      max = (W2 * 2 - 24) * s;
+    // Tamaño de letra para que el nombre quepa entero (con tope de 22 y mínimo de 9)
+    x.font = font(22 * s);
+    const w = x.measureText(name).width;
+    x.font = font(Math.max(9 * s, w > max ? (22 * s * max) / w : 22 * s));
+    x.save();
+    x.beginPath();
+    x.rect(sx(cxw - W2), sy(top), W2 * 2 * s * rv, h * s);
+    x.clip();
+    x.fillStyle = "#f4e2c0";
     x.textAlign = "center";
-    x.fillText("🖌️", sx, sy);
+    x.textBaseline = "middle";
+    x.fillText(name, sx(cxw), sy(top + h / 2 + 1));
+    x.restore();
+  }
+  // La brocha, siguiendo al nombre que aparece
+  if (ST.brush) {
+    x.font = `${Math.round(26 * s + 10)}px system-ui,sans-serif`;
+    x.textAlign = "center";
+    x.textBaseline = "middle";
+    x.fillText("🖌️", sx(cxw - W2 + W2 * 2 * rv), sy(top + h / 2));
   }
 }
 

@@ -3,7 +3,7 @@ import { storyScript, NAMES, NAME_SUGGESTIONS } from "../../src/story/script.js"
 import { CHARS, EXPR } from "../../src/render/characters.js";
 
 const EX = EXPR.map((e) => e[0]);
-const texts = (pet) => storyScript(pet).map((s) => [s.act || "", s.say[2]].join(" "));
+const texts = (pet) => storyScript(pet).map((s) => [s.pop || "", s.say[2]].join(" "));
 
 describe("guion de la historia (story/script.js)", () => {
   it("8 escenas en orden, con plano, personajes y expresiones válidos", () => {
