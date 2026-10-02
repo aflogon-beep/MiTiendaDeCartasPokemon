@@ -1,6 +1,6 @@
 # Publica el juego en GitHub Pages.
-# - Mientras no haya proyecto Vite (fase R0): publica reference/pokemon-card-shop-v22.html como index.html.
-# - Cuando exista package.json (fase R1+): npm ci, npm test y npm run build, y publica dist/.
+# - Mientras no haya index.html en la raíz (fase R0): publica reference/pokemon-card-shop-v22.html como index.html.
+# - Cuando exista index.html (fase R1+, juego servido por Vite): npm ci, npm test y npm run build, y publica dist/.
 name: Deploy a GitHub Pages
 
 on:
@@ -30,26 +30,27 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Node
-        if: hashFiles('package.json') != ''
+        if: hashFiles('index.html') != ''
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Build con Vite
-        if: hashFiles('package.json') != ''
+        if: hashFiles('index.html') != ''
         env:
           # Ruta base de Pages (p. ej. /MiTiendaDeCartasPokemon/), para vite.config.js
           BASE_PATH: ${{ steps.pages.outputs.base_path }}/
         run: |
           npm ci
-          npm test --if-present
+          npx playwright install --with-deps chromium
+          npm test
           npm run build
           mkdir -p _site
           cp -r dist/. _site/
 
       - name: Publicar el HTML de referencia
-        if: hashFiles('package.json') == ''
+        if: hashFiles('index.html') == ''
         run: |
           mkdir -p _site
           cp reference/pokemon-card-shop-v22.html _site/index.html
