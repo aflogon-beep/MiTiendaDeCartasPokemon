@@ -515,6 +515,17 @@ export function drawCase() {
     if (it) {
       const cd = BYID[it.c],
         im = timg(cd.img);
+      if (it.gr) {
+        // Funda de plástico: marco transparente algo más grande que la carta y etiqueta roja arriba
+        cx.fillStyle = "rgba(0,0,0,.18)";
+        cx.fillRect(px, py - 3, 28, 40);
+        cx.fillStyle = "rgba(255,255,255,.55)";
+        rr(px - 2, py - 7, 28, 42, 3);
+        cx.fill();
+        cx.strokeStyle = "rgba(255,255,255,.9)";
+        cx.lineWidth = 1;
+        cx.stroke();
+      }
       cx.fillStyle = "rgba(0,0,0,.18)";
       cx.fillRect(px + 2, py + 2, 24, 33);
       if (im) cx.drawImage(im, px, py, 24, 33);
@@ -524,9 +535,17 @@ export function drawCase() {
         cx.fillStyle = "#fff8";
         cx.fillRect(px + 3, py + 4, 18, 12);
       }
-      cx.strokeStyle = it.gr ? "#c0392b" : RAR[cd.r].c;
-      cx.lineWidth = it.gr ? 2.5 : 1.5;
+      cx.strokeStyle = it.gr ? "rgba(255,255,255,.8)" : RAR[cd.r].c;
+      cx.lineWidth = it.gr ? 1 : 1.5;
       cx.strokeRect(px, py, 24, 33);
+      if (it.gr) {
+        cx.fillStyle = "#fff";
+        cx.fillRect(px, py - 6, 24, 6);
+        cx.strokeStyle = "#c0392b";
+        cx.lineWidth = 1;
+        cx.strokeRect(px, py - 6, 24, 6);
+        txt("PGS " + it.gr, px + 12, py - 1.2, 5, "#c0392b", "center");
+      }
       if (it.res) {
         cx.fillStyle = "rgba(255,255,255,.55)";
         cx.fillRect(px, py, 24, 33);

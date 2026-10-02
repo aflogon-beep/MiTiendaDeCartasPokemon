@@ -341,3 +341,71 @@
 .tile.incase .fvb {
   bottom: 40px;
 }
+
+/* Cartas gradeadas: funda de plástico (slab) encima de la carta, con etiqueta roja y la nota */
+.slabm {
+  position: absolute;
+  inset: -4px -3px auto;
+  aspect-ratio: 63/96;
+  border: 2px solid #ffffffb8;
+  border-radius: 7px;
+  background: linear-gradient(150deg, #ffffff66, #ffffff10 30%, #ffffff00 60%, #ffffff33);
+  box-shadow:
+    inset 0 0 0 2px #ffffff26,
+    0 3px 8px #0007;
+  pointer-events: none;
+}
+.slabm-lb {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 4px;
+  border: 1.5px solid #c0392b;
+  border-radius: 3px;
+  background: linear-gradient(#fff, #ececec);
+  color: #c0392b;
+  font: 800 9px/1.2 var(--fd);
+}
+.slabm-lb span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.slabm-lb b {
+  font-size: 12px;
+}
+.slabm-lb i {
+  font-size: 7px;
+  font-style: normal;
+}
+.slabm ~ .gb {
+  display: none; /* la etiqueta de la funda ya dice la nota */
+}
+.slabm.big {
+  inset: -12px -10px -10px;
+  aspect-ratio: auto;
+  border-width: 3px;
+  border-radius: 14px;
+}
+.slabm.big .slabm-lb {
+  left: 8px;
+  right: 8px;
+  right: 8px;
+  top: 8px;
+  gap: 6px;
+  padding: 4px 8px;
+  border-width: 2.5px;
+  font-size: 13px;
+}
+.slabm.big .slabm-lb b {
+  font-size: 22px;
+}
+.slabm.big .slabm-lb i {
+  font-size: 10px;
+}

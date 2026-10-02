@@ -1,4 +1,5 @@
 // Ficha de una carta: vitrina, vender, favoritas, peanas, examinar y gradear.
+import { slabOver } from "../slab.js";
 import { $, VIS } from "../../render/canvas.js";
 import { A } from "../actions.js";
 import { G, S } from "../../core/state.js";
@@ -41,7 +42,7 @@ export function mCard() {
     ix = L.indexOf(g.key),
     all = inc.length >= g.its.length;
   return `<div class="cnav"><button class="b" data-a="cprev"${ix <= 0 ? " disabled" : ""}>◀</button><span class="mu">${ix >= 0 ? ix + 1 + " de " + L.length : ""}</span><button class="b" data-a="cnext"${ix < 0 || ix >= L.length - 1 ? " disabled" : ""}>▶</button></div>
-  <div class="cbig" id="cbig">${pcHTML(c, g.rv, false, 0)}</div>
+  <div class="cbig" id="cbig">${pcHTML(c, g.rv, false, 0)}${slabOver(it.gr, c.name, true)}</div>
   <h2 style="text-align:center;padding:0;margin:10px 0 2px">${c.name}</h2><div class="mu" style="text-align:center">${RAR[c.r].n} · ${setName(c.s)} · ${it.gr ? "PGS " + it.gr : g.k}${g.rv ? " · Reverse" : ""}${g.its.length > 1 ? " · tienes " + g.its.length : ""}</div>
   <div class="pn" style="margin-top:10px"><div class="row"><span>Valor de mercado</span><b style="font-size:20px">${fmt(u)}</b></div><div class="row">${spark(c.id)}<span class="mu">7 d <span class="${cls(chg(c.id, 7))}">${pct(chg(c.id, 7))}</span> · 30 d <span class="${cls(chg(c.id, 30))}">${pct(chg(c.id, 30))}</span></span></div></div>
   ${it.fkK ? '<div class="pn down">🚫 Falsificación detectada: no vale nada.</div>' : ""}${it.gq ? '<div class="pn">📮 Esta carta está en el gradeo.</div>' : ""}

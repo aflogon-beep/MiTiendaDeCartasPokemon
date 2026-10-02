@@ -1,4 +1,5 @@
 // Pantalla Cartas: colección, filtros, búsqueda y orden.
+import { slabOver } from "../slab.js";
 import { BYID, setName } from "../../core/cards/sets.js";
 import { G, S } from "../../core/state.js";
 import { VIS } from "../../render/canvas.js";
@@ -32,7 +33,7 @@ export function tileHTML(x) {
   const u = itemVal(x.its[0]),
     cis = x.its.filter((i) => i.case != null && !i.lux),
     inc = cis.length;
-  return `<div class="tile${inc ? " incase" : ""}" data-a="sel" data-k="${x.key}">${face(x.c, x.rv)}<div class="pt">${fmt(u)}</div>${x.its.length > 1 ? `<div class="qt">×${x.its.length}</div>` : ""}${inc ? `<div class="vt">🏷️ EN VITRINA${inc > 1 ? " ×" + inc : ""}<b>${fmt(u * cis[0].case)}</b></div>` : ""}${x.its[0].gr ? `<div class="gb">PGS ${x.its[0].gr}</div>` : ""}${x.its[0].gq ? '<div class="vt" style="background:#3f7fc4">📮 EN GRADEO</div>' : ""}${x.its[0].fav ? '<div class="fvb">❤️</div>' : ""}${x.its[0].fkK ? '<div class="gb" style="background:#c0392b;color:#fff">FALSA</div>' : ""}${x.its.some((i) => i.lux) ? '<div class="qt" style="background:#c9a227;left:auto;right:4px;top:26px">💎</div>' : ""}</div>`;
+  return `<div class="tile${inc ? " incase" : ""}" data-a="sel" data-k="${x.key}">${face(x.c, x.rv)}${slabOver(x.its[0].gr)}<div class="pt">${fmt(u)}</div>${x.its.length > 1 ? `<div class="qt">×${x.its.length}</div>` : ""}${inc ? `<div class="vt">🏷️ EN VITRINA${inc > 1 ? " ×" + inc : ""}<b>${fmt(u * cis[0].case)}</b></div>` : ""}${x.its[0].gr ? `<div class="gb">PGS ${x.its[0].gr}</div>` : ""}${x.its[0].gq ? '<div class="vt" style="background:#3f7fc4">📮 EN GRADEO</div>' : ""}${x.its[0].fav ? '<div class="fvb">❤️</div>' : ""}${x.its[0].fkK ? '<div class="gb" style="background:#c0392b;color:#fff">FALSA</div>' : ""}${x.its.some((i) => i.lux) ? '<div class="qt" style="background:#c9a227;left:auto;right:4px;top:26px">💎</div>' : ""}</div>`;
 }
 export function collGrid() {
   const g = collList();
