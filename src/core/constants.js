@@ -103,3 +103,7 @@ export const RECO=["base1","swsh7","swsh12pt5","sv4pt5","sv8"];
 export const DIFFS={facil:{n:"Fácil",d:"Sin tienda rival ni ladrones, pocas falsas, clientes más pacientes y alquiler más barato. Ideal para peques.",pat:1.5,tol:1.06,rent:.7,fake:.35,theft:0,rival:false,rStr:40},
   normal:{n:"Normal",d:"La experiencia completa.",pat:1,tol:1,rent:1,fake:1,theft:1,rival:true,rStr:55},
   dificil:{n:"Difícil",d:"Rival desde el día 3 y más fuerte, más robos y falsas, clientes exigentes y alquiler caro.",pat:.8,tol:.95,rent:1.3,fake:1.3,theft:1.6,rival:true,rStr:70,rDay:3}};
+export const SHIRTC=["#e3350d","#3f7fc4","#2fa557","#f2b705","#8e4cb5","#e07a2f","#1abc9c","#222"];
+export const HAIRC2=["#222","#6b3a1e","#c47a2c","#d9b36c","#8a8a8a","#b13e53"];
+export const STYLES={clasico:{n:"Clásico",c:null},azul:{n:"Azul",c:"#3f7fc4"},rosa:{n:"Rosa",c:"#ff7ab8"},verde:{n:"Verde",c:"#2fa557"},morado:{n:"Morado",c:"#8e4cb5"},noche:{n:"Noche",c:"#1f2a44"}};
+export const PETS={cat:"🐱 Gato",dog:"🐶 Perro",bunny:"🐰 Conejo",none:"Sin mascota"};

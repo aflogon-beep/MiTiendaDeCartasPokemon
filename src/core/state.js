@@ -26,6 +26,11 @@ export const G={
   deal:null,      // trato con un cliente que quiere vendernos una carta
   TOF:null,       // oferta de un cliente por uno de nuestros trofeos
   LOT:null,       // lote misterioso que se está negociando
+  paused:false,   // pausa del jugador
+  speed:1,        // velocidad del juego (1×, 2×, 4×)
+  SOUND:(()=>{try{return localStorage.getItem("pcs-sound")!=="0"}catch(e){return true}})(), // sonido activado
+  BGk:-1,         // clave del fondo de la tienda ya dibujado (-1 = rehacer)
+  CITYk:"",       // clave de la ciudad ya dibujada ("" = rehacer)
 };
 
 export let SETS=[];
@@ -55,3 +60,5 @@ export function newState(){
   replaceState({tut:{on:true,i:0},money:1000,day:1,sales:0,nid:1,items:[],sealed:{},shelf:{},pack:{},prices:{},up:{cashier:0,ads:0,case:0,shelf:0},sets:DEFAULT_SETS.slice(),log:[],phase:"closed",clock:0,stats:{inc:0,cust:0,lost:0,bought:0}});
   ensure();
 }
+export const meCfg=()=>Object.assign({shirt:"#e3350d",hair:"#222",cap:"#e3350d",hs:0},S.me||{});
+export const shopName=()=>(S.shopName||"").trim()||"Poké Cards";
