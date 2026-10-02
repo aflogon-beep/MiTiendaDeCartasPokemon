@@ -24,6 +24,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/bot.js` | Bot jugador de los tests 4 y 5: repone, pone precios recomendados, llena la vitrina y cobra (en el test 4 también las misiones). |
 | `e2e/01…13-*.spec.js` | Los 13 tests de la tabla de `CLAUDE.md`. |
 | `e2e/14-estilos.spec.js` | Compara los estilos calculados de todos los elementos (también `::before`/`::after`) entre Vite y la referencia en 44 pantallas y dos tamaños. Solo se ejecuta en el proyecto `vite` (abre las dos versiones a la vez). Con `margin: auto`, Chrome a veces informa 0px en vez del margen calculado: si solo difieren los márgenes laterales y la caja está en el mismo sitio, no cuenta como diferencia. |
+| `e2e/15-pwa.spec.js` | App instalable: manifest e iconos, service worker activo y el juego vuelve a abrir sin red (con las cartas de IndexedDB). Solo en el proyecto `vite`. |
 | `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red
@@ -51,3 +52,4 @@ __pcs.spawn()      // llamar
 - **Test 4 y el azar.** Sin cobrar las misiones, el bot llegaba a nivel 2 el día 7 en ~1 de cada 6 partidas (también con la referencia). Cobrándolas, como haría un jugador, llega casi siempre el día 4 o 5; aun así, alguna vez (≈1 de cada 5) tiene mala racha y llega el día 7, así que el test 4 tiene 2 reintentos.
 - **Azar.** El juego no tiene semilla. Los tests de simulación usan rangos amplios, y los de probabilidad (sobres, ladrón, falsas) muchas repeticiones.
 - **Modo ahorro (test 13).** Para simular un móvil lento, cada fotograma tarda unos 45 ms más (se envuelve `requestAnimationFrame` desde el test, sin tocar el juego).
+- **Service worker.** Todos los tests lo bloquean (`serviceWorkers: "block"` en `playwright.config.js`) para que la red simulada vea todas las peticiones; solo el test 15 lo activa.

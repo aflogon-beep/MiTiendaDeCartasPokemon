@@ -20,6 +20,8 @@ export default defineConfig({
     locale: "es-ES",
     timezoneId: "Europe/Madrid",
     trace: "retain-on-failure",
+    // Sin service worker: así la red simulada ve todas las peticiones. Solo el test 15 (PWA) lo activa.
+    serviceWorkers: "block",
   },
   projects: [
     { name: "vite", use: { baseURL: `http://localhost:${VITE}`, gamePath: "/" } },
