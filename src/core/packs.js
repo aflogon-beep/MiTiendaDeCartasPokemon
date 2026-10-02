@@ -21,6 +21,9 @@ export function refreshPacks(first) {
     if (G.MODE === "real") {
       const hi = sd.year >= 2020 ? 7 : sd.year >= 2010 ? 14 : sd.year >= 2003 ? 60 : 400,
         t = clamp(r05(EVC[s] * 1.12), 3, hi);
+      // Al cargar (first) solo se fija de golpe si el sobre aún no tenía precio (docs/pendientes.md §2);
+      // si ya lo tenía, se conserva. Cada día se acerca poco a poco al objetivo.
+      if (first && S.pack[s].init) return;
       S.pack[s].w = first ? t : r05(S.pack[s].w * 0.7 + t * 0.3);
       S.pack[s].init = 1;
       S.pack[s].ref = r05(S.pack[s].w * 1.45);

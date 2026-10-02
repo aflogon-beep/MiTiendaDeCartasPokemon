@@ -33,7 +33,7 @@ Pasa más cuanto más larga es la cola y cuanto más rápido se atiende (la cola
 
 ---
 
-## 2. Al cargar una partida se recalcula el precio de mayorista de los sobres · 🔧 arreglar al terminar las fases (propuesta)
+## 2. Al cargar una partida se recalcula el precio de mayorista de los sobres · ✅ arreglado
 
 `ensure()` llama a `refreshPacks(true)` cada vez que se carga o importa una partida. En modo real eso fija `S.pack[s].w` al valor objetivo calculado con los precios actuales, en vez de seguir la media móvil del día a día (`w*.7 + objetivo*.3`), y recalcula `ref`. Por eso exportar y volver a importar una partida cambia ligeramente `S.pack`; todo lo demás se conserva igual.
 
@@ -44,6 +44,10 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Impacto:** pequeño. El precio de mayorista salta al valor objetivo en vez de acercarse poco a poco; no se pierde nada de la partida.
 
 **Propuesta:** durante el refactor mantenerlo igual (mismo comportamiento) y arreglarlo junto al punto 1, al terminar las fases. Al arreglarlo, el test 11 podrá dejar de excluir `pack`.
+
+**Estado:** ✅ arreglado. `refreshPacks(true)` (al cargar o importar) solo fija el precio de golpe en los sobres que aún no lo tenían (`init`): una partida nueva o un set recién añadido. Si ya lo tenían, se conserva tal cual. Al cerrar cada día se sigue acercando poco a poco al objetivo (`w*.7 + objetivo*.3`). Las partidas guardadas ya tienen `init`, así que la de Alberto carga su precio de mayorista guardado. El test 11 ya no excluye `pack` en Vite (en la referencia sí, porque allí sigue el comportamiento antiguo); test unitario en `tests/unit/logica.test.js`.
+
+---
 
 ## 3. Fase I · gag del tropiezo de Álvaro — descartado
 

@@ -6,6 +6,9 @@ import { readFileSync } from "node:fs";
 // Sirve para reorganizar el CSS con la garantía de que nada cambia de aspecto.
 
 const SAVE = JSON.parse(readFileSync(new URL("../fixtures/partida-v22.json", import.meta.url), "utf8")).S;
+// Sin «init» en los sobres, las dos versiones fijan el mismo precio de mayorista al cargar (la referencia
+// lo recalcula siempre; Vite solo si no lo tenía: docs/pendientes.md §2). Así se compara solo el aspecto.
+Object.values(SAVE.pack).forEach((p) => delete p.init);
 const REF = "http://localhost:4317/reference/pokemon-card-shop-v22.html";
 const VITE = "http://localhost:4318/";
 

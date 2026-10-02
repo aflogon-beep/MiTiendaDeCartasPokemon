@@ -41,12 +41,27 @@ describe("sobres (roll)", () => {
     expect(eraCfg("fx5").id).toBe("mid");
   });
   it("el precio de mayorista sale del valor esperado (×1,12, entre 3 y 7 € en sets modernos)", () => {
+    SETS.forEach((sd) => (S.pack[sd.id] = { w: 1, ref: 1.3 })); // sobres aún sin precio
     refreshPacks(true);
     for (const sd of SETS) {
       const t = Math.min(7, Math.max(3, Math.max(0.05, Math.round(calcEV(sd.id) * 1.12 * 20) / 20)));
       expect(S.pack[sd.id].w).toBeCloseTo(t, 5);
       expect(S.pack[sd.id].ref).toBeCloseTo(Math.max(0.05, Math.round(S.pack[sd.id].w * 1.45 * 20) / 20), 5);
     }
+  });
+});
+
+describe("precio de mayorista al cargar (docs/pendientes.md §2)", () => {
+  it("al cargar una partida se conserva; al pasar el día se acerca poco a poco al objetivo", () => {
+    refreshPacks(true);
+    const sd = SETS[0],
+      t = S.pack[sd.id].w;
+    S.pack[sd.id].w = t + 1;
+    S.pack[sd.id].ref = 99;
+    refreshPacks(true); // cargar
+    expect(S.pack[sd.id]).toMatchObject({ w: t + 1, ref: 99 });
+    refreshPacks(); // fin del día
+    expect(S.pack[sd.id].w).toBeCloseTo(Math.round((t + 1) * 0.7 * 20 + t * 0.3 * 20) / 20, 5);
   });
 });
 

@@ -16,7 +16,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §2 (recálculo del precio de los sobres al cargar). Cambia comportamiento: **proponer el arreglo y preguntar** antes de tocarlo. (§1, clientes que atravesaban muebles al ir a la cola: arreglado.)
+Pendiente: nada en `docs/pendientes.md` (§1, clientes que atravesaban muebles al ir a la cola, y §2, recálculo del precio de los sobres al cargar: arreglados).
 
 ## Reglas
 
