@@ -18,7 +18,6 @@ export function drawPfx(){PFX.forEach(p=>{if(p.t<0)return;const k=p.t/p.d;
   if(p.k==="coin"){const x=p.x0+(p.x1-p.x0)*k,y=p.y0+(p.y1-p.y0)*k-Math.sin(k*Math.PI)*55;cx.fillStyle="#f2c14e";cx.beginPath();cx.ellipse(x,y,4.5,Math.max(.8,4.5*Math.abs(Math.cos(p.t*14))),0,0,7);cx.fill();cx.strokeStyle="#b8860b";cx.lineWidth=1;cx.stroke()}
   else if(p.k==="heart"){cx.globalAlpha=1-k;heart(p.x,p.y,5,"#ff4f7b");cx.globalAlpha=1}
   else{cx.globalAlpha=1-k;star(p.x,p.y,4.5,"#ffd54a");cx.globalAlpha=1}})}
-export let VIG=null;
 export function drawEvBanner(){const t=evShort();if(!t)return;cx.font="700 13px system-ui,sans-serif";const w=cx.measureText(t).width+20;cx.fillStyle="rgba(0,0,0,.7)";rr(8,8,w,26,13);cx.fill();cx.fillStyle="#fff";cx.textAlign="left";cx.fillText(t,18,26)}
 export const shake=v=>{if(hasState()&&S.ui&&S.ui.calm)return;VIS.shake=Math.max(VIS.shake||0,Math.min(4,v*.4))};
 export function drawThiefFx(c){if(!c.run||c.caught)return;const t=performance.now()/1000,d=c.face||1;

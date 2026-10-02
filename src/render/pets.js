@@ -34,7 +34,6 @@ export function drawCat(){
   cx.fillStyle="#1a1a1a";cx.beginPath();cx.arc(10.5,hy-.5,1,0,7);cx.arc(14.5,hy-.5,1,0,7);cx.fill();cx.fillStyle="#ff9eb0";cx.fillRect(12,hy+1.5,1.6,1.2);
   cx.restore();
 }
-export function meow(){ui.tone(760,0,.12,"triangle",.07);ui.tone(620,.1,.3,"triangle",.06);heartsAt(CAT.x,CAT.y-26,2);CAT.st="sit";CAT.t=3}
 export function drawPet(){const p=S.pet||"cat";if(p==="none")return;if(p==="cat")return drawCat();
   const x=CAT.x,y=CAT.y,d=CAT.dir,t=performance.now()/1000,sl=CAT.st==="sleep",w=CAT.st==="walk"?Math.sin(CAT.ph)*2.5:0;
   cx.save();cx.translate(x,y);cx.scale(d,1);cx.fillStyle="rgba(0,0,0,.22)";cx.beginPath();cx.ellipse(0,0,13,4,0,0,7);cx.fill();

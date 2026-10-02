@@ -23,7 +23,8 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/helpers.js` | Abrir el juego con la red simulada, saltar el tutorial, cerrar paneles y acceder a las variables del juego. |
 | `e2e/bot.js` | Bot jugador de los tests 4 y 5: repone, pone precios recomendados, llena la vitrina y cobra (en el test 4 también las misiones). |
 | `e2e/01…13-*.spec.js` | Los 13 tests de la tabla de `CLAUDE.md`. |
-| `unit/` | Tests de Vitest. De momento, los de la API simulada. Irán creciendo con la lógica pura extraída en R2. |
+| `e2e/14-estilos.spec.js` | Compara los estilos calculados de todos los elementos (también `::before`/`::after`) entre Vite y la referencia en 44 pantallas y dos tamaños. Solo se ejecuta en el proyecto `vite` (abre las dos versiones a la vez). |
+| `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red
 

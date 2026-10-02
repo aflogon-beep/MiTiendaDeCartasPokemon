@@ -12,7 +12,6 @@ export function rr(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w
 export function txt(t,x,y,size,col,al){cx.font=`600 ${size}px 'Fredoka','Trebuchet MS',system-ui,sans-serif`;cx.fillStyle=col;cx.textAlign=al||"left";cx.fillText(t,x,y)}
 export const IMGS={};
 export function timg(u){if(!u)return null;let i=IMGS[u];if(!i){i=IMGS[u]=new Image();i.src=u}return i.complete&&i.naturalWidth?i:null}
-export function lamp(x,y,r,a){const g=cx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,244,205,${a})`);g.addColorStop(1,"rgba(255,244,205,0)");cx.fillStyle=g;cx.fillRect(x-r,y-r,r*2,r*2)}
 export function pokeball(x,y,r){cx.fillStyle="#e3350d";cx.beginPath();cx.arc(x,y,r,Math.PI,0);cx.fill();cx.fillStyle="#fff";cx.beginPath();cx.arc(x,y,r,0,Math.PI);cx.fill();cx.fillStyle="#222";cx.fillRect(x-r,y-1,r*2,2);cx.beginPath();cx.arc(x,y,r*.34,0,7);cx.fillStyle="#fff";cx.fill();cx.strokeStyle="#222";cx.lineWidth=1;cx.stroke()}
 export function plant(x,y){cx.fillStyle="rgba(0,0,0,.18)";cx.beginPath();cx.ellipse(x,y+16,13,4,0,0,7);cx.fill();cx.fillStyle="#7a4a2b";cx.beginPath();cx.moveTo(x-9,y);cx.lineTo(x+9,y);cx.lineTo(x+6,y+16);cx.lineTo(x-6,y+16);cx.fill();cx.fillStyle="#2f7d43";[[-8,-4],[8,-4],[0,-12],[-3,-2],[5,-9]].forEach(p=>{cx.beginPath();cx.arc(x+p[0],y+p[1],8,0,7);cx.fill()});cx.fillStyle="#48a862";cx.beginPath();cx.arc(x,y-8,6,0,7);cx.fill()}
 export const VIS={shut:1,endAt:0,lastRep:null,ped:[],pedT:1,lt:0};

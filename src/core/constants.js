@@ -49,7 +49,6 @@ export const RORD=["HR","SIR","UR","IR","DR","R","U","C"];
 export const GMULT={10:4,9:1.7,8:1.2,7:.95,6:.8,5:.7,4:.6,3:.55,2:.5,1:.45};
 export const GTXT={10:"GEM MINT",9:"MINT",8:"NM-MT",7:"NEAR MINT",6:"EX-MT",5:"EXCELLENT",4:"VG-EX",3:"VERY GOOD",2:"GOOD",1:"POOR"};
 export const GSVC={std:{n:"Estándar",cost:12,days:4},exp:{n:"Exprés",cost:35,days:1}};
-export const NAMES=["Lucía","Dani","Marcos","Aitana","Pablo","Sara","Iker","Noa","Hugo","Carla","Jorge","Irene"];
 export const MT=[
   {k:"open",n:"Abre {g} sobres",g:[2,4,6],r:[20,35,60]},
   {k:"sellpack",n:"Vende {g} sobres en la tienda",g:[4,7,12],r:[20,40,70]},
