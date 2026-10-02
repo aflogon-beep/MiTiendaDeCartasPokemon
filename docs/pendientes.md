@@ -4,7 +4,7 @@ Errores o cosas mejorables encontradas durante el refactor. **No se arreglan de 
 
 ---
 
-## 1. Clientes que atraviesan muebles al ir a la cola · ❓ PREGUNTA (bloquea el test 5)
+## 1. Clientes que atraviesan muebles al ir a la cola · ✅ DECIDIDO: arreglar al terminar las fases
 
 **Qué pasa.** Con mobiliario en la tienda, a veces un cliente que va hacia la caja (`st: "toq"`) cruza en línea recta por encima de un mueble: la máquina de café, una maceta, una estantería, la mesa de juego o el mueble de «Sellado y accesorios». Es un roce de unos píxeles o lo cruza entero.
 
@@ -23,15 +23,18 @@ Errores o cosas mejorables encontradas durante el refactor. **No se arreglan de 
 
 Pasa más cuanto más larga es la cola y cuanto más rápido se atiende (la cola se mueve mientras el cliente camina).
 
-**Opciones:**
-1. **Dejar el test 5 marcado como «fallo conocido»** (`test.fail()`) hasta arreglarlo en una fase de correcciones posterior al refactor. La suite queda en verde y el test avisará cuando se arregle. *(Recomendada: respeta «refactor = mismo comportamiento».)*
-2. **Arreglarlo ya en el juego**, por ejemplo recalculando la ruta cuando cambia el hueco de la cola. Es un cambio de comportamiento, y el HTML de referencia es la fuente de verdad.
-3. **Suavizar el test**: comprobar solo los tramos con ruta calculada e ignorar el último tramo hacia la cola. El test queda más débil.
+**Decisión (Alberto):** el test 5 queda marcado como «fallo conocido» (`test.fail()`) y se arregla cuando terminen las fases del refactor (idea: recalcular la ruta cuando cambia el hueco de la cola). Al arreglarlo, quitar `test.fail()` del test 5.
 
 ---
 
-## 2. Al cargar una partida se recalcula el precio de mayorista de los sobres · observación
+## 2. Al cargar una partida se recalcula el precio de mayorista de los sobres · 🔧 arreglar al terminar las fases (propuesta)
 
 `ensure()` llama a `refreshPacks(true)` cada vez que se carga o importa una partida. En modo real eso fija `S.pack[s].w` al valor objetivo calculado con los precios actuales, en vez de seguir la media móvil del día a día (`w*.7 + objetivo*.3`), y recalcula `ref`. Por eso exportar y volver a importar una partida cambia ligeramente `S.pack`; todo lo demás se conserva igual.
 
-No parece grave y el test 11 lo trata como un dato que se recalcula al cargar. Se apunta por si no era intencionado.
+Pasa cada vez que se abre el juego, no solo al importar.
+
+**Parece un descuido:** `refreshPacks()` guarda `S.pack[s].init=1`, pero ese dato no se lee en ningún sitio. Lo lógico sería que el recálculo de golpe solo se hiciera la primera vez (`first && !S.pack[s].init`).
+
+**Impacto:** pequeño. El precio de mayorista salta al valor objetivo en vez de acercarse poco a poco; no se pierde nada de la partida.
+
+**Propuesta:** durante el refactor mantenerlo igual (mismo comportamiento) y arreglarlo junto al punto 1, al terminar las fases. Al arreglarlo, el test 11 podrá dejar de excluir `pack`.
