@@ -44,7 +44,8 @@ __pcs.spawn()      // llamar
 
 ## Notas
 
-- **Velocidad.** El jugador puede llegar a 4×. Los tests 4 y 5 suben `speed` a 20–40 para simular días enteros en segundos. El juego limita cada fotograma a 0,05 s reales, así que cada paso de la simulación es como mucho de 1–2 s de juego.
+- **Velocidad.** El jugador puede llegar a 4×. Los tests 4 y 5 suben `speed` a 20 para simular días enteros en segundos. El juego limita cada fotograma a 0,05 s reales, así que cada paso de la simulación es como mucho de 1 s de juego.
+- **El bot va al ritmo del juego.** Actúa una vez por fotograma (con `requestAnimationFrame`), no cada X milisegundos. Así atiende igual de rápido en un ordenador lento (por ejemplo, en GitHub). Antes, con esperas fijas, allí los clientes se cansaban y el test 4 fallaba.
 - **TPV en el bot.** El cobro con tarjeta anima unos 1,8 s reales. El bot teclea el importe exacto y aplica directamente lo mismo que hace `A.ckok()` al terminar (`track("cardpay")` + `finishCK`). El efectivo sí pasa por `A.ckgive()` con el cambio exacto.
 - **Test 4 y el azar.** Sin cobrar las misiones, el bot llegaba a nivel 2 el día 7 en ~1 de cada 6 partidas (también con la referencia). Cobrándolas, como haría un jugador, llega casi siempre el día 4 o 5.
 - **Azar.** El juego no tiene semilla. Los tests de simulación usan rangos amplios, y los de probabilidad (sobres, ladrón, falsas) muchas repeticiones.

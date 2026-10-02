@@ -6,7 +6,9 @@
 // No compra cartas, lotes ni intercambia: a los que vienen a vender les dice que no.
 export async function botPlay(P, opt) {
   const { days, speed, claim } = opt;
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  // El bot actúa una vez por fotograma (justo después de que el juego avance), así reacciona igual
+  // de rápido en tiempo de juego tanto en un ordenador rápido como en uno lento (p. ej. en GitHub).
+  const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
   const A = P.A;
   const DEN = [5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
   const log = [];
@@ -98,7 +100,7 @@ export async function botPlay(P, opt) {
     const M = P.M;
     if (M) {
       handle(M);
-      await sleep(15);
+      await nextFrame();
       continue;
     }
     if (P.paused) P.setPause(false);
@@ -111,7 +113,7 @@ export async function botPlay(P, opt) {
         restock();
       }
       if ((S.deliv || []).length) {
-        await sleep(40); // esperando a la furgoneta
+        await nextFrame(); // esperando a la furgoneta
         continue;
       }
       if (opened < 3 && openForCase()) {
@@ -126,7 +128,7 @@ export async function botPlay(P, opt) {
       const f = P.front();
       if (f) P.serveFront();
     }
-    await sleep(20);
+    await nextFrame();
   }
   return log;
 }
