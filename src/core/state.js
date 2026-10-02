@@ -23,6 +23,7 @@ export function replaceState(o) {
 
 export const G = {
   MODE: "offline", // "real" con cartas de la API; "offline" con cartas ilustradas
+  SLOT: 1, // ranura de partida activa (1-3, ver core/slots.js)
   NOTE: "", // aviso del estado de las cartas que se añade a la pista del HUD
   M: null, // panel abierto ("packs", "coll", "ck"…) o null; con un panel abierto el juego se para
   MG: null, // minijuego en curso

@@ -20,6 +20,7 @@ import { giftCheck } from "./core/gift.js";
 import { hud, setPause } from "./ui/hud.js";
 import { importData } from "./ui/screens/more.js";
 import { loadOrNew, saveNow } from "./core/save.js";
+import { lastSlot, slotKey, useSlot } from "./core/slots.js";
 import { on } from "./core/bus.js";
 import { paintNav } from "./ui/nav.js";
 import { repv, spMul } from "./core/economy.js";
@@ -164,7 +165,8 @@ document.addEventListener("visibilitychange", () => {
 (function boot() {
   const txt = $("#loadtxt");
   let ids = DEFAULT_SETS;
-  const sv = cget("pcs-save-real-v3") || cget("pcs-save-real-v2");
+  useSlot(lastSlot()); // hasta que exista la pantalla de título, se sigue con la última partida usada
+  const sv = cget(slotKey(G.SLOT, "real")) || (G.SLOT === 1 ? cget("pcs-save-real-v2") : null);
   if (sv && sv.sets && sv.sets.length) ids = sv.sets;
   loadSetList()
     .then((list) => {
@@ -185,7 +187,7 @@ document.addEventListener("visibilitychange", () => {
         : "Precios reales de Cardmarket";
     })
     .catch(() => {
-      if (cget("pcs-save-real-v3"))
+      if (cget(slotKey(G.SLOT, "real")))
         return new Promise((res) => {
           $("#load").innerHTML =
             `<div><h2>No se pudieron cargar las cartas</h2><p class="mu">La API de cartas no responde ahora mismo. Tu partida está guardada y no se pierde.</p><div class="btns" style="justify-content:center"><button class="b pri" id="lretry">Reintentar</button><button class="b" id="loff">Jugar sin conexión (partida aparte)</button></div></div>`;

@@ -25,6 +25,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/01…13-*.spec.js` | Los 13 tests de la tabla de `CLAUDE.md`. |
 | `e2e/14-estilos.spec.js` | Compara los estilos calculados de todos los elementos (también `::before`/`::after`) entre Vite y la referencia en 44 pantallas y dos tamaños. Solo se ejecuta en el proyecto `vite` (abre las dos versiones a la vez). Con `margin: auto`, Chrome a veces informa 0px en vez del margen calculado: si solo difieren los márgenes laterales y la caja está en el mismo sitio, no cuenta como diferencia. |
 | `e2e/15-pwa.spec.js` | App instalable: manifest e iconos, service worker activo y el juego vuelve a abrir sin red (con las cartas de IndexedDB). Solo en el proyecto `vite`. |
+| `e2e/16-ranuras.spec.js` | Fase I · ranuras de partida: una partida guardada por la v22 aparece como ranura 1 con los mismos datos; cambiar de ranura no mezcla partidas y la última usada se recuerda. Solo en el proyecto `vite`. |
 | `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red
