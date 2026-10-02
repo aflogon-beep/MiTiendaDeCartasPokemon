@@ -1,11 +1,10 @@
 import { defineConfig } from "@playwright/test";
 
-// PCS_TARGET elige qué versión del juego se prueba:
-//   reference (por defecto) → reference/pokemon-card-shop-v22.html servido tal cual
-//   vite                    → la versión de Vite (fase R1 en adelante)
-const TARGET = process.env.PCS_TARGET || "reference";
-const PORT = TARGET === "vite" ? 4318 : 4317;
-const GAME_PATH = TARGET === "vite" ? "/" : "/reference/pokemon-card-shop-v22.html";
+// Dos versiones del mismo juego, con los mismos tests:
+//   vite        → el juego compilado con Vite (vite build + vite preview). Es el que se refactoriza.
+//   referencia  → reference/pokemon-card-shop-v22.html servido tal cual (la fuente de verdad).
+const REF = 4317;
+const VITE = 4318;
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -16,16 +15,19 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"]],
   use: {
-    baseURL: `http://localhost:${PORT}`,
     viewport: { width: 390, height: 844 },
     hasTouch: true,
     locale: "es-ES",
     timezoneId: "Europe/Madrid",
     trace: "retain-on-failure",
-    gamePath: GAME_PATH,
   },
-  webServer:
-    TARGET === "vite"
-      ? { command: `npx vite build && npx vite preview --port ${PORT} --strictPort`, port: PORT, reuseExistingServer: !process.env.CI }
-      : { command: `node tests/static-server.js`, env: { PORT: String(PORT) }, port: PORT, reuseExistingServer: !process.env.CI },
+  projects: [
+    { name: "vite", use: { baseURL: `http://localhost:${VITE}`, gamePath: "/" } },
+    { name: "referencia", use: { baseURL: `http://localhost:${REF}`, gamePath: "/reference/pokemon-card-shop-v22.html" } },
+  ],
+  webServer: [
+    { command: "node tests/static-server.js", env: { PORT: String(REF) }, port: REF, reuseExistingServer: !process.env.CI },
+    // Sin reutilizar: cada ejecución compila el código actual.
+    { command: `npx vite build && npx vite preview --port ${VITE} --strictPort`, port: VITE, reuseExistingServer: false },
+  ],
 });

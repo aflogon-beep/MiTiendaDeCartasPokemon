@@ -2,14 +2,16 @@
 
 ```bash
 npm install
-npm test            # Vitest (tests/unit) y después Playwright (tests/e2e)
+npm test            # Vitest (tests/unit) y Playwright (tests/e2e) contra la versión de Vite
 npm run test:unit   # solo Vitest
-npm run test:e2e    # solo Playwright
-npx playwright test 04          # un test concreto (por nombre de archivo)
-PCS_TARGET=vite npm run test:e2e  # (desde R1) contra la versión de Vite
+npm run test:e2e    # solo Playwright, versión de Vite
+npm run test:ref    # Playwright contra el HTML de referencia
+npx playwright test 04 --project=vite   # un test concreto (por nombre de archivo)
 ```
 
-Por defecto Playwright prueba `reference/pokemon-card-shop-v22.html` servido tal cual por `tests/static-server.js`. Con `PCS_TARGET=vite` compila y sirve la versión de Vite (`vite build` + `vite preview`).
+Playwright tiene dos proyectos con los mismos tests:
+- **`vite`**: compila el juego (`vite build`) y lo sirve con `vite preview`. Es la versión que se refactoriza.
+- **`referencia`**: `reference/pokemon-card-shop-v22.html`, servido tal cual por `tests/static-server.js`.
 
 ## Estructura
 
@@ -37,7 +39,9 @@ __pcs.speed = 40   // escribir (solo los tests aceleran así el reloj del juego)
 __pcs.spawn()      // llamar
 ```
 
-En el HTML de referencia son variables globales de un `<script>` clásico y `helpers.js` las expone con un `Proxy` y `eval` indirecto. **La versión de Vite tendrá que exponer el mismo `window.__pcs`** (con los mismos nombres; las variables sueltas agrupadas en `G` se exponen con su nombre original) para que estos tests sigan valiendo sin cambios.
+- **Referencia:** son variables globales de un `<script>` clásico, y `helpers.js` las expone con un `Proxy` y `eval` indirecto.
+- **Vite:** el propio juego crea `window.__pcs` al final de `src/legacy.js`, con un `eval` directo que ve las variables del módulo.
+- **Al separar módulos (R2):** hay que mantener el mismo `window.__pcs` con los mismos nombres. Las variables sueltas agrupadas en `G` se expondrán con su nombre original, para que estos tests sigan valiendo sin cambios.
 
 ## Notas
 
