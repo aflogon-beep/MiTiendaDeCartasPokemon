@@ -26,6 +26,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/14-estilos.spec.js` | Compara los estilos calculados de todos los elementos (también `::before`/`::after`) entre Vite y la referencia en 44 pantallas y dos tamaños. Solo se ejecuta en el proyecto `vite` (abre las dos versiones a la vez). Con `margin: auto`, Chrome a veces informa 0px en vez del margen calculado: si solo difieren los márgenes laterales y la caja está en el mismo sitio, no cuenta como diferencia. |
 | `e2e/15-pwa.spec.js` | App instalable: manifest e iconos, service worker activo y el juego vuelve a abrir sin red (con las cartas de IndexedDB). Solo en el proyecto `vite`. |
 | `e2e/16-ranuras.spec.js` | Fase I · ranuras de partida: una partida guardada por la v22 aparece como ranura 1 con los mismos datos; cambiar de ranura no mezcla partidas y la última usada se recuerda. Solo en el proyecto `vite`. |
+| `e2e/17-titulo.spec.js` | Fase I · pantalla de carga y título: primera vez (solo «Nueva partida»), «Continuar», «Cargar partida», sobrescribir y borrar con confirmación, importar en una ranura, volver al título y ajustes rápidos. Solo en el proyecto `vite`. |
 | `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red
@@ -54,3 +55,5 @@ __pcs.spawn()      // llamar
 - **Azar.** El juego no tiene semilla. Los tests de simulación usan rangos amplios, y los de probabilidad (sobres, ladrón, falsas) muchas repeticiones.
 - **Modo ahorro (test 13).** Para simular un móvil lento, cada fotograma tarda unos 45 ms más (se envuelve `requestAnimationFrame` desde el test, sin tocar el juego).
 - **Service worker.** Todos los tests lo bloquean (`serviceWorkers: "block"` en `playwright.config.js`) para que la red simulada vea todas las peticiones; solo el test 15 lo activa.
+- **Pantalla de título.** `openGame` la salta (pone `window.__pcsSkipTitle`) y el juego entra directo en la última partida, como antes de la Fase I. Para probar el título: `openGame(page, gamePath, { title: true })`.
+- **Test 14 y la Fase I.** Lo nuevo de la Fase I que aparece dentro de las pantallas de siempre lleva `data-fase="I"` y el test 14 lo quita antes de comparar con la referencia.

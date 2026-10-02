@@ -92,11 +92,14 @@ export function collectErrors(page) {
  * opts.save: objeto S para dejar guardado antes de arrancar (partida "real").
  * opts.api: opciones de mockNetwork.
  * opts.init: función extra que se ejecuta antes que el juego (addInitScript).
+ * opts.title: no saltar la pantalla de título (por defecto se salta, como el juego de antes).
  */
 export async function openGame(page, gamePath, opts = {}) {
   const api = await mockNetwork(page, opts.api);
   page.on("dialog", (d) => d.accept());
   await page.addInitScript(HOOKS);
+  // Los tests de siempre saltan el título y entran directos en la última partida (opts.title: no saltarlo)
+  if (!opts.title) await page.addInitScript(() => (window.__pcsSkipTitle = true));
   if (opts.save) {
     await page.addInitScript((js) => {
       if (sessionStorage.getItem("__seeded")) return;

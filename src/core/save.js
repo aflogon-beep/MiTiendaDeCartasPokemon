@@ -8,7 +8,7 @@ import { slotKey, useSlot } from "./slots.js";
 export const skey = () => slotKey(G.SLOT);
 export const save = () => saveNow();
 export function saveNow() {
-  if (!hasState()) return false;
+  if (!hasState() || G.TITLE) return false;
   S.savedAt = Date.now();
   const js = JSON.stringify(S);
   try {

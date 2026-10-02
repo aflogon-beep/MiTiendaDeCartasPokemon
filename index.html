@@ -12,7 +12,13 @@
 <link rel="stylesheet" href="/src/styles/index.css">
 </head>
 <body>
-<div id="load"><div><h2>Pokémon Card Shop</h2><p class="mu" id="loadtxt">Cargando cartas reales y precios de Cardmarket…</p></div></div>
+<div id="load"><div class="load-in">
+  <div class="load-logo"><img src="/icons/icon-192.png" alt="" width="88" height="88"><h2>Pokémon Card Shop</h2></div>
+  <div class="load-packs" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="load-bar"><i id="loadbar"></i></div>
+  <p class="mu" id="loadtxt">Cargando cartas reales y precios de Cardmarket…</p>
+  <p class="load-fun on" id="loadfun"></p>
+</div></div>
 <div id="game">
   <div id="hud"><div><b>Pokémon Card Shop</b><small id="lv"></small></div><div class="hr"><button class="hb" data-a="m" data-k="notes" aria-label="Avisos">🔔<i id="bellN" class="hbn"></i></button><button class="hb" data-a="m" data-k="medals" aria-label="Medallas">🏅</button><button class="hb" data-a="savebtn" aria-label="Guardar partida">💾</button><div id="money"></div></div></div>
   <div class="bar"><i id="clk"></i></div>

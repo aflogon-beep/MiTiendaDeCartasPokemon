@@ -16,11 +16,20 @@ import { custs, updateCusts } from "./core/customers/move.js";
 import { draw } from "./render/draw.js";
 import { endDay } from "./core/day.js";
 import { fmt } from "./core/util.js";
-import { giftCheck } from "./core/gift.js";
 import { hud, setPause } from "./ui/hud.js";
 import { importData } from "./ui/screens/more.js";
 import { loadOrNew, saveNow } from "./core/save.js";
 import { lastSlot, slotKey, useSlot } from "./core/slots.js";
+import {
+  continueSlot,
+  loadDone,
+  loadProgress,
+  loadStart,
+  showTitle,
+  startGame,
+  titleBackground,
+  titleImport,
+} from "./ui/title.js";
 import { on } from "./core/bus.js";
 import { paintNav } from "./ui/nav.js";
 import { repv, spMul } from "./core/economy.js";
@@ -60,6 +69,16 @@ function frame(now) {
   const raw = Math.min(0.05, (now - last) / 1000);
   perfTick(raw);
   last = now;
+  if (hasState() && G.TITLE) {
+    // Pantalla de título: la tienda y la calle siguen vivas detrás (peatones, coches, pájaros), sin juego
+    updPed(raw);
+    updCars(raw);
+    updBirds(raw);
+    updVCars(raw);
+    draw();
+    requestAnimationFrame(frame);
+    return;
+  }
   if (hasState() && !G.M && !G.paused) {
     const dt = raw * G.speed;
     updFx(dt);
@@ -147,7 +166,7 @@ $("#impfile").addEventListener("change", (e) => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
   const r = new FileReader();
-  r.onload = () => importData(r.result);
+  r.onload = () => (G.TITLE ? titleImport(r.result) : importData(r.result));
   r.readAsText(f);
   e.target.value = "";
 });
@@ -165,7 +184,10 @@ document.addEventListener("visibilitychange", () => {
 (function boot() {
   const txt = $("#loadtxt");
   let ids = DEFAULT_SETS;
-  useSlot(lastSlot()); // hasta que exista la pantalla de título, se sigue con la última partida usada
+  // Los tests saltan el título (window.__pcsSkipTitle): el juego arranca directo en la última ranura, como antes
+  const skipTitle = !!window.__pcsSkipTitle;
+  loadStart();
+  useSlot(skipTitle ? lastSlot() : continueSlot() || lastSlot()); // las colecciones que se cargan: las de esa partida
   const sv = cget(slotKey(G.SLOT, "real")) || (G.SLOT === 1 ? cget("pcs-save-real-v2") : null);
   if (sv && sv.sets && sv.sets.length) ids = sv.sets;
   loadSetList()
@@ -174,8 +196,10 @@ document.addEventListener("visibilitychange", () => {
       ids = ids.filter((i) => SETDEF.some((d) => d.id === i));
       if (!ids.length) ids = DEFAULT_SETS;
       txt.textContent = "Cargando " + ids.length + " colecciones con precios de Cardmarket…";
+      loadProgress(0, ids.length);
       return loadMany(ids, (d, n, sd) => {
         txt.textContent = `Cargando colecciones ${d}/${n} · ${sd.n}…`;
+        loadProgress(d, n);
       });
     })
     .then((all) => {
@@ -205,17 +229,19 @@ document.addEventListener("visibilitychange", () => {
     })
     .then(() => {
       indexCards();
-      loadOrNew();
-      $("#load").remove();
+      return loadDone(skipTitle);
+    })
+    .then(() => {
+      if (skipTitle) loadOrNew();
+      else titleBackground();
       paintNav();
       fitCanvas();
       setMusic(MUSIC);
       hud();
       requestAnimationFrame(frame);
       refreshSetList(false);
-      setTimeout(giftCheck, 1500);
-      if (FAILED.size)
-        setTimeout(() => toast(`⚠️ ${FAILED.size} colección(es) no cargaron. Reinténtalo en Más → Colecciones`), 800);
+      if (skipTitle) startGame();
+      else showTitle();
     });
 })();
 

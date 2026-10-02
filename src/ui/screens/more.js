@@ -55,7 +55,8 @@ export function mBackup() {
   <textarea class="inp" id="impcode" rows="3" placeholder="…o pega aquí un código de partida"></textarea><button class="b" data-a="importc">Cargar código</button></div>
   <div class="pn"><b>Empezar de cero</b><div class="btns"><button class="b danger" data-a="reset">🗑️ Borrar partida</button></div></div>`;
 }
-export function importData(txt) {
+/** Lee una partida exportada (JSON o código en base64). Devuelve su S, o null y avisa si no es válida. */
+export function parseSave(txt) {
   let o = null;
   txt = (txt || "").trim();
   try {
@@ -68,8 +69,13 @@ export function importData(txt) {
   const ns = o && (o.S || o);
   if (!ns || typeof ns.money !== "number" || !Array.isArray(ns.items)) {
     toast("⚠️ Ese archivo o código no es una partida válida");
-    return;
+    return null;
   }
+  return ns;
+}
+export function importData(txt) {
+  const ns = parseSave(txt);
+  if (!ns) return;
   if (!confirm(`¿Cargar la partida del día ${ns.day} con ${fmt(ns.money)}? Se sustituirá la actual.`)) return;
   toast("Cargando partida…");
   loadSetsFor(ns.sets).then(() => {
@@ -111,7 +117,7 @@ export function mMore() {
     ui = S.ui || {};
   return `<h2>☰ Más</h2>
   <h3>🏪 Mi tienda</h3><div class="tgrid">${T("🛠️", "Mejoras", K("up"))}${T("🎨", "Personalizar", K("custom"))}${T("🗂️", "Colecciones", K("sets"))}${T("📈", "Mercado", K("mkt"))}${T("🏗️", "Ampliar", K("annex"))}${T("📊", "Estadísticas", K("stats"))}${T("🏆", "Trofeos", K("trophy"))}${T("🔔", "Avisos", K("notes"))}</div>
-  <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}</div>
+  <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}${T("🏠", "Volver al título", 'data-a="totitle" data-fase="I"')}</div>
   <h3>❓ Ayuda</h3><div class="tgrid">${T("💡", "Consejos", K("tips"))}${T("🎓", "Tutorial", 'data-a="tutre"')}${T("⤢", "Ver tienda", 'data-a="zreset"')}</div>
   <div class="pn" style="margin-top:12px"><div class="row"><span>⭐ Reputación</span><b>${repv()}</b></div><div class="mu">Sube vendiendo, con encargos, torneos y el álbum. Más reputación = más clientes.</div></div>`;
 }

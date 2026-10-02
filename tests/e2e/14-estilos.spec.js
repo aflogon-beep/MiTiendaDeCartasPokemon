@@ -311,6 +311,8 @@ for (const [w, h] of [
         await page.waitForTimeout(600);
         // La inclinación de cartas y sobres la anima JavaScript con el tiempo: se congela antes de comparar
         await game(page, (P) => {
+          // Lo nuevo de la Fase I (no existe en la referencia) se quita antes de comparar
+          document.querySelectorAll("[data-fase]").forEach((e) => e.remove());
           P.TILT.el = null;
           document
             .querySelectorAll("[style*='--rx'],[style*='--mx']")
