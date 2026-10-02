@@ -5,11 +5,11 @@ import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig({
   base: process.env.BASE_PATH || "/",
   plugins: [
-    // App instalable (PWA). Actualización en silencio: la versión nueva se descarga sola y se usa
-    // la próxima vez que se abre el juego; nunca recarga la página a mitad de partida.
+    // App instalable (PWA). Cuando hay versión nueva sale un aviso con el botón «Actualizar»
+    // (ui/update.js): guarda la partida y recarga. Nunca recarga sola a mitad de partida.
     VitePWA({
-      registerType: "autoUpdate",
-      injectRegister: "script",
+      registerType: "prompt",
+      injectRegister: false, // lo registra ui/update.js
       includeAssets: ["icons/favicon-64.png", "icons/apple-touch-icon.png"],
       manifest: {
         name: "Pokémon Card Shop",
@@ -28,6 +28,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        clientsClaim: true, // la primera vez, el service worker se encarga de la página sin recargar
         globPatterns: ["**/*.{js,css,html,png}"],
         cleanupOutdatedCaches: true,
         runtimeCaching: [

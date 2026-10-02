@@ -18,7 +18,11 @@ La partida es la misma que en el navegador: se guarda en el mismo sitio (`localS
 
 ## Actualizaciones
 
-En silencio: cuando se publica una versión nueva, la app la descarga sola mientras juegas y la usa **la próxima vez que se abre**. Nunca recarga a mitad de partida. Para forzarla: cerrar la app del todo (desde recientes) y volver a abrirla.
+Cuando se publica una versión nueva, la app la descarga mientras juegas y sale un aviso abajo: **«✨ Hay una versión nueva del juego · Actualizar»**. Al tocar «Actualizar» se guarda la partida y la app se recarga con la versión nueva. Con «✕» se deja para más tarde (vuelve a salir al abrir la app). Mientras está abierta, la app busca versión nueva cada hora y cada vez que vuelves a ella.
+
+Nunca se recarga sola a mitad de partida.
+
+> La primera vez que se pasa de la versión antigua (actualización en silencio) a esta, el botón aún no sale: hay que cerrar la app del todo y volver a abrirla una vez.
 
 ## Iconos
 

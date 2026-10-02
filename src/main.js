@@ -37,6 +37,7 @@ import { spawn } from "./core/customers/spawn.js";
 import { toast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
 import { quip, quipTick } from "./ui/quips.js";
+import { initUpdates } from "./ui/update.js";
 import { updBirds, updPed } from "./render/city.js";
 import { updCars, updVCars, updVan } from "./render/cars.js";
 import { updCat } from "./render/pets.js";
@@ -259,3 +260,4 @@ const modules = Object.values(
   ),
 );
 installTestHooks(G, modules);
+initUpdates();

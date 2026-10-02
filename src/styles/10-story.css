@@ -337,3 +337,27 @@ html.ui-calm #quip {
   pointer-events: none;
   z-index: 1;
 }
+
+/* Aviso de versión nueva de la app */
+#upd {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+  z-index: 58;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--sign);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 8px 24px #000a;
+  font-weight: 700;
+}
+#upd span {
+  flex: 1;
+}
