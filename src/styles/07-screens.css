@@ -569,3 +569,70 @@ html.ui-big .mu {
   border-radius: 6px;
   background: linear-gradient(90deg, #f2b705, #e3350d);
 }
+
+/* Funda de las gradeadas (revelación y ficha): marca, certificado, código de barras y las 10 doradas */
+.slab-brand {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #c0392b;
+  color: #fff;
+  font: 900 9px/1.4 var(--fd);
+  font-style: normal;
+  letter-spacing: 0.06em;
+  vertical-align: 1px;
+}
+.slab-cert {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px dashed #c0392b55;
+  font-size: 9px;
+  font-weight: 700;
+  color: #666;
+}
+.slab-bar {
+  width: 64px;
+  height: 11px;
+  background: repeating-linear-gradient(
+    90deg,
+    #222 0 1px,
+    #fff 1px 2px,
+    #222 2px 4px,
+    #fff 4px 5px,
+    #222 5px 6px,
+    #fff 6px 8px
+  );
+}
+.slab.g10 {
+  border-color: #ffe08a;
+  box-shadow:
+    0 20px 50px #000c,
+    0 0 26px #ffd54a55,
+    inset 0 0 0 6px #ffffff14;
+}
+.slab.g10 .slab-lb {
+  border-color: #c9a227;
+  background: linear-gradient(115deg, #fff6d0, #ffe9a0 40%, #fffbe8 55%, #ffe08a);
+}
+.slab.g10 .gnum,
+.slab.g10 .gtx {
+  color: #9a6b00;
+}
+.slab.g10 .slab-brand {
+  background: #c9a227;
+}
+/* En la ficha de la carta: la funda ocupa el sitio de la carta (un poco más alta, como las de verdad) */
+.cbig.gr {
+  width: min(64vw, 250px);
+  aspect-ratio: 3/5;
+}
+.cbig.gr .slab {
+  width: 100%;
+  height: 100%;
+}

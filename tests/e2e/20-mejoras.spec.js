@@ -22,14 +22,24 @@ test("20a · Las cartas gradeadas salen en su funda, con la nota en la etiqueta"
   // En la colección: una sola funda, con «PGS 9»
   await expect(page.locator("#ovh .tile .slabm")).toHaveCount(1);
   await expect(page.locator("#ovh .tile .slabm-lb")).toHaveText("PGS9");
-  // En la ficha de la carta: funda grande con el nombre
+  // En la ficha de la carta: la funda completa, con nombre, nota, certificado y código de barras
   await game(page, (P) => {
     P.collSel = P.gk(P.S.items.find((i) => i.gr));
     P.openM("card");
   });
-  await expect(page.locator("#cbig .slabm.big .slabm-lb span")).toHaveText(name);
-  await expect(page.locator("#cbig .slabm.big .slabm-lb b")).toHaveText("9");
-  await expect(page.locator("#cbig .slabm.big .slabm-lb i")).toHaveText("MINT");
+  await expect(page.locator("#cbig.gr .slab.g9 .slab-lb b")).toHaveText(name);
+  await expect(page.locator("#cbig .slab .gnum")).toHaveText("9");
+  await expect(page.locator("#cbig .slab .gtx")).toHaveText("MINT");
+  await expect(page.locator("#cbig .slab .slab-cert")).toContainText(/Cert\. \d{4} \d{4}/);
+  await expect(page.locator("#cbig .slab .slab-bar")).toHaveCount(1);
+  // La funda se inclina con el dedo, como la carta (es la que mueve la inclinación 3D)
+  expect(await game(page, (P) => P.TILT.el === document.querySelector("#cbig .slab"))).toBe(true);
+  // Una GEM MINT 10 lleva etiqueta dorada, también en la colección
+  await game(page, (P) => {
+    P.S.items.find((i) => i.gr).gr = 10;
+    P.openM("coll");
+  });
+  await expect(page.locator("#ovh .tile .slabm.g10")).toHaveCount(1);
   // Una carta sin gradear no lleva funda
   await game(page, (P) => {
     P.collSel = P.gk(P.S.items.find((i) => !i.gr && P.BYID[i.c]));

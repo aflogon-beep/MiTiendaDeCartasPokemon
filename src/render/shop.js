@@ -539,12 +539,13 @@ export function drawCase() {
       cx.lineWidth = it.gr ? 1 : 1.5;
       cx.strokeRect(px, py, 24, 33);
       if (it.gr) {
-        cx.fillStyle = "#fff";
+        const gold = it.gr === 10; // GEM MINT: etiqueta dorada
+        cx.fillStyle = gold ? "#ffe9a0" : "#fff";
         cx.fillRect(px, py - 6, 24, 6);
-        cx.strokeStyle = "#c0392b";
+        cx.strokeStyle = gold ? "#c9a227" : "#c0392b";
         cx.lineWidth = 1;
         cx.strokeRect(px, py - 6, 24, 6);
-        txt("PGS " + it.gr, px + 12, py - 1.2, 5, "#c0392b", "center");
+        txt("PGS " + it.gr, px + 12, py - 1.2, 5, gold ? "#7a5a00" : "#c0392b", "center");
       }
       if (it.res) {
         cx.fillStyle = "rgba(255,255,255,.55)";

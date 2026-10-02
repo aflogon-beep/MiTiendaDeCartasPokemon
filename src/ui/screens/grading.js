@@ -1,5 +1,5 @@
 // Gradeo: cartas enviadas y revelación de notas.
-import { slabOver } from "../slab.js";
+import { certOf, slabOver } from "../slab.js";
 import { $ } from "../../render/canvas.js";
 import { BYID, setName } from "../../core/cards/sets.js";
 import { COND, GSVC, GTXT } from "../../core/constants.js";
@@ -14,9 +14,10 @@ import { save } from "../../core/save.js";
 import { sfx, vibe } from "../../audio/sfx.js";
 import { toast } from "../toast.js";
 export let GR = null;
-export function slabHTML(c, rv, g, hide) {
+export function slabHTML(c, rv, g, hide, it) {
   const h = holoOf(c, rv);
-  return `<div class="slab" style="--ho:${h.ho}"><div class="slab-lb"><div><b>${c.name}</b><span>${setName(c.s)}${c.num ? " #" + c.num : ""}${rv ? " · Reverse" : ""}</span></div><div class="gnum">${hide ? "?" : g}</div><div class="gtx">${hide ? "" : GTXT[g]}</div></div><div class="slab-card">${faceBig(c, rv)}<div class="holo ${h.cl}"></div><div class="glare"></div></div><div class="glare2"></div></div>`;
+  // Etiqueta como la de verdad: marca, nombre, colección, nota, n.º de certificado y código de barras
+  return `<div class="slab${hide ? "" : " g" + g}" style="--ho:${h.ho}"><div class="slab-lb"><div><i class="slab-brand">PGS</i><b>${c.name}</b><span>${setName(c.s)}${c.num ? " #" + c.num : ""}${rv ? " · Reverse" : ""}</span></div><div class="gnum">${hide ? "?" : g}</div><div class="gtx">${hide ? "" : GTXT[g]}</div>${it ? `<div class="slab-cert"><span>Cert. ${certOf(it)}</span><i class="slab-bar"></i></div>` : ""}</div><div class="slab-card">${faceBig(c, rv)}<div class="holo ${h.cl}"></div><div class="glare"></div></div><div class="glare2"></div></div>`;
 }
 export function openGrades() {
   if (!S.grNew || !S.grNew.length) {
@@ -41,7 +42,7 @@ export function mountGR() {
   const c = BYID[it.c];
   g.ready = false;
   $("#ovh").innerHTML =
-    `<div class="px" id="px" style="--sc:#c0392b"><div class="pxbar"><div><b>Resultados de gradeo</b><div class="pxrun">${g.idx + 1} de ${g.ids.length}</div></div><div class="step"><button class="ib" id="grclose">Cerrar</button></div></div><div class="pxstage" id="pxst"><div class="rays" id="pxrays"></div>${slabHTML(c, it.rv, it.gr, true)}</div><div class="pxhint" id="pxhint"><div class="cinfo"><div class="cv">Calificando…</div></div></div><div class="flash" id="pxflash"></div></div>`;
+    `<div class="px" id="px" style="--sc:#c0392b"><div class="pxbar"><div><b>Resultados de gradeo</b><div class="pxrun">${g.idx + 1} de ${g.ids.length}</div></div><div class="step"><button class="ib" id="grclose">Cerrar</button></div></div><div class="pxstage" id="pxst"><div class="rays" id="pxrays"></div>${slabHTML(c, it.rv, it.gr, true, it)}</div><div class="pxhint" id="pxhint"><div class="cinfo"><div class="cv">Calificando…</div></div></div><div class="flash" id="pxflash"></div></div>`;
   const sl = $("#pxst .slab"),
     gn = sl.querySelector(".gnum");
   TILT.el = sl;
@@ -63,6 +64,7 @@ export function mountGR() {
     gn.textContent = it.gr;
     gn.classList.add("land");
     sl.querySelector(".gtx").textContent = GTXT[it.gr];
+    sl.classList.add("g" + it.gr);
     const lv = it.gr >= 10 ? 3 : it.gr === 9 ? 2 : it.gr === 8 ? 1 : 0,
       v = itemVal(it),
       before = price(it.c) * (it.rv ? rvr(c) : 1) * COND[it.k];
