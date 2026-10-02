@@ -33,6 +33,8 @@ import { ensure, newState } from "./core/state.js";
 import { loadOrNew } from "./core/save.js";
 import { loadSetsFor, retrySets, addSets } from "./core/cards/api.js";
 import { seriesList } from "./core/cards/sets.js";
+import { W, H, LAY, FLOOR_T, FRONT_Y, CX0, CX1, CY0, CY1, LUX, AX, XS0, XS1, TROPHY, admireSpot } from "./world/layout.js";
+import { NG, navSig, navObstacles, navBuild, navOk, navCell, navFree, navLOS, navPath, routeTo } from "./world/nav.js";
 /* ===================== DATOS ===================== */
 const $=s=>document.querySelector(s);
 
@@ -51,13 +53,6 @@ function evBreak(sid){
 }
 
 /* ===================== CLIENTES ===================== */
-const W=800,H=640;
-const LAY={
-  shelf:i=>({x:40+(i%3)*205,y:i<3?46:170,w:150,h:54}),
-  cs:()=>({x:60,y:390,w:270,h:caseCap()>8?92:58}),
-  counter:{x:650,y:190,w:56,h:250},
-  qx:622,qy:262,qs:32,door:{x:355,y:650},cashier:{x:748,y:330}
-};
 let custs=[],queue=[],cid=0,spawnT=3,deal=null;
 const say=(c,t)=>{c.bub=t;c.bt=2.2};
 function shelfSpot(i){const s=LAY.shelf(i);return {x:s.x+s.w/2+rnd(40)-20,y:s.y+s.h+44+rnd(14)}}
@@ -207,7 +202,6 @@ function lamp(x,y,r,a){const g=cx.createRadialGradient(x,y,0,x,y,r);g.addColorSt
 function pokeball(x,y,r){cx.fillStyle="#e3350d";cx.beginPath();cx.arc(x,y,r,Math.PI,0);cx.fill();cx.fillStyle="#fff";cx.beginPath();cx.arc(x,y,r,0,Math.PI);cx.fill();cx.fillStyle="#222";cx.fillRect(x-r,y-1,r*2,2);cx.beginPath();cx.arc(x,y,r*.34,0,7);cx.fillStyle="#fff";cx.fill();cx.strokeStyle="#222";cx.lineWidth=1;cx.stroke()}
 function plant(x,y){cx.fillStyle="rgba(0,0,0,.18)";cx.beginPath();cx.ellipse(x,y+16,13,4,0,0,7);cx.fill();cx.fillStyle="#7a4a2b";cx.beginPath();cx.moveTo(x-9,y);cx.lineTo(x+9,y);cx.lineTo(x+6,y+16);cx.lineTo(x-6,y+16);cx.fill();cx.fillStyle="#2f7d43";[[-8,-4],[8,-4],[0,-12],[-3,-2],[5,-9]].forEach(p=>{cx.beginPath();cx.arc(x+p[0],y+p[1],8,0,7);cx.fill()});cx.fillStyle="#48a862";cx.beginPath();cx.arc(x,y-8,6,0,7);cx.fill()}
 /* ===================== DIBUJO 2.5D ===================== */
-const FLOOR_T=48,FRONT_Y=556;
 const VIS={shut:1,endAt:0,lastRep:null,ped:[],pedT:1,lt:0};
 let BG=null,BGk=-1;
 function buildBG(t){
@@ -387,7 +381,6 @@ function drawShutter(){
   if(VIS.shut>.8){cx.globalAlpha=(VIS.shut-.8)*5;txt("CERRADO · VOLVEMOS PRONTO",W/2,515+hh/2+5,14,"#2a2f3a","center");cx.globalAlpha=1}
 }
 /* ----- ciudad ----- */
-const CX0=-560,CX1=W+560,CY0=-300,CY1=980;
 let CITY=null,CITYk="",CITYWIN=[];
 function roofDraw(g,x,y,w,h,R,se){
   const cols=["#8a8f96","#9a7b5f","#7d8a7a","#a86b5a","#868c9c"];g.fillStyle=cols[Math.floor(R()*cols.length)];g.fillRect(x,y,w,h);
@@ -1152,7 +1145,6 @@ function importData(txt){
 }
 
 /* ===================== V6: PRODUCTOS, HABITUALES Y FALSIFICACIONES ===================== */
-LAY.prod={x:372,y:258,w:170,h:62};
 function pickProd(type){const pf=PPREF[type]||{acc:1},w={};Object.keys(S.prod).forEach(pid=>{if(pStock(pid)<1)return;const i=pInfo(pid);if(!i)return;const v=pf[i.t]||0;if(v)w[pid]=v});return Object.keys(w).length?wpick(w):null}
 let pTab="packs";
 let pF="all";
@@ -1326,7 +1318,6 @@ function drawLQ(p){
   if(p.sign){const sd=SETS.find(z=>z.id===S.ev.s);cx.fillStyle="#fff";rr(p.x+2,p.y-hop-66,34,16,2);cx.fill();cx.strokeStyle="#333";cx.lineWidth=1;cx.stroke();txt("¡"+(sd?sd.n.slice(0,6):"YA")+"!",p.x+19,p.y-hop-54,8,"#c0392b","center")}
 }
 /* ----- peanas de lujo ----- */
-const LUX=[[452,452],[512,452],[572,452]];
 function drawLux(i){
   const [x,y]=LUX[i],it=luxItems()[i],n=nightK();
   box3d(x-17,y-20,34,20,34,"#23283a","#141824");cx.fillStyle="#c9a227";cx.fillRect(x-17,y-34,34,1.5);cx.fillRect(x-17,y-1,34,1.5);
@@ -1450,62 +1441,6 @@ function tutTick(){
 /* ----- más cartas: rarezas sin mapear y series completas ----- */
 
 /* ===================== V11: NAVEGACIÓN, SOL, BRILLO Y VIDA ===================== */
-const NG={cs:10,x0:-280,y0:44,cols:108,rows:54,g:null,sig:""};
-function navSig(){return [trophyOn()?1:0,S.annex?1:0,slotCount(),caseCap(),S.decor.table,S.decor.sofa,S.decor.coffee,S.decor.lux,S.decor.plants,season(),!!(S.prodSeen||Object.keys(S.prod||{}).some(k=>S.prod[k]>0))].join("|")}
-function navObstacles(){
-  const o=[],P=(x0,y0,x1,y1,pad)=>o.push([x0,y0,x1,y1,pad==null?9:pad]);
-  P(-600,0,AX()+8,620,0);P(792,0,840,620,0);P(-600,-40,840,54,0);P(-600,544,322,584,0);if(S.annex){[[-215,365],[-150,405],[-85,362]].forEach(([x,y])=>P(x-16,y-12,x+16,y+10,4));P(-14,44,14,64,2);P(-14,510,14,560,2)}P(394,544,840,584,0);
-  for(let i=0;i<slotCount();i++){const s=LAY.shelf(i);P(s.x-4,s.y+s.h-26,s.x+s.w+4,s.y+s.h)}
-  if(S.prodSeen||Object.keys(S.prod||{}).some(k=>S.prod[k]>0)){const b=LAY.prod;P(b.x-4,b.y+b.h-26,b.x+b.w+4,b.y+b.h)}
-  {const c=LAY.cs();P(c.x-6,c.y,c.x+c.w+6,c.y+c.h)}
-  {const c=LAY.counter;P(c.x-4,c.y-4,c.x+c.w+4,c.y+c.h)}
-  P(712,120,800,480,0);P(642,98,772,128);
-  [[20,490],[782,500],[610,118]].concat(S.decor.plants?[[562,248],[20,300],[610,450]]:[]).forEach(([x,y])=>P(x-10,y+2,x+10,y+18,6));
-  if(S.decor.table){P(140,276,336,330);[[175,256],[300,256],[175,346],[300,346]].forEach(([x,y])=>P(x-8,y,x+8,y+10,4))}
-  if(S.decor.sofa)P(510,488,610,518);
-  if(trophyOn())P(TROPHY.x,TROPHY.y-6,TROPHY.x+TROPHY.w,TROPHY.y+TROPHY.d);
-  if(S.decor.coffee)P(560,306,598,330);
-  if(S.decor.lux)LUX.forEach(([x,y])=>P(x-17,y-20,x+17,y));
-  const se=season();if(se==="xmas")P(452,512,488,532,6);if(se==="hallo")[[300,548],[412,548]].forEach(([x,y])=>P(x-12,y-10,x+12,y+2,4));
-  return o;
-}
-function navBuild(){
-  const g=new Uint8Array(NG.cols*NG.rows);
-  navObstacles().forEach(([x0,y0,x1,y1,p])=>{const c0=Math.max(0,Math.floor((x0-p-NG.x0)/NG.cs)),c1=Math.min(NG.cols-1,Math.floor((x1+p-NG.x0)/NG.cs)),r0=Math.max(0,Math.floor((y0-p-NG.y0)/NG.cs)),r1=Math.min(NG.rows-1,Math.floor((y1+p-NG.y0)/NG.cs));for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++)g[r*NG.cols+c]=1});
-  NG.g=g;NG.sig=navSig();
-}
-const navOk=(c,r)=>c>=0&&r>=0&&c<NG.cols&&r<NG.rows&&!NG.g[r*NG.cols+c];
-const navCell=(x,y)=>[Math.floor((x-NG.x0)/NG.cs),Math.floor((y-NG.y0)/NG.cs)];
-function navFree(c,r){if(navOk(c,r))return [c,r];for(let d=1;d<10;d++)for(let dy=-d;dy<=d;dy++)for(let dx=-d;dx<=d;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==d)continue;if(navOk(c+dx,r+dy))return [c+dx,r+dy]}return [c,r]}
-function navLOS(x0,y0,x1,y1){const n=Math.ceil(Math.hypot(x1-x0,y1-y0)/4);for(let i=1;i<=n;i++){const [c,r]=navCell(x0+(x1-x0)*i/n,y0+(y1-y0)*i/n);if(!navOk(c,r))return false}return true}
-function navPath(sx,sy,gx,gy){
-  if(!NG.g||navSig()!==NG.sig)navBuild();
-  if(navLOS(sx,sy,gx,gy))return [];
-  const [sc,sr]=navFree(...navCell(sx,sy)),[gc,gr]=navFree(...navCell(gx,gy)),C=NG.cols,N=C*NG.rows;
-  const gs=new Float32Array(N).fill(1e9),par=new Int32Array(N).fill(-1),cl=new Uint8Array(N),hp=[];
-  const h=(c,r)=>{const dx=Math.abs(c-gc),dy=Math.abs(r-gr);return dx+dy-.586*Math.min(dx,dy)};
-  const push=(f,i)=>{hp.push([f,i]);let k=hp.length-1;while(k){const p=(k-1)>>1;if(hp[p][0]<=hp[k][0])break;[hp[p],hp[k]]=[hp[k],hp[p]];k=p}};
-  const pop=()=>{const t=hp[0],l=hp.pop();if(hp.length){hp[0]=l;let k=0;for(;;){const a=2*k+1,b=a+1;let m=k;if(a<hp.length&&hp[a][0]<hp[m][0])m=a;if(b<hp.length&&hp[b][0]<hp[m][0])m=b;if(m===k)break;[hp[m],hp[k]]=[hp[k],hp[m]];k=m}}return t};
-  const si=sr*C+sc,gi=gr*C+gc;gs[si]=0;push(h(sc,sr),si);
-  const D=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]];
-  while(hp.length){const [,i]=pop();if(cl[i])continue;cl[i]=1;if(i===gi)break;const c=i%C,r=(i-c)/C;
-    for(const [dx,dy,w] of D){const nc=c+dx,nr=r+dy;if(!navOk(nc,nr))continue;if(dx&&dy&&(!navOk(c+dx,r)||!navOk(c,r+dy)))continue;const ni=nr*C+nc,ng=gs[i]+w;if(ng<gs[ni]){gs[ni]=ng;par[ni]=i;push(ng+h(nc,nr),ni)}}}
-  if(gi!==si&&par[gi]<0)return [];
-  const cells=[];for(let i=gi;i!==si&&i>=0;i=par[i])cells.push(i);cells.reverse();
-  const pts=cells.map(i=>({x:NG.x0+(i%C+.5)*NG.cs,y:NG.y0+(Math.floor(i/C)+.5)*NG.cs}));
-  const out=[];let cur={x:sx,y:sy},k=0;
-  while(k<pts.length){let j=pts.length-1;while(j>k&&!navLOS(cur.x,cur.y,pts[j].x,pts[j].y))j--;out.push(pts[j]);cur=pts[j];k=j+1}
-  while(out.length&&Math.hypot(out[out.length-1].x-gx,out[out.length-1].y-gy)<16&&navLOS(out.length>1?out[out.length-2].x:sx,out.length>1?out[out.length-2].y:sy,gx,gy))out.pop();
-  return out;
-}
-function routeTo(c,gx,gy){
-  const inS=(x,y)=>x>AX()+4&&x<W-4&&y<FRONT_Y-6,si=inS(c.x,c.y),gi=inS(gx,gy),pts=[];
-  if(!si&&!gi){c.wps=[];return}
-  let sx=c.x,sy=c.y;if(!si){pts.push({x:358,y:600},{x:358,y:560});sx=358;sy=560}
-  pts.push(...navPath(sx,sy,gi?gx:358,gi?gy:560));
-  if(!gi)pts.push({x:358,y:560},{x:358,y:600});
-  c.wps=pts;
-}
 /* ----- sol, sombras y brillo ----- */
 const SUN={dx:10,a:.2};
 function sunUpd(){const t=S.phase==="closed"?(VIS.endAt?1:.18):dayT(),n=nightK();SUN.dx=(.5-t)*30;SUN.a=.2*(1-n*.7)}
@@ -1681,8 +1616,6 @@ function storyBadge(){const el=$("#stb");if(!el)return;const st=hasState()&&!(S.
 
 const fitS=(t,m,w)=>Math.min(m,w/(Math.max(1,t.length)*.62));
 /* ===================== V16: CIUDAD VIVA ===================== */
-const AX=()=>hasState()&&S.annex?-276:0;
-const XS0=1090,XS1=1160;
 function parkDraw(g,x,y,w,h,se,R){
   const snow=se==="xmas"||se==="winter";g.fillStyle=snow?"#e3ecef":"#5fa35a";g.fillRect(x,y,w,h);
   for(let i=0;i<w*h/120;i++){g.fillStyle=snow?"rgba(180,200,210,.25)":(R()<.5?"rgba(40,100,40,.25)":"rgba(140,200,110,.25)");g.fillRect(x+R()*w,y+R()*h,2,2)}
@@ -1785,7 +1718,6 @@ function drawMarket(){if(!marketDay())return;const t=performance.now()/1000;[[42
 function mkMarketLots(){if(VIS.mlots&&VIS.mlots.day===S.day)return VIS.mlots.l;const l=[0,1,2].map(()=>{makeLot(null);const L=LOT;L.n=Math.min(L.n,30+rnd(30));L.cards=L.cards.slice(0,L.n);L.v=L.cards.reduce((a,x)=>a+x.v,0);L.ask=Math.max(5,r05(L.v*(.45+Math.random()*.35)));L.floor=r05(L.ask*.85);L.lo=L.v*.5;L.hi=L.v*1.6;L.offer=L.ask;return L});LOT=null;VIS.mlots={day:S.day,l};return l}
 
 /* ----- ampliación ----- */
-{const base=LAY.shelf;LAY.shelf=i=>{const m=3+3*S.up.shelf;return i<m?base(i):{x:-258,y:i-m?170:46,w:150,h:54}}}
 function drawAnnex(){
   cx.fillStyle="rgba(0,0,0,.22)";cx.fillRect(-276,FLOOR_T,6,FRONT_Y-FLOOR_T);cx.fillStyle="#7d8794";cx.fillRect(-6,FLOOR_T,12,16);cx.fillRect(-6,FRONT_Y-44,12,44);
   const t=performance.now()/1000,hue=(t*40)%360;cx.fillStyle="#111";rr(-200,6,96,32,3);cx.fill();cx.fillStyle=`hsl(${hue},70%,55%)`;cx.fillRect(-196,9,88,26);pokeball(-152,22,7);EMIS.push({x:-196,y:9,w:88,h:26,c:`hsl(${hue},70%,60%)`,a:.6});
@@ -1935,8 +1867,6 @@ function perfTick(raw){if(!(raw>0))return;const f=1/Math.max(raw,1/240);VIS.fpsE
   if(VIS.slowT>4){VIS.autoLite=true;fitCanvas();toast("⚡ He activado el modo ahorro para que vaya más fluido (Más → Ajustes → Rendimiento)")}}
 function mDiff(){return `<h2>🎚️ Dificultad</h2>${Object.keys(DIFFS).map(k=>`<div class="pn${(S.diff||"normal")===k?" favhd":""}"><div class="row"><b>${DIFFS[k].n}</b><button class="b ${(S.diff||"normal")===k?"":"pri"}" data-a="diffset" data-k="${k}"${(S.diff||"normal")===k?" disabled":""}>${(S.diff||"normal")===k?"Elegida ✔":"Elegir"}</button></div><div class="mu">${DIFFS[k].d}</div></div>`).join("")}<p class="mu">Puedes cambiarla cuando quieras.</p>`}
 /* ===================== V22: TROFEOS Y ESTADÍSTICAS ===================== */
-const TROPHY={x:36,y:316,w:104,d:28};
-const admireSpot=()=>({x:TROPHY.x+TROPHY.w/2+rnd(30)-15,y:TROPHY.y+TROPHY.d+22+rnd(8)});
 function drawTrophy(){
   const T=TROPHY,top=T.y-66,t=performance.now()/1000;
   box3d(T.x,T.y,T.w,T.d,16,"#4a3424","#2f2016");
