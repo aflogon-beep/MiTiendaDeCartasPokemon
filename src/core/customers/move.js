@@ -55,6 +55,9 @@ export function updateCusts(dt) {
       const p = qpos(c);
       tx = p.x;
       ty = p.y;
+      // Si la cola avanza mientras va hacia ella, su hueco cambia: se recalcula la ruta desde donde
+      // está, para no ir recto al hueco nuevo atravesando muebles (docs/pendientes.md §1)
+      if (c.st === "toq" && c.rg && (c.rg.x !== p.x || c.rg.y !== p.y)) routeTo(c, p.x, p.y);
     }
     if (c.st === "leave") {
       if (c.ex == null) {

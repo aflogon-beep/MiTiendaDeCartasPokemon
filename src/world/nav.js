@@ -246,4 +246,5 @@ export function routeTo(c, gx, gy) {
   pts.push(...navPath(sx, sy, gi ? gx : 358, gi ? gy : 560));
   if (!gi) pts.push({ x: 358, y: 560 }, { x: 358, y: 600 });
   c.wps = pts;
+  c.rg = { x: gx, y: gy }; // destino de la ruta (para recalcularla si cambia, p. ej. el hueco de la cola)
 }
