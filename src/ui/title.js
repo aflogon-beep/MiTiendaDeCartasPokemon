@@ -22,6 +22,7 @@ import { giftCheck } from "../core/gift.js";
 import { MUSIC, setMusic } from "../audio/sfx.js";
 import { DIFFS, PETS } from "../core/constants.js";
 import { CHARS, charFace, drawPortrait } from "../render/characters.js";
+import { petPreview } from "../render/pets.js";
 import { startStory } from "./story.js";
 import { A } from "./actions.js";
 import { closeM } from "./modals.js";
@@ -207,14 +208,18 @@ export function paintTitle() {
   if (view === "adv") paintHero();
 }
 
-/** Retrato de Álvaro en «Prepara tu aventura» (con ojos de estrella al elegir). */
+/** Retrato de Álvaro en «Prepara tu aventura»: reacciona a lo que eliges (se ríe con Fácil, suda con
+ * Difícil, ojos de estrella con la mascota) y la mascota elegida sale a su lado. */
+const DIFF_FACE = { facil: "laugh", normal: "happy", dificil: "sweat" };
 function paintHero() {
   const c = $("#advpj");
   if (!c) return;
   const x = c.getContext("2d");
   x.clearRect(0, 0, c.width, c.height);
-  drawPortrait(x, CHARS.alvaro, adv.wow ? "stars" : "happy", c.width);
+  drawPortrait(x, CHARS.alvaro, adv.face || "happy", c.width);
+  petPreview(x, adv.pet, 196, 292, 3.2);
 }
+export const heroFace = () => adv && (adv.face || "happy");
 
 const impBox = () =>
   `<div class="pn title-impbox"><b>Importar</b><div class="mu">Un archivo exportado o el código de Más → Partida.</div>
@@ -286,8 +291,8 @@ Object.assign(A, {
     view = "adv";
     paintTitle();
   },
-  tadvd: (d) => ((adv.diff = d.k), (adv.wow = true), paintTitle()),
-  tadvp: (d) => ((adv.pet = d.k), (adv.wow = true), paintTitle()),
+  tadvd: (d) => ((adv.diff = d.k), (adv.face = DIFF_FACE[d.k] || "happy"), paintTitle()),
+  tadvp: (d) => ((adv.pet = d.k), (adv.face = d.k === "none" ? "happy" : "stars"), paintTitle()),
   tadvgo: () => {
     useSlot(adv.slot);
     newState();

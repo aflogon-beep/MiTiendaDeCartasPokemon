@@ -239,3 +239,32 @@ test("20g · Título: sin el HUD detrás, la cámara recorre la tienda y Emma, �
   await expect(page.locator("#hud")).toBeVisible();
   await expect(page.locator("#nav")).toBeVisible();
 });
+
+test("20h · Prepara tu aventura: Álvaro reacciona a lo que eliges y la mascota sale a su lado", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tnew"]').click({ timeout: 30_000 });
+  await t.locator('[data-a="tnewin"][data-n="1"]').click();
+  const face = () => game(page, (P) => P.heroFace());
+  const img = () => page.evaluate(() => document.querySelector("#advpj").toDataURL());
+  expect(await face()).toBe("happy");
+  await t.locator('[data-a="tadvd"][data-k="dificil"]').click();
+  expect(await face()).toBe("sweat");
+  await t.locator('[data-a="tadvd"][data-k="facil"]').click();
+  expect(await face()).toBe("laugh");
+  await t.locator('[data-a="tadvp"][data-k="none"]').click();
+  const none = await img();
+  await t.locator('[data-a="tadvp"][data-k="dog"]').click();
+  expect(await face()).toBe("stars");
+  await t.locator('[data-a="tadvp"][data-k="none"]').click();
+  expect(await img()).toBe(none); // sin mascota, solo Álvaro
+  await t.locator('[data-a="tadvp"][data-k="dog"]').click();
+  const dog = await img();
+  await t.locator('[data-a="tadvp"][data-k="bunny"]').click();
+  expect(await img()).not.toBe(dog);
+});
