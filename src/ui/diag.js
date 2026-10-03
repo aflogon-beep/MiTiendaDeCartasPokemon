@@ -58,6 +58,10 @@ export function diagSnap() {
   if (D.snaps.length > 15) D.snaps.shift();
   return s;
 }
+/** Apunta un suceso en el registro (p. ej. «atrás»), con los errores. */
+export function diagNote(m) {
+  err(m, "");
+}
 function err(m, st) {
   D.errs.push({ t: Date.now(), m: String(m).slice(0, 200), s: String(st || "").slice(0, 400) });
   if (D.errs.length > 6) D.errs.shift();
@@ -74,7 +78,7 @@ export function diagText(r) {
     `Abierta desde ${hh(r.start)} · ${navigator.userAgent.replace(/^.*?\(([^)]*)\).*$/, "$1")}` +
       (navigator.deviceMemory ? ` · ${navigator.deviceMemory} GB` : ""),
     "Último: " + JSON.stringify(s),
-    "Errores: " + (r.errs && r.errs.length ? JSON.stringify(r.errs) : "ninguno"),
+    "Sucesos y errores: " + (r.errs && r.errs.length ? JSON.stringify(r.errs) : "ninguno"),
     "Antes: " +
       JSON.stringify(
         (r.snaps || []).slice(0, -1).map((x) => [x.dt, x.ph, x.M, x.fps, x.heap, x.dom, x.cv, x.cust, x.pl]),
@@ -108,7 +112,11 @@ function selectPre(el) {
 /** Al arrancar: ¿se cerró sola la última vez? Después, el registro de esta sesión. */
 export function initDiag() {
   const prev = read();
-  if (prev && prev.fg && Date.now() - ((prev.snaps || []).slice(-1)[0] || {}).t < 3 * 864e5) show(prev);
+  // Salir con «atrás» dos veces (ui/back.js) es un cierre normal: no se avisa
+  const last = (prev && prev.snaps && prev.snaps.slice(-1)[0]) || {},
+    note = (prev && prev.errs && prev.errs.slice(-1)[0]) || {},
+    backExit = note.m === "atrás: salir?" && note.t >= (last.t || 0) - 3000;
+  if (prev && prev.fg && !backExit && Date.now() - last.t < 3 * 864e5) show(prev);
   write(false); // si ahora se cierra bien, no hay aviso
   addEventListener("error", (e) => err(e.message, e.error && e.error.stack));
   addEventListener("unhandledrejection", (e) =>

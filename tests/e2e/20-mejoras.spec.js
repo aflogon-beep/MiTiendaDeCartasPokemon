@@ -693,3 +693,28 @@ test("20w · Registro de cierres: si la app se cerró sola, al volver sale un av
   await page.waitForTimeout(1500);
   await expect(page.locator("#diag")).toHaveCount(0);
 });
+
+test("20x · Botón «atrás» de Android: cierra el panel abierto y, sin nada abierto, avisa antes de salir", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await page.addInitScript(() => (window.__pcsBack = true)); // como en la app instalada
+  await freshGame(page, gamePath);
+  await game(page, (P) => P.openM("more"));
+  await expect(page.locator("#ovh .sheet")).toBeVisible();
+  await page.goBack();
+  await expect.poll(() => game(page, (P) => P.G.M)).toBe(null);
+  expect(page.url()).toContain(gamePath.split("?")[0].replace(/^\//, ""));
+  // Sin nada abierto: aviso y la app sigue
+  await page.goBack();
+  await expect(page.locator("#toast")).toContainText("Vuelve atrás otra vez para salir");
+  expect(await game(page, (P) => P.S.day)).toBeGreaterThan(0);
+  // Pasado el aviso, «atrás» vuelve a estar protegido (y queda apuntado en el registro)
+  await page.waitForTimeout(2700);
+  await game(page, (P) => P.openM("coll"));
+  await page.goBack();
+  await expect.poll(() => game(page, (P) => P.G.M)).toBe(null);
+  const notes = await page.evaluate(() => JSON.parse(localStorage.getItem("pcs-diag-v1")).errs.map((e) => e.m));
+  expect(notes).toEqual(["atrás: cerrar more", "atrás: salir?", "atrás: cerrar coll"]);
+});

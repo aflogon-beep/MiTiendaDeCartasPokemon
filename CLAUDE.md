@@ -22,7 +22,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §6 (la app se cierra sola de noche en el móvil; hay un registro en `ui/diag.js` para cazarlo). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
+Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
 
 ## Reglas
 
@@ -77,6 +77,7 @@ src/
     slab.js              funda de plástico de las cartas gradeadas
     update.js            aviso «Hay una versión nueva · Actualizar»
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
+    back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
     screens/ …           paneles del juego
   audio/sfx.js
