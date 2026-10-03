@@ -6,7 +6,7 @@ import { loy } from "../regulars.js";
 import { pStock, why } from "../economy.js";
 import { pay } from "./checkout.js";
 import { rnd } from "../rng.js";
-import { routeTo, queueSpot } from "../../world/nav.js";
+import { routeTo, queueSpot, offerSpot } from "../../world/nav.js";
 import { thiefGone } from "../theft.js";
 import { dirtDrop } from "../dirt.js";
 export const custs = [];
@@ -32,6 +32,24 @@ export function leave(c, angry) {
   c.st = "leave";
   dirtDrop(c.x, c.y); // a veces deja algo en el suelo (core/dirt.js)
 }
+// Ofertas aparte (con cajero): los que vienen a vender, cambiar o con un lote no se ponen en la fila (el cajero
+// no puede atenderlos y la bloqueaban): esperan junto al mostrador («aside» → «offer») hasta que los atiendes.
+const OFFER_K = ["sell", "lot", "trade"];
+export const isOffer = (c) => !!(c.want && OFFER_K.includes(c.want.k));
+export const offers = () => custs.filter((c) => c.st === "aside" || c.st === "offer").sort((a, b) => a.id - b.id);
+function toAside(c) {
+  const qi = queue.indexOf(c);
+  if (qi >= 0) queue.splice(qi, 1);
+  const used = new Set(offers().map((o) => o.os));
+  let i = 0;
+  while (used.has(i)) i++;
+  c.os = i;
+  c.st = "aside";
+  const p = offerSpot(i);
+  c.tx = p.x;
+  c.ty = p.y;
+  routeTo(c, p.x, p.y);
+}
 export function qpos(c) {
   return queueSpot(Math.max(0, queue.indexOf(c))); // en la fila, o cerca de ella si no cabe (world/nav.js)
 }
@@ -48,6 +66,8 @@ export function updateCusts(dt) {
       c.bt -= dt;
       if (c.bt <= 0) c.bub = null;
     }
+    if ((c.st === "toq" || c.st === "wait") && S.staff.cashier && isOffer(c)) toAside(c);
+    else if ((c.st === "aside" || c.st === "offer") && !S.staff.cashier) ((c.st = "toq"), (c.rg = null)); // sin cajero, a la fila
     let tx = c.tx,
       ty = c.ty;
     if (c.st === "toq" || c.st === "wait") {
@@ -114,6 +134,15 @@ export function updateCusts(dt) {
       c.bw = 1.4 + Math.random() * 1.6;
     }
     if (c.st === "toq" && d <= 4) c.st = "wait";
+    if (c.st === "aside" && d <= 4) c.st = "offer";
+    if (c.st === "offer") {
+      c.wt += dt;
+      if (c.wt > c.pat) {
+        say(c, "😠");
+        why("pat");
+        leave(c, true);
+      }
+    }
     if (c.st === "wait") {
       c.wt += dt;
       if (c.wt > c.pat) {

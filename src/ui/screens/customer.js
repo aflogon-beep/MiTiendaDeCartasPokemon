@@ -34,14 +34,16 @@ export function mCust() {
   const st =
     c.st === "wait"
       ? `Esperando en la cola · paciencia ${Math.round(Math.max(0, 1 - c.wt / c.pat) * 100)} %`
-      : c.st === "browse"
-        ? "Mirando productos"
-        : c.st === "leave"
-          ? c.bought
-            ? "Se va contento 🛍️"
-            : "Se va"
-          : "Entrando";
+      : c.st === "offer" || c.st === "aside"
+        ? `Esperando a que le atiendas (fuera de la fila) · paciencia ${Math.round(Math.max(0, 1 - c.wt / c.pat) * 100)} %`
+        : c.st === "browse"
+          ? "Mirando productos"
+          : c.st === "leave"
+            ? c.bought
+              ? "Se va contento 🛍️"
+              : "Se va"
+            : "Entrando";
   return `<div class="ccard"><img src="${img}" alt=""><div style="min-width:0"><h3>${R ? R.n : "Cliente"}</h3>${R ? `<div>${hearts(rs.loy)}</div><div class="mu">${R.d} Visitas: ${rs.visits}.</div>` : `<div class="mu">${TDESC[c.type] || ""}</div>`}</div></div>
   <div class="ccw"><div><b>${wantTxt(c)}</b></div><div class="mu">${st}</div>${rs && (R.t === "kid" || R.t === "whale") && rs.fav ? `<div class="mu">Set favorito: ${setName(rs.fav)}</div>` : ""}${rs && rs.note ? `<div class="mu">📝 ${rs.note}</div>` : ""}</div>
-  ${front() === c ? '<div class="btns"><button class="b pri big" data-a="custserve">Atender ahora</button></div>' : ""}`;
+  ${front() === c ? '<div class="btns"><button class="b pri big" data-a="custserve">Atender ahora</button></div>' : ""}${c.st === "offer" ? `<div class="btns" data-fase="I"><button class="b pri big" data-a="offerserve" data-n="${c.id}">Atender ahora</button></div>` : ""}`;
 }

@@ -7,23 +7,40 @@ import { canHaggle, pay, payWith } from "../core/customers/checkout.js";
 import { chg, closeM, cls, face, openM } from "./modals.js";
 import { clamp, fmt, pct, r05 } from "../core/util.js";
 import { expCost, lotEst, makeLot } from "../core/lots.js";
-import { front } from "../core/customers/move.js";
+import { front, offers } from "../core/customers/move.js";
 import { itemVal, pInfo, price } from "../core/economy.js";
 import { pick } from "../core/rng.js";
 import { sfx } from "../audio/sfx.js";
 export function serveFront() {
   const c = front();
   if (!c || G.M || G.paused) return;
+  if (serveDeal(c)) return;
+  if (S.staff.cashier) {
+    pay(c);
+    sfx.chaching();
+    return;
+  }
+  if (canHaggle(c)) openHaggle(c);
+  else openCheckout(c);
+}
+/** Atender una oferta de las que esperan aparte (con cajero): la que se toca o la que lleva más tiempo. */
+export function serveOffer(c) {
+  c = c || offers().find((o) => o.st === "offer");
+  if (!c || G.M || G.paused || c.st !== "offer") return false;
+  return serveDeal(c);
+}
+/** Vender, lote o cambio: abre su panel. Devuelve false si el cliente viene a comprar. */
+function serveDeal(c) {
   if (c.want.k === "sell") {
     G.deal = c.deal;
     G.deal.cust = c;
     openM("sell");
-    return;
+    return true;
   }
   if (c.want.k === "lot") {
     makeLot(c);
     openM("lot");
-    return;
+    return true;
   }
   if (c.want.k === "trade") {
     G.TRD = {
@@ -33,15 +50,9 @@ export function serveFront() {
       say: pick(["¡Hola! ¿Me cambias esta carta? 🙏", "Tengo una que te puede gustar…", "¿Hacemos un cambio?"]),
     };
     openM("trade");
-    return;
+    return true;
   }
-  if (S.staff.cashier) {
-    pay(c);
-    sfx.chaching();
-    return;
-  }
-  if (canHaggle(c)) openHaggle(c);
-  else openCheckout(c);
+  return false;
 }
 export function mSell() {
   const d = G.deal,
