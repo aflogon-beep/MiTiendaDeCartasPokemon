@@ -15,6 +15,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Cartas gradeadas en su funda; aviso «Actualizar» con versión nueva | ✅ |
 | Mejoras · Interruptor de vibración; Emma y Álvaro en la tienda | ✅ |
 | Mejoras · Carga, título, «Prepara tu aventura» e historia más vistosos; bocadillos en la tienda; compartir partida; lista de deseos | ✅ |
+| Mejoras · Botones en cuadrícula, velocidades 1,25×/1,5×, alertas de precio y recordatorio de copia | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -55,6 +56,7 @@ src/
     cards/ customers/    API y caché de cartas; clientes
     quips.js             frases de Emma y Álvaro y visitas de papá (cuándo toca cada una)
     wish.js              lista de deseos (S.wish): avisos si un cliente o un lote trae una carta
+    alerts.js            alertas de precio (S.palert) y recordatorio de copia (S.bkpAt, 7 días reales)
     …                    economía, sobres, tratos, lotes, gradeo, misiones, rival, ladrón, día…
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos

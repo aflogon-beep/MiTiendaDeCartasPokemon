@@ -469,3 +469,46 @@ test("20o · Velocidad 1×, 1,25×, 1,5×, 2× y 4×; Retos y Stock dicen qué c
   await expect(page.locator("#ovh .stk-out")).toContainText("sin sobres");
   await expect(page.locator("#ovh .stk-q b.out").first()).toHaveText("0");
 });
+
+test("20p · Alertas: Emma avisa si una carta tuya sube mucho; flecha en la colección; recordatorio de copia", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await page.addInitScript(() => {
+    window.__shared = 0;
+    navigator.canShare = () => true;
+    navigator.share = async () => void window.__shared++;
+  });
+  await freshGame(page, gamePath);
+  // Una carta tuya que ha subido un 30 % esta semana
+  const name = await game(page, (P) => {
+    const c = P.CARDS.find((x) => P.price(x.id) >= 2);
+    P.S.items.push({ i: P.S.nid++, c: c.id, k: "NM", rv: false, cost: 1, case: null, res: false });
+    const p = P.S.prices[c.id].p;
+    P.S.prices[c.id].h = [p / 1.3, p / 1.3, p / 1.3, p / 1.3, p / 1.3, p / 1.3, p / 1.3, p];
+    P.S.palertDay = null;
+    P.S.bkpAt = Date.now(); // el recordatorio, aún no
+    return c.name;
+  });
+  await expect(page.locator("#quip")).toContainText(`¡Tu ${name} ha subido un 30 %`, { timeout: 5000 });
+  // En la colección, la flecha ↑30 %
+  await game(page, (P) => P.openM("coll"));
+  await expect(page.locator("#ovh .trend.up").first()).toHaveText("↑30 %");
+  await game(page, (P) => P.closeM());
+  // Recordatorio de copia: hace 8 días que no se guarda
+  await game(page, (P) => (P.S.bkpAt = Date.now() - 8 * 24 * 3600 * 1000));
+  await expect(page.locator("#bkp")).toBeVisible({ timeout: 5000 });
+  await page.locator('#bkp [data-a="bkplater"]').click();
+  await expect(page.locator("#bkp")).toHaveCount(0);
+  await page.waitForTimeout(1500);
+  await expect(page.locator("#bkp")).toHaveCount(0); // pospuesto 2 días
+  // Guardar copia: se comparte y vuelve a contar
+  await game(page, (P) => {
+    P.S.bkpAt = Date.now() - 8 * 24 * 3600 * 1000;
+    P.S.bkpSnooze = 0;
+  });
+  await page.locator('#bkp [data-a="bkpsave"]').click({ timeout: 5000 });
+  await expect.poll(() => page.evaluate(() => window.__shared)).toBe(1);
+  expect(await game(page, (P) => Date.now() - P.S.bkpAt < 60_000)).toBe(true);
+});

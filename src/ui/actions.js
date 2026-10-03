@@ -1,5 +1,6 @@
 // Acciones de la interfaz: objeto A (data-a) e I (data-i) y sus escuchadores.
 import { isWish, wishGot, wishSet } from "../core/wish.js";
+import { backupDone, backupLater } from "../core/alerts.js";
 import { quip, quipOpen, quipCard } from "./quips.js";
 import { $, VIS } from "../render/canvas.js";
 import { ACC, ALBR, DECOR, GSVC, RECO, SEAS, STAFF, UPS } from "../core/constants.js";
@@ -38,7 +39,7 @@ import { custs, leave, queue, say } from "../core/customers/move.js";
 import { dealHg, finishCK, serveFront } from "./checkout.js";
 import { endLot, expCost, lotBuy, lotReview } from "../core/lots.js";
 import { exportStr, save, saveNow } from "../core/save.js";
-import { importData, setRows } from "./screens/more.js";
+import { importData, setRows, canShareFiles } from "./screens/more.js";
 import { mkMarketLots } from "../core/market.js";
 import { mkTells, mkWt } from "../core/fakes.js";
 import { openGrades } from "./screens/grading.js";
@@ -651,6 +652,7 @@ export const A = {
     if (G.M === "backup") renderM();
   },
   export: () => {
+    backupDone(Date.now()); // copia guardada: el recordatorio vuelve a contar 7 días
     saveNow();
     const b = new Blob([exportStr()], { type: "application/json" }),
       a = document.createElement("a");
@@ -666,7 +668,18 @@ export const A = {
   },
   // Compartir la copia con el menú del sistema. Va como .txt (el móvil no deja compartir .json); al
   // importar se lee igual.
+  // Recordatorio de la copia (ui/quips.js): guardarla ahora o dentro de 2 días
+  bkpsave: () => {
+    $("#bkp")?.remove();
+    if (canShareFiles()) A.sharesave();
+    else A.export();
+  },
+  bkplater: () => {
+    backupLater(Date.now());
+    $("#bkp")?.remove();
+  },
   sharesave: () => {
+    backupDone(Date.now()); // copia guardada: el recordatorio vuelve a contar 7 días
     saveNow();
     const f = new File([exportStr()], `pokemon-card-shop-dia${S.day}.txt`, { type: "text/plain" });
     navigator
@@ -676,6 +689,7 @@ export const A = {
   },
   importf: () => $("#impfile").click(),
   copycode: () => {
+    backupDone(Date.now()); // copia guardada: el recordatorio vuelve a contar 7 días
     const code = btoa(unescape(encodeURIComponent(exportStr())));
     const done = () => toast("📋 Código copiado. Guárdalo en tus notas");
     if (navigator.clipboard && navigator.clipboard.writeText)
