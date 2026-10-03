@@ -170,4 +170,17 @@ export function newState() {
   ensure();
 }
 export const meCfg = () => Object.assign({ shirt: "#e3350d", hair: "#222", cap: "#e3350d", hs: 0 }, S.me || {});
+/**
+ * Lo que el jugador ha elegido de verdad en Personalizar para Álvaro ({shirt, hair, cap}; "" = lo suyo).
+ * Las partidas de antes solo tienen S.me (con los colores por defecto copiados): de ahí se toma lo que
+ * no sea el valor por defecto.
+ */
+export function meSetOf() {
+  if (S.meSet) return S.meSet;
+  const m = S.me || {},
+    D = { shirt: "#e3350d", hair: "#222", cap: "#e3350d" },
+    o = {};
+  for (const k in D) if (m[k] && m[k] !== D[k]) o[k] = m[k];
+  return o;
+}
 export const shopName = () => (S.shopName || "").trim() || "Poké Cards";

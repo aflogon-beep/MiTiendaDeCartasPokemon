@@ -52,6 +52,7 @@ import { level, tierOf } from "../core/economy.js";
 import { season } from "../core/events.js";
 import { streetFx } from "./weather.js";
 import { trophyOn } from "../core/trophies.js";
+import { familyLayers } from "./family.js";
 // Fondos ya dibujados (se rehacen cuando cambian G.BGk / G.CITYk)
 let BG = null,
   CITY = null;
@@ -126,20 +127,22 @@ export function draw() {
     L.push({ y: c.y + c.h, f: drawCase });
   }
   L.push({ y: LAY.counter.y + LAY.counter.h, f: drawCounter });
-  L.push({
-    y: LAY.cashier.y,
-    f: () =>
-      drawPersonAt(
-        LAY.cashier.x,
-        LAY.cashier.y,
-        { col: meCfg().shirt, hair: meCfg().hair, cap: meCfg().cap, sc: 1 },
-        "#f2c9a0",
-        0,
-        false,
-        "cashier",
-      ),
-  });
-  if (S.staff.cashier)
+  const fam = familyLayers(L); // Álvaro, Emma y el cajero (render/family.js); en el título y la historia, como antes
+  if (!fam)
+    L.push({
+      y: LAY.cashier.y,
+      f: () =>
+        drawPersonAt(
+          LAY.cashier.x,
+          LAY.cashier.y,
+          { col: meCfg().shirt, hair: meCfg().hair, cap: meCfg().cap, sc: 1 },
+          "#f2c9a0",
+          0,
+          false,
+          "cashier",
+        ),
+    });
+  if (S.staff.cashier && !fam)
     L.push({
       y: 250,
       f: () =>

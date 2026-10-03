@@ -13,6 +13,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R4 · App instalable (PWA) | ✅ |
 | Fase I · Intro, título, ranuras, historia, Emma, frases y visitas de papá (`docs/intro/`) | ✅ |
 | Mejoras · Cartas gradeadas en su funda; aviso «Actualizar» con versión nueva | ✅ |
+| Mejoras · Interruptor de vibración; Emma y Álvaro en la tienda | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -56,6 +57,7 @@ src/
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
     characters.js        Emma, Álvaro y papá (drawPortrait, drawMini, charFace)
+    family.js            Álvaro (caja; con cajero contratado, pasea) y Emma (mesa del ordenador ↔ sofá)
   story/script.js        guion de la historia de inicio, como datos
   ui/
     title.js             pantalla de carga, título, ranuras, «Prepara tu aventura», importar
@@ -80,6 +82,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Estado global
 
+- `S.meSet`: lo elegido en Personalizar para Álvaro (solo lo que se ha tocado; `""` = lo suyo). Las partidas de antes solo tienen `S.me`: `meSetOf()` lo deduce.
 - `S`: objeto con identidad estable. Para cargar una partida, `replaceState(obj)`. Nada de `S = …`.
 - `custs`, `queue`: arrays que se mutan en sitio.
 - Lo que se reasigna va en `G` (`G.M`, `G.deal`, `G.SLOT`, `G.TITLE`, `G.STORY`…).
@@ -88,7 +91,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Compatibilidad obligatoria
 
-- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`. **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
+- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`, `pcs-vibe` (nueva: vibración). **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
 - Formato de exportación: `{app:"pcs", v:5, mode, date, S}`.
 - Red: solo `api.pokemontcg.io`, `images.pokemontcg.io` y Google Fonts.
 

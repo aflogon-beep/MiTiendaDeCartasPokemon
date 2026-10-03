@@ -4,7 +4,7 @@ import { DF } from "../../core/difficulty.js";
 import { DIFFS, RAR, RECO, SEAS } from "../../core/constants.js";
 import { FAILED, SETLIST_ST, loadSetsFor } from "../../core/cards/api.js";
 import { G, S, ensure, replaceState } from "../../core/state.js";
-import { MUSIC } from "../../audio/sfx.js";
+import { MUSIC, VIBE } from "../../audio/sfx.js";
 import { VIS } from "../../render/canvas.js";
 import { chg, closeM, cls, face, spark, tipsHTML } from "../modals.js";
 import { custs, queue } from "../../core/customers/move.js";
@@ -117,7 +117,7 @@ export function mMore() {
     ui = S.ui || {};
   return `<h2>☰ Más</h2>
   <h3>🏪 Mi tienda</h3><div class="tgrid">${T("🛠️", "Mejoras", K("up"))}${T("🎨", "Personalizar", K("custom"))}${T("🗂️", "Colecciones", K("sets"))}${T("📈", "Mercado", K("mkt"))}${T("🏗️", "Ampliar", K("annex"))}${T("📊", "Estadísticas", K("stats"))}${T("🏆", "Trofeos", K("trophy"))}${T("🔔", "Avisos", K("notes"))}</div>
-  <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}${T("🏠", "Volver al título", 'data-a="totitle" data-fase="I"')}</div>
+  <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("📳", "Vibración: " + (VIBE ? "sí" : "no"), 'data-a="vibtog" data-fase="I"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}${T("🏠", "Volver al título", 'data-a="totitle" data-fase="I"')}</div>
   <h3>❓ Ayuda</h3><div class="tgrid">${T("💡", "Consejos", K("tips"))}${T("🎓", "Tutorial", 'data-a="tutre"')}${T("🎬", "Ver la historia", 'data-a="storyre" data-fase="I"')}${T("⤢", "Ver tienda", 'data-a="zreset"')}</div>
   <div class="pn" style="margin-top:12px"><div class="row"><span>⭐ Reputación</span><b>${repv()}</b></div><div class="mu">Sube vendiendo, con encargos, torneos y el álbum. Más reputación = más clientes.</div></div>`;
 }

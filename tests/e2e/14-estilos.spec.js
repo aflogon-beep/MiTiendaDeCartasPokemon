@@ -285,6 +285,17 @@ async function prepare(page, url) {
   await page.waitForTimeout(1800); // regalo diario
   await closeModals(page);
   await game(page, (P) => ((P.S.season = "spring"), P.hud()));
+  // Personalizar: en Vite marca lo elegido para Álvaro (S.meSet); con los colores del tendero de siempre,
+  // las dos versiones marcan los mismos (lo nuevo, «su pelo» y «sin gorra», lleva data-fase="I")
+  await game(page, (P) => {
+    try {
+      P.meSetOf; // solo existe en Vite (en la referencia, ReferenceError)
+    } catch (e) {
+      return;
+    }
+    const m = P.meCfg();
+    P.S.meSet = { shirt: m.shirt, hair: m.hair, cap: m.cap };
+  });
   await page.waitForTimeout(600);
   await closeModals(page); // por si el HUD abre una celebración de categoría
 }

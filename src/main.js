@@ -37,6 +37,7 @@ import { spawn } from "./core/customers/spawn.js";
 import { toast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
 import { quip, quipTick } from "./ui/quips.js";
+import { familyTick } from "./render/family.js";
 import { initUpdates } from "./ui/update.js";
 import { updBirds, updPed } from "./render/city.js";
 import { updCars, updVCars, updVan } from "./render/cars.js";
@@ -131,6 +132,7 @@ function frame(now) {
     }
     camFollow(raw);
     updCat(dt);
+    familyTick(dt);
     quipTick(dt);
   }
   if (hasState() && VIS.mShown != null && Math.abs(S.money - VIS.mShown) > 0.004) {

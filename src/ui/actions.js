@@ -5,8 +5,8 @@ import { ACC, ALBR, DECOR, GSVC, RECO, SEAS, STAFF, UPS } from "../core/constant
 import { BYID, CARDS, SETDEF, indexCards, setCards, setName } from "../core/cards/sets.js";
 import { CY0, CY1, H, W } from "../world/layout.js";
 import { DF } from "../core/difficulty.js";
-import { G, S, SETS, assignSlots, ensure, meCfg, newState } from "../core/state.js";
-import { MUSIC, setMusic, sfx } from "../audio/sfx.js";
+import { G, S, SETS, assignSlots, ensure, meCfg, meSetOf, newState } from "../core/state.js";
+import { MUSIC, VIBE, setMusic, setVibe, sfx, vibe } from "../audio/sfx.js";
 import { NG } from "../world/nav.js";
 import { RG, loy, regS } from "../core/regulars.js";
 import { TYPEW, mgEnd, mgHL, mgNew, mgWho, pool4, power, wname } from "../core/minigames.js";
@@ -236,7 +236,8 @@ export const A = {
     if (s && S.sealed[s] > 0) A.open({ k: s, n: "1" });
   },
   meset: (d) => {
-    S.me = Object.assign(meCfg(), { [d.k]: d.n });
+    S.meSet = Object.assign({}, meSetOf(), { [d.k]: d.n }); // lo que se elige para Álvaro ("" = lo suyo)
+    if (d.n) S.me = Object.assign(meCfg(), { [d.k]: d.n });
     renderM();
   },
   petset: (d) => {
@@ -704,6 +705,11 @@ export const A = {
       } catch (e) {}
     }
     setMusic(!MUSIC);
+    renderM();
+  },
+  vibtog: () => {
+    setVibe(!VIBE);
+    vibe(40); // al activarla, se nota que funciona
     renderM();
   },
   zreset: () => {
