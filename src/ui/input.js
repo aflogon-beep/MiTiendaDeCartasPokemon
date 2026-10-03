@@ -1,4 +1,5 @@
 // Toques en el canvas: pillar al ladrón, cobrar, tesoros, mascota, fichas de cliente y edificios; zoom y arrastre.
+import { dirtClean } from "../core/dirt.js";
 import { CAT, petSound } from "../render/pets.js";
 import { CV } from "../render/canvas.js";
 import { CX0, CX1, CY1, TROPHY, XS1 } from "../world/layout.js";
@@ -103,6 +104,14 @@ export function tapWorld(x, y) {
     return;
   }
   if (huntTap(x, y)) return;
+  {
+    const d = dirtClean(x, y); // recoger lo que haya en el suelo (core/dirt.js)
+    if (d) {
+      starsAt(d.x, d.y - 6, 6);
+      sfx.swish();
+      return;
+    }
+  }
   if ((S.pet || "cat") !== "none" && Math.hypot(x - CAT.x, y - (CAT.y - 8)) < 24) {
     petSound();
     return;

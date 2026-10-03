@@ -1,4 +1,5 @@
 // Economía: valor de cartas e inventario, nivel, vitrina, producto sellado, multiplicadores de clientes y precios recomendados.
+import { dirtMul } from "./dirt.js";
 import { ACC, COND, DECOR, GMULT, LV, PTYPES, REGS } from "./constants.js";
 import { BYID, setCol, setName } from "./cards/sets.js";
 import { DF } from "./difficulty.js";
@@ -38,7 +39,8 @@ export const spMul = () =>
     (S.annex ? 0.1 : 0) +
     REGS.filter((r) => S.regs && S.regs[r.id] && S.regs[r.id].loy >= 80).length * 0.03) *
   evMul() *
-  rivalMul();
+  rivalMul() *
+  dirtMul(); // con suciedad en el suelo, entran menos (core/dirt.js)
 export const patMul = () => (1 + dsum("pat")) * DF().pat;
 export const tolMul = () => (1 + dsum("tol")) * DF().tol;
 export const gk = (it) =>

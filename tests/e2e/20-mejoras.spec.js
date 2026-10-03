@@ -566,3 +566,25 @@ test("20r · Al subir de nivel, Emma cuenta lo nuevo; las colecciones antiguas, 
   await expect(page.locator("#ovh .srow", { hasText: "Fixture Media" }).locator("button")).toHaveText("Añadir");
   await expect(page.locator("#ovh .srow", { hasText: "Fixture Clásica" }).locator("button")).toHaveText("🔒 Nivel 5");
 });
+
+test("20s · Limpieza: lo que hay en el suelo se recoge tocándolo; Emma lo explica la primera vez", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  const mul0 = await game(page, (P) => P.spMul());
+  await game(page, (P) => {
+    P.S.dirt = [{ x: 300, y: 420, k: "paper", r: 1 }];
+  });
+  await expect(page.locator("#quip")).toContainText("hay cosas en el suelo", { timeout: 5000 });
+  expect(await game(page, (P) => P.spMul())).toBeCloseTo(mul0 * 0.97, 5);
+  // Tocar el papel en la tienda
+  const pt = await game(page, (P) => {
+    const V = P.VIEW,
+      r = document.querySelector("#cv").getBoundingClientRect();
+    return { x: r.left + V.ox + 300 * V.s, y: r.top + V.oy + 420 * V.s };
+  });
+  await page.mouse.click(pt.x, pt.y);
+  expect(await game(page, (P) => P.S.dirt.length)).toBe(0);
+});

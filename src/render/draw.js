@@ -53,6 +53,7 @@ import { season } from "../core/events.js";
 import { streetFx } from "./weather.js";
 import { trophyOn } from "../core/trophies.js";
 import { familyLayers } from "./family.js";
+import { drawDirt } from "./dirt.js";
 // Fondos ya dibujados (se rehacen cuando cambian G.BGk / G.CITYk)
 let BG = null,
   CITY = null;
@@ -185,6 +186,7 @@ export function draw() {
     );
   decorObjs(L);
   if (trophyOn()) L.push({ y: TROPHY.y + TROPHY.d, f: drawTrophy });
+  (S.dirt || []).forEach((d) => L.push({ y: d.y - 8, f: () => drawDirt(d) })); // suciedad en el suelo
   custs.forEach((c) => L.push({ y: c.y, f: () => drawCust(c) }));
   custs.forEach((c) => {
     if (c.run && !c.caught) L.push({ y: c.y + 0.5, f: () => drawThiefFx(c) });

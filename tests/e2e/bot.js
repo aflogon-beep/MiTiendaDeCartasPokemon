@@ -114,6 +114,8 @@ export async function botPlay(P, opt) {
     }
     if (P.paused) P.setPause(false);
     const S = P.S;
+    // Recoge lo que dejan los clientes en el suelo, como haría un jugador (solo existe en Vite: core/dirt.js)
+    if (S.dirt && S.dirt.length) S.dirt.length = 0;
     if (S.phase === "closed") {
       if (prepDay !== S.day) {
         prepDay = S.day;

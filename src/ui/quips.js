@@ -87,6 +87,16 @@ export function quipTick(dt) {
   sec = 0;
   if (G.M || VIS.papa) return;
   levelTick();
+  // La primera vez que hay algo en el suelo, Emma explica cómo recogerlo
+  if (!S.dirtHint && S.dirt && S.dirt.length) {
+    S.dirtHint = 1;
+    return sayBubble(
+      "emma",
+      "sweat",
+      "¡Álvaro, hay cosas en el suelo! Tócalas para recogerlas: con la tienda sucia entra menos gente.",
+      6000,
+    );
+  }
   const why = papaDue(level(), Math.random());
   if (why) return papaEnters(why);
   if (S.phase === "closed") alertsTick();
