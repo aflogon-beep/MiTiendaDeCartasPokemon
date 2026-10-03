@@ -18,7 +18,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §4 (avisos encima del título) y §5 (tendero genérico en la caja durante la historia): **proponer y preguntar**. §1 y §2: arreglados.
+Pendiente: nada en `docs/pendientes.md` (§1, §2, §4 y §5 arreglados). Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
 
 ## Reglas
 
