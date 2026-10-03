@@ -1,11 +1,13 @@
 // Ticket de cierre del día.
-import { S, shopName } from "../../core/state.js";
+import { G, S, shopName } from "../../core/state.js";
 import { TIERS } from "../../core/constants.js";
 import { evLabel } from "../../core/events.js";
 import { fmt } from "../../core/util.js";
 import { level, tierOf } from "../../core/economy.js";
 import { marketDay } from "../../core/market.js";
-import { tipsHTML } from "../modals.js";
+import { $ } from "../../render/canvas.js";
+import { confetti, tipsHTML } from "../modals.js";
+import { sfx } from "../../audio/sfx.js";
 /** Por qué se fueron sin comprar (los motivos que el juego apunta durante el día), agrupados. */
 export function lostWhy(w) {
   if (!w) return "";
@@ -27,9 +29,18 @@ export function lostWhy(w) {
     ? `<div class="twhy" data-fase="I">${L.map(([a, v]) => `<div class="tl"><span>${a}</span><i></i><span>${v}</span></div>`).join("")}</div>`
     : "";
 }
+/** Día de récord: cuando el ticket termina de imprimirse, cae el sello y sale confeti. */
+export function recordFx() {
+  setTimeout(() => {
+    const ov = $("#ovh .ov");
+    if (G.M !== "sum" || !ov) return;
+    confetti(3, "#e3350d", ov);
+    sfx.hit(3);
+  }, 1300);
+}
 export function ticketHTML(s) {
   const T = TIERS[tierOf(level())],
-    res = s.inc + (s.tourInc || 0) - s.rent - (s.sal || 0) - (s.refund || 0);
+    res = s.inc + (s.tourInc || 0) + (s.tbl || 0) - s.rent - (s.sal || 0) - (s.refund || 0);
   const L = (a, b, c) => `<div class="tl${c ? " " + c : ""}"><span>${a}</span><i></i><span>${b}</span></div>`;
   const hist = (S.hist || []).slice(-7),
     mx = Math.max(1, ...hist.map((h) => h.inc));
@@ -41,8 +52,8 @@ export function ticketHTML(s) {
     .join("");
   return `<div class="ticket"><div class="tc"><b>${shopName().toUpperCase()}</b><br>${T.sub}<br>TICKET DE CIERRE · DÍA ${s.day}</div><div class="tdash"></div>
   ${L("Clientes", s.cust)}${L("Se fueron sin comprar", s.lost)}${lostWhy(s.why)}<div class="tdash"></div>
-  ${L("Ventas", fmt(s.inc), "pos")}${s.tourInc != null ? L("Torneo", (s.tourInc >= 0 ? "+" : "") + fmt(s.tourInc), s.tourInc >= 0 ? "pos" : "neg") : ""}${L("Alquiler", "−" + fmt(s.rent), "neg")}${s.sal ? L("Sueldos", "−" + fmt(s.sal), "neg") : ""}${s.refund ? L("Devoluciones", "−" + fmt(s.refund), "neg") : ""}
-  <div class="tdash"></div>${L("<b>RESULTADO DEL DÍA</b>", `<b>${res >= 0 ? "+" : ""}${fmt(res)}</b>`, res >= 0 ? "pos" : "neg")}${L("Valor de la empresa", fmt(s.net))}
+  ${L("Ventas", fmt(s.inc), "pos")}${s.tbl ? `<div class="tl pos" data-fase="I"><span>Mesa de juego (${s.tblN} partida${s.tblN === 1 ? "" : "s"})</span><i></i><span>+${fmt(s.tbl)}</span></div>` : ""}${s.tourInc != null ? L("Torneo", (s.tourInc >= 0 ? "+" : "") + fmt(s.tourInc), s.tourInc >= 0 ? "pos" : "neg") : ""}${L("Alquiler", "−" + fmt(s.rent), "neg")}${s.sal ? L("Sueldos", "−" + fmt(s.sal), "neg") : ""}${s.refund ? L("Devoluciones", "−" + fmt(s.refund), "neg") : ""}
+  <div class="tdash"></div>${L("<b>RESULTADO DEL DÍA</b>", `<b>${res >= 0 ? "+" : ""}${fmt(res)}</b>`, res >= 0 ? "pos" : "neg")}${L("Valor de la empresa", fmt(s.net))}${s.rec ? `<div class="tstamp" data-fase="I">¡RÉCORD!<small>de ventas</small></div>` : ""}
   ${hist.length > 1 ? `<div class="tchart">Ventas de los últimos días<svg viewBox="0 0 ${hist.length * 28 + 4} 66" width="100%" height="72">${bars}</svg></div>` : ""}
   <div class="tdash"></div><div class="tc">¡GRACIAS POR SU VISITA!<br>${new Date().toLocaleDateString("es-ES")}</div></div>`;
 }

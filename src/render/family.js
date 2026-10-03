@@ -68,10 +68,10 @@ function paintCap(x, col) {
   x.ellipse(0, -61.5, 13, 3.4, 0, 0, Math.PI * 2);
   x.fill();
 }
-function alvaroSprite() {
+function alvaroSprite(ex) {
   const L = alvaroLook();
-  return sprite(L.key, (x) => {
-    drawMini(x, L.ch, 0, 0, 0);
+  return sprite(L.key + (ex ? "|" + ex : ""), (x) => {
+    drawMini(x, L.ch, 0, 0, 0, ex);
     if (L.cap) paintCap(x, L.cap);
   });
 }
@@ -131,7 +131,11 @@ function emmaTick(dt) {
 
 /* ---------- Álvaro: caja ↔ paseo por la tienda (con cajero contratado) ---------- */
 const EXIT = { x: 748, y: 495 }; // por detrás del mostrador, al final de la caja
-export const ALVARO = { x: LAY.cashier.x, y: LAY.cashier.y, at: "till", path: [], wait: 0, last: -1, ph: 0 };
+export const ALVARO = { x: LAY.cashier.x, y: LAY.cashier.y, at: "till", path: [], wait: 0, last: -1, ph: 0, wow: 0 };
+/** Ha salido una carta rara: Álvaro, con ojos de estrella y dando saltitos, unos segundos de tienda. */
+export function alvaroWow(s = 6) {
+  ALVARO.wow = s;
+}
 
 /** Sitios donde se para a mirar: la vitrina, las estanterías y la mesa de juego (si la hay). */
 function alvaroSpots() {
@@ -161,6 +165,7 @@ function nextSpot(A) {
   return null;
 }
 function alvaroTick(dt) {
+  if (ALVARO.wow > 0) ALVARO.wow -= dt;
   const A = ALVARO,
     free = !!(S.staff && S.staff.cashier),
     T = LAY.cashier;
@@ -242,7 +247,17 @@ export function familyLayers(L) {
   L.push({
     y: A.y,
     f: () => {
-      blit(alvaroSprite(), A.x, A.y + (A.at === "walk" || A.at === "back" ? Math.sin(A.ph) * 1.5 : 0));
+      const b = A.at === "walk" || A.at === "back" ? Math.sin(A.ph) * 1.5 : 0;
+      if (A.wow > 0) {
+        // Ojos de estrella, saltitos y destellos alrededor de la cabeza
+        const t = A.wow * 9,
+          hop = -Math.abs(Math.sin(t)) * 5;
+        blit(alvaroSprite("stars"), A.x, A.y + b + hop);
+        for (let i = 0; i < 3; i++) {
+          const a = t * 0.35 + (i * Math.PI * 2) / 3;
+          txt("✨", A.x + Math.cos(a) * 20, A.y - 66 + hop + Math.sin(a) * 7, 10, "#fff", "center");
+        }
+      } else blit(alvaroSprite(), A.x, A.y + b);
       talkBubble("alvaro", A.x, A.y - 80);
     },
   });

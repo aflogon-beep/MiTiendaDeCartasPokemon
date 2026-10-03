@@ -588,3 +588,67 @@ test("20s · Limpieza: lo que hay en el suelo se recoge tocándolo; Emma lo expl
   await page.mouse.click(pt.x, pt.y);
   expect(await game(page, (P) => P.S.dirt.length)).toBe(0);
 });
+
+test("20t · Día de récord: el ticket sale con el sello «¡RÉCORD!»", async ({ page, gamePath }, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => {
+    P.S.hist = [{ d: 0, inc: 40, net: 1000, cust: 5, lost: 0 }];
+    P.S.recInc = 40;
+    P.S.stats.inc = 55;
+    P.endDay();
+  });
+  await expect(page.locator("#ovh .ticket .tstamp")).toContainText("¡RÉCORD!");
+  await game(page, (P) => P.closeM());
+  // Al día siguiente, vendiendo menos, no hay sello
+  await game(page, (P) => {
+    P.S.stats.inc = 20;
+    P.endDay();
+  });
+  await expect(page.locator("#ovh .ticket")).toBeVisible();
+  await expect(page.locator("#ovh .ticket .tstamp")).toHaveCount(0);
+  expect(await game(page, (P) => P.S.recInc)).toBe(55);
+});
+
+test("20u · Carta rara: Álvaro, en la tienda, con ojos de estrella unos segundos", async ({ page, gamePath }, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => P.quipCard({ name: "Prueba ex", r: "SIR" }));
+  expect(await game(page, (P) => P.ALVARO.wow)).toBeGreaterThan(5);
+  // El tiempo solo corre con la tienda a la vista; luego vuelve a su cara de siempre
+  await expect.poll(() => game(page, (P) => P.ALVARO.wow <= 0), { timeout: 12000 }).toBe(true);
+});
+
+test("20v · Mesa de juego: llegan jugadores, juegan, pagan 2 € por partida y sale en el ticket", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => {
+    P.S.decor.table = true;
+    P.S.tut.on = false;
+  });
+  await page.locator("#act").click();
+  await expect.poll(() => game(page, (P) => P.S.phase)).toBe("open");
+  await game(page, (P) => {
+    P.TBL.next = 0;
+    P.speed = 4;
+  });
+  // Se sientan y juegan
+  await expect
+    .poll(() => game(page, (P) => P.players.filter((p) => p.st === "play").length), { timeout: 15000 })
+    .toBeGreaterThan(1);
+  const m0 = await game(page, (P) => {
+    P.players.forEach((p) => (p.t = 0)); // terminan la partida ya
+    return P.S.money;
+  });
+  await expect.poll(() => game(page, (P) => P.S.stats.tbl || 0), { timeout: 5000 }).toBeGreaterThan(0);
+  const r = await game(page, (P) => ({ tbl: P.S.stats.tbl, money: P.S.money }));
+  expect(r.tbl % 2).toBe(0);
+  expect(r.money).toBeGreaterThanOrEqual(m0 + r.tbl - 0.001);
+  // En el ticket
+  await game(page, (P) => P.endDay());
+  await expect(page.locator("#ovh .ticket")).toContainText("Mesa de juego");
+  expect(await game(page, (P) => P.players.length)).toBe(0);
+});

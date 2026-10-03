@@ -1,4 +1,5 @@
 // Tienda: suelo, paredes, estanterías, vitrina, caja, muebles, decoración, peanas, trofeos, ampliación, persiana.
+import { seatTaken } from "../core/tables.js";
 import { AX, FLOOR_T, FRONT_Y, LAY, LUX, TROPHY, W } from "../world/layout.js";
 import { BYID } from "../core/cards/sets.js";
 import { EMIS } from "./bloom.js";
@@ -677,7 +678,7 @@ export function decorObjs(L) {
           [
             [175, 262],
             [300, 262],
-          ].forEach(([x, y]) => box3d(x - 8, y - 6, 16, 10, 12, "#8a5a33", "#5c3b20"));
+          ].forEach(([x, y], i) => seatTaken(i) || box3d(x - 8, y - 6, 16, 10, 12, "#8a5a33", "#5c3b20"));
         box3d(140, 276, 196, 54, 18, "#5c3b20", "#4a2f18");
         cx.fillStyle = "#2f7d4a";
         cx.fillRect(146, 262, 184, 42);
@@ -696,7 +697,10 @@ export function decorObjs(L) {
       [
         [175, 356],
         [300, 356],
-      ].forEach(([x, y]) => L.push({ y, f: () => box3d(x - 8, y - 10, 16, 10, 12, "#8a5a33", "#5c3b20") }));
+      ].forEach(
+        ([x, y], i) =>
+          seatTaken(i + 2) || L.push({ y, f: () => box3d(x - 8, y - 10, 16, 10, 12, "#8a5a33", "#5c3b20") }),
+      );
   }
   if (D.coffee)
     L.push({

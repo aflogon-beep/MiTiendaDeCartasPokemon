@@ -38,6 +38,8 @@ import { toast, holdToast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
 import { quip, quipTick, wishSay } from "./ui/quips.js";
 import { familyTick } from "./render/family.js";
+import { recordFx } from "./ui/screens/summary.js";
+import { playersIn, tablesTick } from "./core/tables.js";
 import { initUpdates } from "./ui/update.js";
 import { updBirds, updPed } from "./render/city.js";
 import { updCars, updVCars, updVan } from "./render/cars.js";
@@ -56,6 +58,7 @@ on("openM", (t) => openM(t));
 on("closeM", () => closeM());
 on("sfx", (k, ...a) => sfx[k](...a));
 on("confetti", (...a) => confetti(...a));
+on("record", () => recordFx());
 on("medal", (id) => (VIS.medQ = VIS.medQ || []).push(id));
 on("vis", (o) => Object.assign(VIS, o));
 on("fx", (...a) => fx(...a));
@@ -112,7 +115,12 @@ function frame(now) {
         if (S.clock >= DAYLEN) S.phase = "closing";
       }
       updateCusts(dt);
-      if (S.phase === "closing" && !custs.some((c) => c.st !== "leave" || c.y < FRONT_Y + 6)) {
+      tablesTick(dt); // mesa de juego (core/tables.js)
+      if (
+        S.phase === "closing" &&
+        !custs.some((c) => c.st !== "leave" || c.y < FRONT_Y + 6) &&
+        !playersIn(FRONT_Y + 6)
+      ) {
         if (!VIS.endAt) {
           VIS.endAt = performance.now() + 1400;
           sfx.shutter();
@@ -121,7 +129,7 @@ function frame(now) {
           endDay();
         }
       }
-    } else updateCusts(dt);
+    } else (updateCusts(dt), tablesTick(dt));
     hudT += raw;
     saveT += raw;
     if (hudT > 0.25) {

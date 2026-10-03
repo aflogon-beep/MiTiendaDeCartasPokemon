@@ -737,3 +737,42 @@ html.ui-big .mu {
   font-size: 0.86em;
   color: #6b6458;
 }
+/* Sello «¡RÉCORD!» en el ticket, debajo del resultado: cae cuando termina de imprimirse */
+.tstamp {
+  display: table;
+  margin: 12px auto 6px;
+  padding: 4px 10px 3px;
+  border: 3px double #c8281e;
+  border-radius: 6px;
+  color: #c8281e;
+  font-family: var(--fd);
+  font-size: 22px;
+  line-height: 1;
+  text-align: center;
+  letter-spacing: 0.04em;
+  transform: rotate(-14deg);
+  opacity: 0.88;
+  mix-blend-mode: multiply;
+  animation: tstamp 0.35s cubic-bezier(0.3, 1.6, 0.6, 1) 1.3s both;
+}
+.tstamp small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+@keyframes tstamp {
+  from {
+    transform: rotate(-14deg) scale(2.4);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-14deg) scale(1);
+    opacity: 0.88;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tstamp {
+    animation: none;
+  }
+}
