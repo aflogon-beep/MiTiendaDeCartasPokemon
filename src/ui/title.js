@@ -21,7 +21,9 @@ import { fmt } from "../core/util.js";
 import { giftCheck } from "../core/gift.js";
 import { MUSIC, setMusic } from "../audio/sfx.js";
 import { DIFFS, PETS } from "../core/constants.js";
-import { CHARS, drawPortrait } from "../render/characters.js";
+import { CHARS, charFace, drawPortrait } from "../render/characters.js";
+import { petPreview } from "../render/pets.js";
+import { fitCanvas } from "../render/camera.js";
 import { startStory } from "./story.js";
 import { A } from "./actions.js";
 import { closeM } from "./modals.js";
@@ -67,15 +69,25 @@ export function loadProgress(d, n) {
   if (b) b.style.width = (n ? Math.round(8 + (92 * d) / n) : 4) + "%";
 }
 
-/** Termina la carga: espera hasta el mínimo de 1,5 s y quita la pantalla. */
+/** Termina la carga: espera hasta el mínimo de 1,5 s, la tienda se ilumina (sube la persiana y los sobres
+ * se abren en abanico) y se quita la pantalla. Sin esperas si se salta el título (tests). */
 export function loadDone(skipWait) {
-  const wait = skipWait ? 0 : Math.max(0, LOAD_MIN_MS - (performance.now() - loadT0));
-  return new Promise((r) => setTimeout(r, wait)).then(() => {
-    clearInterval(phraseT);
-    loadProgress(1, 1);
-    const el = $("#load");
-    if (el) el.remove();
-  });
+  const wait = skipWait ? 0 : Math.max(0, LOAD_MIN_MS - (performance.now() - loadT0)),
+    still = skipWait || matchMedia("(prefers-reduced-motion: reduce)").matches,
+    pause = (ms) => new Promise((r) => setTimeout(r, ms));
+  return pause(wait)
+    .then(() => {
+      clearInterval(phraseT);
+      loadProgress(1, 1);
+      const el = $("#load");
+      if (!el || still) return;
+      el.classList.add("lit");
+      return pause(750).then(() => (el.classList.add("out"), pause(350)));
+    })
+    .then(() => {
+      const el = $("#load");
+      if (el) el.remove();
+    });
 }
 
 /* ===================== TÍTULO ===================== */
@@ -115,6 +127,8 @@ export function showTitle() {
     el.id = "title";
     document.body.appendChild(el);
   }
+  document.documentElement.classList.add("title-on"); // la tienda a pantalla completa, sin HUD ni botones
+  fitCanvas();
   paintTitle();
   setMusic(MUSIC);
 }
@@ -141,7 +155,12 @@ export function paintTitle() {
   const any = hasAnySlot(),
     cont = continueSlot(),
     big = document.documentElement.classList.contains("ui-big");
-  const logo = `<div class="title-logo"><img src="${ICON}" alt="" width="96" height="96"><h1>Pokémon Card Shop</h1></div>`;
+  // Emma y Álvaro asomados a los lados del icono, y papá detrás (solo en el menú principal)
+  const cast =
+    view === "main"
+      ? `<img class="title-pj l" src="${charFace("emma", "happy")}" alt=""><img class="title-pj r" src="${charFace("alvaro", "stars")}" alt=""><img class="title-pj b" src="${charFace("alberto", "laugh")}" alt="">`
+      : "";
+  const logo = `<div class="title-logo"><div class="title-icon">${cast}<img src="${ICON}" alt="" width="96" height="96"></div><h1>Pokémon Card Shop</h1></div>`;
   const back = `<button class="b title-back" data-a="tback">← Volver</button>`;
   let body = "";
   if (view === "main")
@@ -191,14 +210,18 @@ export function paintTitle() {
   if (view === "adv") paintHero();
 }
 
-/** Retrato de Álvaro en «Prepara tu aventura» (con ojos de estrella al elegir). */
+/** Retrato de Álvaro en «Prepara tu aventura»: reacciona a lo que eliges (se ríe con Fácil, suda con
+ * Difícil, ojos de estrella con la mascota) y la mascota elegida sale a su lado. */
+const DIFF_FACE = { facil: "laugh", normal: "happy", dificil: "sweat" };
 function paintHero() {
   const c = $("#advpj");
   if (!c) return;
   const x = c.getContext("2d");
   x.clearRect(0, 0, c.width, c.height);
-  drawPortrait(x, CHARS.alvaro, adv.wow ? "stars" : "happy", c.width);
+  drawPortrait(x, CHARS.alvaro, adv.face || "happy", c.width);
+  petPreview(x, adv.pet, 196, 292, 3.2);
 }
+export const heroFace = () => adv && (adv.face || "happy");
 
 const impBox = () =>
   `<div class="pn title-impbox"><b>Importar</b><div class="mu">Un archivo exportado o el código de Más → Partida.</div>
@@ -215,6 +238,8 @@ function startGame() {
   bigPref = null;
   const el = $("#title");
   if (el) el.remove();
+  document.documentElement.classList.remove("title-on");
+  fitCanvas();
   if (G.M) closeM();
   if (G.paused) setPause(false);
   applyUI();
@@ -269,8 +294,8 @@ Object.assign(A, {
     view = "adv";
     paintTitle();
   },
-  tadvd: (d) => ((adv.diff = d.k), (adv.wow = true), paintTitle()),
-  tadvp: (d) => ((adv.pet = d.k), (adv.wow = true), paintTitle()),
+  tadvd: (d) => ((adv.diff = d.k), (adv.face = DIFF_FACE[d.k] || "happy"), paintTitle()),
+  tadvp: (d) => ((adv.pet = d.k), (adv.face = d.k === "none" ? "happy" : "stars"), paintTitle()),
   tadvgo: () => {
     useSlot(adv.slot);
     newState();

@@ -14,10 +14,11 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Fase I · Intro, título, ranuras, historia, Emma, frases y visitas de papá (`docs/intro/`) | ✅ |
 | Mejoras · Cartas gradeadas en su funda; aviso «Actualizar» con versión nueva | ✅ |
 | Mejoras · Interruptor de vibración; Emma y Álvaro en la tienda | ✅ |
+| Mejoras · Carga, título, «Prepara tu aventura» e historia más vistosos; bocadillos en la tienda; compartir partida; lista de deseos | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: nada en `docs/pendientes.md` (§1, clientes que atravesaban muebles al ir a la cola, y §2, recálculo del precio de los sobres al cargar: arreglados).
+Pendiente: `docs/pendientes.md` §4 (avisos encima del título) y §5 (tendero genérico en la caja durante la historia): **proponer y preguntar**. §1 y §2: arreglados.
 
 ## Reglas
 
@@ -53,6 +54,7 @@ src/
     bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
     cards/ customers/    API y caché de cartas; clientes
     quips.js             frases de Emma y Álvaro y visitas de papá (cuándo toca cada una)
+    wish.js              lista de deseos (S.wish): avisos si un cliente o un lote trae una carta
     …                    economía, sobres, tratos, lotes, gradeo, misiones, rival, ladrón, día…
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
@@ -82,6 +84,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Estado global
 
+- `S.wish`: ids de las cartas de la lista de deseos (se crea al añadir la primera).
 - `S.meSet`: lo elegido en Personalizar para Álvaro (solo lo que se ha tocado; `""` = lo suyo). Las partidas de antes solo tienen `S.me`: `meSetOf()` lo deduce.
 - `S`: objeto con identidad estable. Para cargar una partida, `replaceState(obj)`. Nada de `S = …`.
 - `custs`, `queue`: arrays que se mutan en sitio.

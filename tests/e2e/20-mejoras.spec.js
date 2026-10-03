@@ -1,4 +1,4 @@
-import { test, expect, openGame, game, closeModals } from "./helpers.js";
+import { test, expect, openGame, freshGame, game, closeModals, mockNetwork } from "./helpers.js";
 import { readFileSync } from "node:fs";
 
 // Mejoras tras la Fase I: funda de plástico en las cartas gradeadas y aviso de versión nueva.
@@ -212,4 +212,164 @@ test("20f · Con cajero, el cajero se pone en la caja y Álvaro pasea por la tie
   expect(await game(page, (P) => [P.ALVARO.x, P.ALVARO.y])).toEqual([748, 330]);
   expect(await page.evaluate(() => window.__alv.bad)).toEqual([]);
   expect(errs).toEqual([]);
+});
+
+test("20g · Título: sin el HUD detrás, la cámara recorre la tienda y Emma, Álvaro y papá junto al icono", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tnew"]').waitFor({ timeout: 30_000 });
+  await expect(t.locator(".title-pj")).toHaveCount(3);
+  await expect(page.locator("#hud")).toBeHidden();
+  await expect(page.locator("#nav")).toBeHidden();
+  const ox = () => page.evaluate(() => [window.__pcs.VIEW.ox, window.__pcs.VIEW.oy]);
+  const a = await ox();
+  await page.waitForTimeout(1500);
+  expect(await ox()).not.toEqual(a);
+  // Al empezar la partida, todo vuelve
+  await t.locator('[data-a="tnew"]').click();
+  await t.locator('[data-a="tnewin"][data-n="1"]').click();
+  await t.locator('[data-a="tadvgo"]').click();
+  await page.locator("#stskip").click();
+  await expect(page.locator("#title")).toHaveCount(0);
+  await expect(page.locator("#hud")).toBeVisible();
+  await expect(page.locator("#nav")).toBeVisible();
+});
+
+test("20h · Prepara tu aventura: Álvaro reacciona a lo que eliges y la mascota sale a su lado", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tnew"]').click({ timeout: 30_000 });
+  await t.locator('[data-a="tnewin"][data-n="1"]').click();
+  const face = () => game(page, (P) => P.heroFace());
+  const img = () => page.evaluate(() => document.querySelector("#advpj").toDataURL());
+  expect(await face()).toBe("happy");
+  await t.locator('[data-a="tadvd"][data-k="dificil"]').click();
+  expect(await face()).toBe("sweat");
+  await t.locator('[data-a="tadvd"][data-k="facil"]').click();
+  expect(await face()).toBe("laugh");
+  await t.locator('[data-a="tadvp"][data-k="none"]').click();
+  const none = await img();
+  await t.locator('[data-a="tadvp"][data-k="dog"]').click();
+  expect(await face()).toBe("stars");
+  await t.locator('[data-a="tadvp"][data-k="none"]').click();
+  expect(await img()).toBe(none); // sin mascota, solo Álvaro
+  await t.locator('[data-a="tadvp"][data-k="dog"]').click();
+  const dog = await img();
+  await t.locator('[data-a="tadvp"][data-k="bunny"]').click();
+  expect(await img()).not.toBe(dog);
+});
+
+test("20i · Historia: la tienda a pantalla completa y, en los primeros planos, quien habla mueve la boca", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tnew"]').click({ timeout: 30_000 });
+  await t.locator('[data-a="tnewin"][data-n="1"]').click();
+  await t.locator('[data-a="tadvgo"]').click();
+  await expect(page.locator("#story.wide")).toBeVisible();
+  // Planos generales: la tienda ocupa toda la pantalla (sin la franja negra de antes)
+  const h = await page.evaluate(() => document.querySelector("#cv").getBoundingClientRect().height / innerHeight);
+  expect(h).toBeGreaterThan(0.95);
+  // Hasta el primer primer plano
+  for (let i = 0; i < 10 && !(await page.locator("#story.close").count()); i++)
+    await page.evaluate(() => {
+      const s = document.querySelector("#story");
+      if (window.__pcs.storyNow().typing) s.click();
+      s.click();
+    });
+  await expect(page.locator("#story.close .st-bg")).toHaveCount(1); // la tienda difuminada de fondo
+  // Mientras se escribe la frase, el retrato de quien habla cambia (boca)
+  const shots = await page.evaluate(async () => {
+    const c = document.querySelector(".st-por"),
+      l = [];
+    for (let i = 0; i < 6; i++) {
+      l.push(c.toDataURL());
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    return new Set(l).size;
+  });
+  expect(shots).toBeGreaterThan(1);
+  // Al terminar, la vista vuelve a su sitio
+  await page.locator("#stskip").click();
+  const h2 = await page.evaluate(() => document.querySelector("#cv").getBoundingClientRect().height / innerHeight);
+  expect(h2).toBeLessThan(0.8);
+});
+
+test("20j · Cuando Emma o Álvaro dicen una frase, sale un bocadillo encima de su muñeco", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await openGame(page, gamePath);
+  await closeModals(page);
+  const t = await game(page, (P) => {
+    P.sayBubble("alvaro", "happy", "¡Hola!", 1500);
+    return [P.VIS.talk.who, P.VIS.talk.until > performance.now()];
+  });
+  expect(t).toEqual(["alvaro", true]);
+  await page.waitForTimeout(1700);
+  expect(await game(page, (P) => P.VIS.talk.until > performance.now())).toBe(false);
+});
+
+test("20k · Compartir la partida con el menú del sistema (archivo .txt que se puede volver a importar)", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await page.addInitScript(() => {
+    window.__shared = null;
+    navigator.canShare = () => true;
+    navigator.share = async (d) => {
+      window.__shared = { name: d.files[0].name, type: d.files[0].type, text: await d.files[0].text() };
+    };
+  });
+  await freshGame(page, gamePath);
+  await page.locator('#nav [data-k="more"]').click();
+  await page.locator('#ovh [data-a="m"][data-k="backup"]').click();
+  await page.locator('#ovh [data-a="sharesave"]').click();
+  await expect(page.locator("#toast")).toContainText("Copia compartida");
+  const sh = await page.evaluate(() => window.__shared);
+  const day = await game(page, (P) => P.S.day);
+  expect([sh.name, sh.type]).toEqual([`pokemon-card-shop-dia${day}.txt`, "text/plain"]);
+  expect(JSON.parse(sh.text)).toMatchObject({ app: "pcs", v: 5 });
+});
+
+test("20l · Lista de deseos: desde un hueco del álbum; Emma avisa si un cliente la vende", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await page.locator('#nav [data-k="coll"]').click();
+  await page.locator('#ovh [data-a="m"][data-k="album"]').click();
+  await page.locator('#ovh [data-a="albnext"]').click();
+  // Tocar un hueco vacío: se ve qué carta es y se añade a la lista
+  const slot = page.locator("#ovh .pk.miss .pk-w").first();
+  const id = await slot.getAttribute("data-k");
+  await slot.click();
+  await expect(page.locator("#ovh .albwish")).toBeVisible();
+  await page.locator('#ovh [data-a="wishtog"]').click();
+  expect(await game(page, (P) => P.S.wish)).toEqual([id]);
+  await expect(page.locator(`#ovh .pk-w[data-k="${id}"]`)).toHaveText("⭐");
+  await expect(page.locator('#ovh [data-a="wishtog"]')).toHaveText("Quitar de deseos");
+  await game(page, (P) => P.closeM());
+  // Un cliente que vende esa carta: Emma avisa
+  await game(page, (P, id) => P.wishCheck(id, "sell"), id);
+  const name = await game(page, (P, id) => P.BYID[id].name, id);
+  await expect(page.locator("#quip")).toContainText(name);
+  await expect(page.locator("#quip b")).toHaveText("Emma");
 });

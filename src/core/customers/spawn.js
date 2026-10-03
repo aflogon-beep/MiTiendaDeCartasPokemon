@@ -14,6 +14,7 @@ import { mkOutfit } from "./outfit.js";
 import { pick, rnd, wpick } from "../rng.js";
 import { routeTo } from "../../world/nav.js";
 import { trophyOn } from "../trophies.js";
+import { wishCheck } from "../wish.js";
 export let cid = 0;
 export function shelfSpot(i) {
   const s = LAY.shelf(i);
@@ -96,6 +97,7 @@ export function spawn() {
     if (tr) {
       c.want = { k: "trade" };
       c.trade = tr;
+      wishCheck(tr.give, "trade");
       c.st = "toq";
       routeTo(c, LAY.qx, LAY.qy + queue.length * LAY.qs);
       custs.push(c);
@@ -105,7 +107,10 @@ export function spawn() {
   }
   if (type === "seller" || type === "lot") {
     c.want = { k: type === "lot" ? "lot" : "sell" };
-    if (type === "seller") c.deal = makeDeal(reg);
+    if (type === "seller") {
+      c.deal = makeDeal(reg);
+      if (c.deal) wishCheck(c.deal.c.id, "sell");
+    }
     c.st = "toq";
     routeTo(c, LAY.qx, LAY.qy + queue.length * LAY.qs);
     custs.push(c);

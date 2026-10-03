@@ -8,7 +8,7 @@ import { FRONT_Y } from "./world/layout.js";
 import { G, S, hasState } from "./core/state.js";
 import { MUSIC, setMusic, sfx, tone, vibe } from "./audio/sfx.js";
 import { SETDEF, indexCards, mkSetDef, offlineCards, setCards } from "./core/cards/sets.js";
-import { camFollow, fitCanvas } from "./render/camera.js";
+import { camFollow, fitCanvas, titleCam } from "./render/camera.js";
 import { cget } from "./core/cards/cache.js";
 import { closeM, confetti, openM, renderM } from "./ui/modals.js";
 import { coinBurst, fx, heartsAt, shake, starsAt, updFx, updPfx } from "./render/effects.js";
@@ -36,7 +36,7 @@ import { repv, spMul } from "./core/economy.js";
 import { spawn } from "./core/customers/spawn.js";
 import { toast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
-import { quip, quipTick } from "./ui/quips.js";
+import { quip, quipTick, wishSay } from "./ui/quips.js";
 import { familyTick } from "./render/family.js";
 import { initUpdates } from "./ui/update.js";
 import { updBirds, updPed } from "./render/city.js";
@@ -46,6 +46,7 @@ import { updCat } from "./render/pets.js";
 /* ===================== AVISOS DE CORE (bus) ===================== */
 on("toast", (t, o) => toast(t, o));
 on("quip", (k) => quip(k));
+on("wishSeen", (id, k) => wishSay(id, k));
 on("sets", () => {
   if (G.M === "sets") renderM();
 });
@@ -75,6 +76,7 @@ function frame(now) {
   last = now;
   if (hasState() && (G.TITLE || G.STORY)) {
     // Título o historia: la tienda y la calle siguen vivas (peatones, coches, pájaros), sin juego
+    if (G.TITLE && !G.STORY) titleCam(now, document.documentElement.classList.contains("ui-calm"));
     updPed(raw);
     updCars(raw);
     updBirds(raw);

@@ -636,3 +636,13 @@ html.ui-big .mu {
   width: 100%;
   height: 100%;
 }
+/* Lista de deseos: el hueco del álbum se puede tocar; con ⭐ si está en la lista */
+.pk-w {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+}

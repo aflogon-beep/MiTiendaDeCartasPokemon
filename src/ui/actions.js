@@ -1,4 +1,5 @@
 // Acciones de la interfaz: objeto A (data-a) e I (data-i) y sus escuchadores.
+import { isWish, wishGot, wishSet } from "../core/wish.js";
 import { quip, quipOpen, quipCard } from "./quips.js";
 import { $, VIS } from "../render/canvas.js";
 import { ACC, ALBR, DECOR, GSVC, RECO, SEAS, STAFF, UPS } from "../core/constants.js";
@@ -261,6 +262,7 @@ export const A = {
     const nw = !S.dex[t.give];
     S.items.push({ i: S.nid++, c: t.give, k: "NM", rv: false, cost: it.cost, case: null, res: false });
     S.dex[t.give] = 1;
+    wishGot(t.give);
     loy(t.c.reg, 6, "Os cambiasteis cartas");
     track("trade");
     const c = t.c;
@@ -662,6 +664,16 @@ export const A = {
     }, 1500);
     toast("⬇️ Copia descargada");
   },
+  // Compartir la copia con el menú del sistema. Va como .txt (el móvil no deja compartir .json); al
+  // importar se lee igual.
+  sharesave: () => {
+    saveNow();
+    const f = new File([exportStr()], `pokemon-card-shop-dia${S.day}.txt`, { type: "text/plain" });
+    navigator
+      .share({ files: [f], title: "Pokémon Card Shop", text: `Copia de mi tienda (día ${S.day})` })
+      .then(() => toast("📤 Copia compartida"))
+      .catch((e) => e && e.name !== "AbortError" && toast("⚠️ No se pudo compartir. Usa «Exportar archivo»"));
+  },
   importf: () => $("#impfile").click(),
   copycode: () => {
     const code = btoa(unescape(encodeURIComponent(exportStr())));
@@ -744,6 +756,15 @@ export const A = {
   albset: (d) => {
     G.albS = d.k;
     G.albPg = 0;
+    renderM();
+  },
+  // Lista de deseos: tocar un hueco del álbum enseña qué carta es; desde ahí se añade o se quita
+  wishsel: (d) => {
+    G.wishSel = d.k;
+    renderM();
+  },
+  wishtog: (d) => {
+    wishSet(d.k, !isWish(d.k));
     renderM();
   },
   albnext: () => albTurn(1),
@@ -1140,6 +1161,7 @@ export const A = {
         x.nw = !had.has(x.c.id) && !S.dex[x.c.id];
         had.add(x.c.id);
         S.dex[x.c.id] = 1;
+        wishGot(x.c.id);
         S.items.push({ i: S.nid++, c: x.c.id, k: "NM", rv: x.rv, cost: cpp, case: null, res: false });
         pulled.push(x);
       });

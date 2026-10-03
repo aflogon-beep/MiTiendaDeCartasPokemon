@@ -1,7 +1,7 @@
 // Mascota de la tienda (gato, perro o conejo).
 import { ui } from "../core/bus.js";
 import { S } from "../core/state.js";
-import { cx, rr, txt } from "./canvas.js";
+import { cx, rr, setCx, txt } from "./canvas.js";
 import { heartsAt } from "./effects.js";
 import { navPath } from "../world/nav.js";
 import { pick } from "../core/rng.js";
@@ -244,4 +244,26 @@ export function petSound() {
   heartsAt(CAT.x, CAT.y - 26, 2);
   CAT.st = "sit";
   CAT.t = 3;
+}
+
+/** La mascota dibujada en otro canvas (Prepara tu aventura): sentada, en (x, y) y a escala k. */
+export function petPreview(ctx, kind, x, y, k) {
+  if (!kind || kind === "none") return;
+  const prev = cx,
+    keep = Object.assign({}, CAT),
+    pet = S.pet;
+  setCx(ctx);
+  Object.assign(CAT, { x: 0, y: 0, dir: -1, st: "sit", ph: 0 });
+  S.pet = kind;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(k, k);
+  try {
+    drawPet();
+  } finally {
+    ctx.restore();
+    S.pet = pet;
+    Object.assign(CAT, keep);
+    setCx(prev);
+  }
 }

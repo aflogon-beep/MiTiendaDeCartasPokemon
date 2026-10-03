@@ -1,4 +1,5 @@
 // Tratos con clientes: cartas que quieren venderte y cambios que te proponen los habituales.
+import { wishGot } from "./wish.js";
 import { BYR, CARDS } from "./cards/sets.js";
 import { COND } from "./constants.js";
 import { DF } from "./difficulty.js";
@@ -71,6 +72,7 @@ export function finishDeal(p) {
   S.stats.bought++;
   S.items.push({ i: S.nid++, c: d.c.id, k: d.k, rv: d.rv, cost: p, case: null, res: false, fk: d.fake || undefined });
   S.dex[d.c.id] = 1;
+  wishGot(d.c.id);
   loy(d.reg, 3);
   track("buycard");
   if (p <= d.val * 0.75 && d.val >= 1) track("goodbuy");

@@ -1,4 +1,5 @@
 // Lotes misteriosos: generación, estimación, revisión, experto y compra.
+import { isWish, wishGot } from "./wish.js";
 import { ui } from "./bus.js";
 import { BYR, CARDS } from "./cards/sets.js";
 import { COND } from "./constants.js";
@@ -24,6 +25,7 @@ export function makeLot(c) {
       rv = (r === "C" || r === "U" || r === "R") && Math.random() < 0.15;
     cards.push({ c: cd, k, rv, v: price(cd.id) * (rv ? rvr(cd) : 1) * COND[k] });
   }
+  if (c && cards.some((x) => isWish(x.c.id))) ui.wishSeen(null, "lot"); // Emma avisa (lista de deseos)
   const v = cards.reduce((a, x) => a + x.v, 0),
     ask = Math.max(5, r05(v * (0.5 + Math.random() * 0.8)));
   G.LOT = {
@@ -72,6 +74,7 @@ export function lotBuy(p) {
   L.cards.forEach((x) => {
     S.items.push({ i: S.nid++, c: x.c.id, k: x.k, rv: x.rv, cost: each, case: null, res: false });
     S.dex[x.c.id] = 1;
+    wishGot(x.c.id);
   });
   L.done = true;
   L.paid = p;

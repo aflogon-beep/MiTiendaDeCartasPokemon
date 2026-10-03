@@ -12,6 +12,7 @@ import { myIdx } from "../core/rival.js";
 import { custs } from "../core/customers/move.js";
 import { CHARS, drawMini, charFace } from "../render/characters.js";
 import { NAMES } from "../story/script.js";
+import { BYID } from "../core/cards/sets.js";
 
 const calm = () => document.documentElement.classList.contains("ui-calm");
 const busy = () => !hasState() || G.TITLE || G.STORY || (S.tut && S.tut.on);
@@ -28,6 +29,7 @@ export function sayBubble(who, ex, text, ms = 4500) {
     document.body.appendChild(el);
   }
   el.innerHTML = `<img src="${charFace(who, ex)}" alt=""><div><b>${NAMES[who]}</b><p>${esc(text)}</p></div>`;
+  VIS.talk = { who, until: performance.now() + ms }; // y un bocadillo encima de su muñeco en la tienda
   el.classList.remove("on");
   void el.offsetWidth;
   el.classList.add("on");
@@ -148,4 +150,19 @@ function drawPapa(cv, P, now) {
   x.scale(k, k);
   drawMini(x, CHARS.alberto, 0, 0, calm() ? 0 : now / (moving ? 70 : 260));
   x.restore();
+}
+
+/* ---------- Lista de deseos ---------- */
+/** Emma avisa: un cliente vende o cambia una carta de la lista de deseos, o un lote trae alguna. */
+export function wishSay(id, k) {
+  if (busy()) return;
+  const c = id && BYID[id],
+    n = c ? c.name : "";
+  const t =
+    k === "sell"
+      ? `¡Ese cliente vende ${n}! Está en tu lista de deseos.`
+      : k === "trade"
+        ? `¡Ese cliente te cambia ${n}! Está en tu lista de deseos.`
+        : "¡En este lote hay una carta de tu lista de deseos!";
+  sayBubble("emma", "stars", t, 5000);
 }
