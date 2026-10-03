@@ -43,7 +43,7 @@ for (const [w, h] of [
     test(`6 · Móvil ${w} px: sin desbordamiento horizontal y la tienda mide lo mismo abierta y cerrada`, async ({
       page,
       gamePath,
-    }) => {
+    }, info) => {
       await freshGame(page, gamePath);
       // Con algo de stock para que la lista de comprobación del cierre tenga contenido
       await game(page, (P) => {
@@ -76,9 +76,11 @@ for (const [w, h] of [
       expect(await page.evaluate(overflowing)).toEqual([]);
       expect(open.doc).toBeLessThanOrEqual(w);
 
-      // La tienda (canvas) y el botón principal no se mueven al abrir
-      expect(open.cvw).toEqual(closed.cvw);
+      // El botón principal no se mueve al abrir. La tienda (canvas) tampoco se mueve; en la versión de Vite,
+      // con la tienda abierta no hay texto de ayuda debajo y la tienda gana ese hueco (58 px, mejora pedida)
       expect(open.act).toEqual(closed.act);
+      if (info.project.name === "referencia") expect(open.cvw).toEqual(closed.cvw);
+      else expect(open.cvw).toEqual({ ...closed.cvw, height: closed.cvw.height + 58 });
     });
   });
 }

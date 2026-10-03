@@ -327,6 +327,10 @@ for (const [w, h] of [
         await game(page, (P) => {
           // Lo nuevo de la Fase I (no existe en la referencia) se quita antes de comparar
           document.querySelectorAll("[data-fase]").forEach((e) => e.remove());
+          // Mejoras pedidas en elementos de siempre (data-mejora y el texto de ayuda oculto con la tienda
+          // abierta): se quitan para comparar lo de siempre con la referencia
+          document.querySelectorAll("[data-mejora]").forEach((e) => e.removeAttribute("data-mejora"));
+          document.documentElement.classList.remove("no-hint");
           // Textos que la Fase I cambia a propósito (Carla → Emma): el mismo texto en las dos para comparar estilos
           document.querySelectorAll("#tut .tbub b, #tut .tbub p").forEach((e) => (e.textContent = "Fase I"));
           P.TILT.el = null;

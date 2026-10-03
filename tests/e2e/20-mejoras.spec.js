@@ -373,3 +373,24 @@ test("20l · Lista de deseos: desde un hueco del álbum; Emma avisa si un client
   await expect(page.locator("#quip")).toContainText(name);
   await expect(page.locator("#quip b")).toHaveText("Emma");
 });
+
+test("20m · Stock: el dinero disponible a la vista (baja al comprar) y el número de sobres en grande", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await page.locator('#nav [data-k="packs"]').click();
+  const cash = page.locator("#ovh .stk-cash b");
+  const m0 = await game(page, (P) => P.fmt(P.S.money));
+  await expect(cash).toHaveText(m0);
+  const q0 = await page.locator("#ovh .stk-q b").first().textContent();
+  expect(await game(page, (P) => String(P.S.sealed[P.SETS[0].id]))).toBe(q0);
+  await game(page, (P) => (P.S.express = true));
+  await page.locator('#ovh [data-a="buyp"][data-n="6"]').first().click();
+  const m1 = await game(page, (P) => P.fmt(P.S.money));
+  expect(m1).not.toBe(m0);
+  await expect(cash).toHaveText(m1);
+  await expect(page.locator("#ovh .stk-cash.down i")).toContainText("−");
+  await expect(page.locator("#ovh .stk-q b").first()).toHaveText(String(+q0 + 6));
+});

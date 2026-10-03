@@ -105,7 +105,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 - **API simulada** (`tests/fixtures/api.js`): sets y cartas inventados; imágenes con un PNG genérico.
 - **Los tests saltan el título y la historia**: `openGame` pone `window.__pcsSkipTitle` y el juego entra directo en la última partida, como antes de la Fase I. Para probar el título: `openGame(page, gamePath, { title: true })`.
 - **Service worker bloqueado** en todos los tests salvo el 15 (`serviceWorkers: "block"`).
-- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual.
+- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual. Si una mejora pedida cambia el estilo de un elemento de siempre, márcalo con **`data-mejora`** (el test quita el atributo antes de comparar). Con la tienda abierta ya no hay texto de ayuda (`html.no-hint`) y la tienda es 58 px más alta (test 6).
 - Test 5: en Vite pasa y es estricto (`docs/pendientes.md` §1 arreglado; con colas largas, los que no caben esperan cerca del final de la fila: `queueSpot` en `world/nav.js`). En la referencia, `test.fail()`. Test 4: 2 reintentos (partida con azar).
 
 ## Forma de trabajar

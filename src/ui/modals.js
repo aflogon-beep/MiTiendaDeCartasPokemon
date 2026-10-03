@@ -144,7 +144,7 @@ export function renderM() {
     const hk = HINT1[G.M];
     if (hk && !(S.seen && (S.seen[G.M] || S.seen.all)) && !(S.tut && S.tut.on))
       body =
-        `<div class="hint1"><img src="${guideImg()}" alt=""><div><b>Emma</b><p>${hk}</p></div><div style="display:flex;flex-direction:column;gap:4px"><button class="b pri" data-a="seen" data-k="${G.M}">¡Vale!</button><button class="b mini" data-a="seen" data-k="all">No más</button></div></div>` +
+        `<div class="hint1"><img src="${guideImg()}" alt=""><div><b>Emma</b><p>${hk}</p></div><div style="display:flex;flex-direction:column;gap:4px"><button class="b pri" data-a="seen" data-k="${G.M}">¡Vale!</button><button class="b mini" data-a="seen" data-k="all" data-mejora>No más</button></div></div>` +
         body;
   }
   const lock =

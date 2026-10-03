@@ -1,4 +1,5 @@
 // Barra superior (dinero, nivel, día), botón principal, pista, lista de antes de abrir, insignias y pausa.
+import { fitCanvas } from "../render/camera.js";
 import { $, VIS } from "../render/canvas.js";
 import { CHAP, chapProg, story, storyTick } from "../core/story.js";
 import { DAYLEN } from "../core/constants.js";
@@ -189,8 +190,19 @@ export function checklist() {
   const hn = $("#hint");
   if (!hasState() || S.phase !== "closed" || G.M || (S.tut && S.tut.on)) {
     el.innerHTML = "";
+    // Con la tienda abierta, el texto de ayuda no aporta nada: se quita y la tienda gana ese espacio
+    // (en el tutorial se sigue viendo)
+    const open = hasState() && S.phase !== "closed" && !(S.tut && S.tut.on);
     if (hn) hn.style.display = "";
+    if (document.documentElement.classList.contains("no-hint") !== open) {
+      document.documentElement.classList.toggle("no-hint", open);
+      fitCanvas();
+    }
     return;
+  }
+  if (document.documentElement.classList.contains("no-hint")) {
+    document.documentElement.classList.remove("no-hint");
+    fitCanvas();
   }
   if (hn) hn.style.display = "none";
   const sh = SETS.filter((sd) => S.slots.includes(sd.id)),
