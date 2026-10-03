@@ -174,3 +174,42 @@ test("20e · Emma: junto al ordenador; sin clientes y con sofá, al sofá; vuelv
   expect(w.n).toBeGreaterThan(10);
   expect(w.bad).toBe(0);
 });
+
+test("20f · Con cajero, el cajero se pone en la caja y Álvaro pasea por la tienda; sin cajero, vuelve a la caja", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  const errs = [];
+  page.on("pageerror", (e) => errs.push(String(e)));
+  await openGame(page, gamePath);
+  await closeModals(page);
+  const st = () => game(page, (P) => P.ALVARO.at);
+  expect(await st()).toBe("till");
+  await game(page, (P) => {
+    P.S.staff.cashier = 1; // primero sin muebles (la cuadrícula aún no está hecha)
+    P.speed = 4;
+    window.__alv = { bad: [], spots: 0 };
+    let was = "";
+    const tick = () => {
+      const A = P.ALVARO;
+      // Fuera de la zona de detrás del mostrador, nunca dentro de un mueble
+      if (A.at === "walk" && !(A.x >= 712 && A.y <= 484))
+        for (const [x0, y0, x1, y1] of P.navObstacles())
+          if (A.x > x0 && A.x < x1 && A.y > y0 && A.y < y1) window.__alv.bad.push([Math.round(A.x), Math.round(A.y)]);
+      if (A.at === "stay" && was !== "stay" && A.y < 484 && A.x < 712) window.__alv.spots++;
+      was = A.at;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  await expect.poll(() => page.evaluate(() => window.__alv.spots), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+  await game(page, (P) => P.DECOR.forEach((d) => (P.S.decor[d.k] = 1)));
+  await expect.poll(() => page.evaluate(() => window.__alv.spots), { timeout: 30_000 }).toBeGreaterThanOrEqual(3);
+  // Sin cajero, vuelve a la caja
+  await game(page, (P) => (P.S.staff.cashier = 0));
+  await expect.poll(st, { timeout: 30_000 }).toBe("till");
+  expect(await game(page, (P) => [P.ALVARO.x, P.ALVARO.y])).toEqual([748, 330]);
+  expect(await page.evaluate(() => window.__alv.bad)).toEqual([]);
+  expect(errs).toEqual([]);
+});

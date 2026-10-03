@@ -127,7 +127,8 @@ export function draw() {
     L.push({ y: c.y + c.h, f: drawCase });
   }
   L.push({ y: LAY.counter.y + LAY.counter.h, f: drawCounter });
-  if (!familyLayers(L))
+  const fam = familyLayers(L); // Álvaro, Emma y el cajero (render/family.js); en el título y la historia, como antes
+  if (!fam)
     L.push({
       y: LAY.cashier.y,
       f: () =>
@@ -141,7 +142,7 @@ export function draw() {
           "cashier",
         ),
     });
-  if (S.staff.cashier)
+  if (S.staff.cashier && !fam)
     L.push({
       y: 250,
       f: () =>

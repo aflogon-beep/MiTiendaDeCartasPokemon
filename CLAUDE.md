@@ -57,7 +57,7 @@ src/
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
     characters.js        Emma, Álvaro y papá (drawPortrait, drawMini, charFace)
-    family.js            Álvaro en la caja y Emma en la tienda (mesa del ordenador ↔ sofá)
+    family.js            Álvaro (caja; con cajero contratado, pasea) y Emma (mesa del ordenador ↔ sofá)
   story/script.js        guion de la historia de inicio, como datos
   ui/
     title.js             pantalla de carga, título, ranuras, «Prepara tu aventura», importar
