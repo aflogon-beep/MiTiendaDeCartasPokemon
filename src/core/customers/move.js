@@ -120,6 +120,7 @@ export function updateCusts(dt) {
         say(c, "😠");
         why("pat");
         leave(c, true);
+        ui.quip("queue");
       } else if (front() === c && c.hold && S.staff.cashier) {
         c.paid += dt;
         if (c.paid > 1.6) {

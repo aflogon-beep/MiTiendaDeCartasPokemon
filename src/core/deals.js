@@ -75,7 +75,8 @@ export function finishDeal(p) {
   wishGot(d.c.id);
   loy(d.reg, 3);
   track("buycard");
-  if (p <= d.val * 0.75 && d.val >= 1) track("goodbuy");
+  if (p <= d.val * 0.75 && d.val >= 1) (track("goodbuy"), ui.quip("goodbuy"));
+  else ui.quip("buycard");
   ui.toast(`Comprada ${d.c.name} por ${fmt(p)}`);
   const c = d.cust;
   c.hold = null;

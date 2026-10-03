@@ -150,7 +150,7 @@ export function tablesTick(dt) {
     TBL.next -= dt;
     if (TBL.next <= 0) {
       TBL.next = 9 + Math.random() * 12;
-      tableArrive();
+      if (tableArrive().length) ui.quip("table");
     }
   }
   for (const p of players) {

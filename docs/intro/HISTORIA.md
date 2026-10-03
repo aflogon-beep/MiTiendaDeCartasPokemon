@@ -141,6 +141,8 @@ Sustituye a Carla. Mismo contenido, con la voz de Emma:
 
 ## Frases para el resto del juego
 
+> Estas son las primeras de cada situación (las que salen la primera vez). Después, cada situación tiene varias frases más y sale otra al azar, sin repetir la última. Hay también situaciones nuevas: al subir la persiana (día normal, lluvia, lanzamiento, VIP o torneo), casi al cerrar, venta grande, cola, compra de cartas y lotes, gradeo, ladrón pillado, día con pérdidas, limpieza y mesa de juego. La lista completa, con quién dice cada una y su expresión, está en `src/core/quips.js` (`QUIPS` y `PAPA`).
+
 **Emma** (consejos y avisos):
 - Al abrir muchos sobres seguidos: «¡ÁLVARO! ¡Eso era para VENDER!»
 - Al ganar mucho en un día: «Esto ya huele a Sephora…»

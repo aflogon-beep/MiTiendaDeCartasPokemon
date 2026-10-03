@@ -17,6 +17,7 @@ import { serveFront } from "./checkout.js";
 import { toast } from "./toast.js";
 import { track } from "../core/missions.js";
 import { trophyOn } from "../core/trophies.js";
+import { quip } from "./quips.js";
 (function () {
   const PT = new Map();
   let pinch = null,
@@ -109,6 +110,7 @@ export function tapWorld(x, y) {
     if (d) {
       starsAt(d.x, d.y - 6, 6);
       sfx.swish();
+      quip("clean");
       return;
     }
   }

@@ -27,7 +27,7 @@ export function pay(c, got) {
   if (c.reg) loy(c.reg, 3 + (c.wt < c.pat * 0.4 ? 2 : 0));
   track("earn", got);
   track("serve");
-  if (got >= 50) ui.shake(3);
+  if (got >= 50) (ui.shake(3), ui.quip("bigsale"));
   ui.toast("+ " + fmt(got));
   ui.fx(LAY.counter.x + 28, LAY.counter.y + 40, "+" + fmt(got), "#4cc98a");
   ui.coinBurst(c.x, c.y - 30, got);

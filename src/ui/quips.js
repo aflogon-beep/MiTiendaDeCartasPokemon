@@ -8,6 +8,7 @@ import { VIEW } from "../render/camera.js";
 import { G, S, hasState } from "../core/state.js";
 import { takeQuip, pullQuip, papaDue, papaVisit as papaLines, papaState } from "../core/quips.js";
 import { level } from "../core/economy.js";
+import { dayT } from "../core/day.js";
 import { myIdx } from "../core/rival.js";
 import { custs } from "../core/customers/move.js";
 import { CHARS, drawMini, charFace } from "../render/characters.js";
@@ -78,10 +79,21 @@ export function quipTick(dt) {
     emptyT += dt;
     if (emptyT > 25) ((emptyT = 0), quip("empty"));
   } else emptyT = 0;
-  // Al subir la persiana: si la rival está más barata, Emma saca la calculadora
-  if (open && !wasOpen && S.rival && S.rival.on && myIdx() > S.rival.price + 0.02)
-    setTimeout(() => quip("rival"), 2500);
+  // Al subir la persiana: si la rival está más barata, Emma saca la calculadora; si no, una frase del día
+  if (open && !wasOpen) {
+    const k =
+      S.rival && S.rival.on && myIdx() > S.rival.price + 0.02
+        ? "rival"
+        : S.tour
+          ? "tour"
+          : S.ev && ["launch", "rain", "vip"].includes(S.ev.t)
+            ? S.ev.t
+            : "open";
+    setTimeout(() => quip(k), 2500);
+  }
   wasOpen = open;
+  // Casi la hora de cerrar
+  if (open && dayT() > 0.88) quip("late");
   // Papá: una comprobación por segundo de juego
   sec += dt;
   if (sec < 1) return;
