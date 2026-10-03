@@ -68,6 +68,7 @@ export function catchThief(c) {
   say(c, "😳");
   S.repB += 2;
   track("caught");
+  ui.quip("caught");
   ui.starsAt(c.x, c.y - 30, 14);
   ui.sfx("ach");
   ui.vibe(40);

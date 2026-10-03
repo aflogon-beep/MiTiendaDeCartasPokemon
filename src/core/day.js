@@ -184,5 +184,5 @@ export function endDay() {
   if (st.inc >= 150 && st.inc > (S.bestInc || 0)) {
     S.bestInc = st.inc;
     ui.quip("bigday");
-  }
+  } else if (st.inc + (tourInc || 0) + (st.tbl || 0) - rent - sal - refund < 0) ui.quip("loss"); // día con pérdidas
 }

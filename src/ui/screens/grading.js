@@ -13,6 +13,7 @@ import { rvr } from "../../core/cards/prices.js";
 import { save } from "../../core/save.js";
 import { sfx, vibe } from "../../audio/sfx.js";
 import { toast } from "../toast.js";
+import { quip } from "../quips.js";
 export let GR = null;
 export function slabHTML(c, rv, g, hide, it) {
   const h = holoOf(c, rv);
@@ -82,6 +83,8 @@ export function mountGR() {
         `<div class="banner" style="--rc:#c0392b">${it.gr >= 10 ? "💎 GEM MINT 10 💎" : it.gr === 9 ? "MINT 9" : "NM-MT 8"}</div>`,
       );
     } else sfx.sad();
+    if (it.gr >= 10) quip("gem");
+    else if (it.gr <= 6) quip("lowgrade");
     $("#pxhint").innerHTML =
       `<div class="cinfo"><div><b style="color:#fff">${c.name}</b> · PGS ${it.gr} ${GTXT[it.gr]}</div><div class="cv ${v >= before ? "up" : "down"}">${fmt(v)}</div><div class="mu">Antes ${fmt(before)} · toca para ${g.idx < g.ids.length - 1 ? "la siguiente" : "terminar"}</div></div>`;
     g.ready = true;

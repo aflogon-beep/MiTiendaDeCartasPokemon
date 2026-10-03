@@ -74,3 +74,34 @@ test("19c · Papá entra en la tienda, da su consejo y se va; también al subir 
     { timeout: 15_000 },
   );
 });
+
+test("19d · Más frases: una al subir la persiana y, al repetirse una situación, otra distinta", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await openGame(page, gamePath);
+  await skipTutorial(page);
+  await game(page, (P) => {
+    P.closeM();
+    P.resetQuips();
+  });
+  // Al subir la persiana, Emma o Álvaro dicen algo (según el día: normal, lluvia, lanzamiento, VIP, torneo o rival)
+  await page.locator("#act").click();
+  await expect(page.locator("#quip.on p")).not.toBeEmpty({ timeout: 6000 });
+  const t = await page.locator("#quip.on p").textContent();
+  expect(
+    await game(
+      page,
+      (P, t) => ["open", "rain", "launch", "vip", "tour", "rival"].some((k) => P.QUIPS[k].some((q) => q[2] === t)),
+      t,
+    ),
+  ).toBe(true);
+  // La misma situación otra vez: otra frase
+  await game(page, (P) => P.resetQuips());
+  await game(page, (P) => P.quip("fake"));
+  const a = await page.locator("#quip.on p").textContent();
+  await game(page, (P) => P.resetQuips());
+  await game(page, (P) => P.quip("fake"));
+  await expect(page.locator("#quip.on p")).not.toHaveText(a);
+});

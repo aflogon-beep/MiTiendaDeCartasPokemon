@@ -81,6 +81,7 @@ export function lotBuy(p) {
   ui.sfx("chaching");
   if (L.v - p > p * 0.5) ui.shake(6);
   track("lot");
+  ui.quip("lot");
   ui.hud();
   ui.renderM();
 }

@@ -18,6 +18,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Botones en cuadrícula, velocidades 1,25×/1,5×, alertas de precio y recordatorio de copia | ✅ |
 | Mejoras · Ticket con motivos de los que se van, desbloqueos por nivel (colecciones por época) y limpieza | ✅ |
 | Mejoras · Sello de récord en el ticket, Álvaro con ojos de estrella y mesa de juego con jugadores | ✅ |
+| Mejoras · Más frases de Emma, Álvaro y papá (varias por situación y situaciones nuevas) | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -56,7 +57,7 @@ src/
     save.js slots.js     guardado por ranuras (3), exportar/importar
     bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
     cards/ customers/    API y caché de cartas; clientes
-    quips.js             frases de Emma y Álvaro y visitas de papá (cuándo toca cada una)
+    quips.js             frases de Emma y Álvaro y visitas de papá: varias por situación (la 1.ª, la del guion; luego al azar sin repetir, S.quipV)
     wish.js              lista de deseos (S.wish): avisos si un cliente o un lote trae una carta
     alerts.js            alertas de precio (S.palert) y recordatorio de copia (S.bkpAt, 7 días reales)
     unlocks.js           desbloqueos por nivel: colecciones por época (1 · 3 · 5) y aviso «🔓 ¡Nivel N!» (S.lvSeen)
