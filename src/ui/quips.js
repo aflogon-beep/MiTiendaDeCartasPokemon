@@ -28,6 +28,7 @@ export function sayBubble(who, ex, text, ms = 4500) {
     document.body.appendChild(el);
   }
   el.innerHTML = `<img src="${charFace(who, ex)}" alt=""><div><b>${NAMES[who]}</b><p>${esc(text)}</p></div>`;
+  VIS.talk = { who, until: performance.now() + ms }; // y un bocadillo encima de su muñeco en la tienda
   el.classList.remove("on");
   void el.offsetWidth;
   el.classList.add("on");

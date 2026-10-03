@@ -3,7 +3,7 @@
 // estanterías, mesa de juego). Emma trabaja junto al ordenador de las cuentas, con su calculadora; si no hay
 // clientes y tienes el sofá, se va al sofá, y vuelve cuando entra alguien. En el título y la historia, la
 // tienda como antes.
-import { cx } from "./canvas.js";
+import { VIS, cx, rr, txt } from "./canvas.js";
 import { CHARS, drawMini } from "./characters.js";
 import { G, S, meSetOf } from "../core/state.js";
 import { custs } from "../core/customers/move.js";
@@ -204,6 +204,7 @@ function drawEmma() {
     cx.clip();
     blit(s, SEAT.x, SEAT.y);
     cx.restore();
+    talkBubble("emma", SEAT.x, SEAT.y - 80);
     return;
   }
   const b = E.at === "walk" ? Math.sin(E.ph) * 1.5 : 0;
@@ -215,6 +216,22 @@ function drawEmma() {
     cx.fillStyle = "#9fd8a8";
     cx.fillRect(E.x - 3, E.y - 28, 6, 2.5);
   }
+  talkBubble("emma", E.x, E.y - 80);
+}
+
+/** Bocadillo encima del muñeco mientras dice una frase (la frase se lee en el bocadillo de arriba). */
+function talkBubble(who, x, top) {
+  const T = VIS.talk;
+  if (!T || T.who !== who || performance.now() > T.until) return;
+  cx.fillStyle = "#fff";
+  rr(x - 13, top - 24, 26, 20, 8);
+  cx.fill();
+  cx.beginPath();
+  cx.moveTo(x - 4, top - 4);
+  cx.lineTo(x + 4, top - 4);
+  cx.lineTo(x, top + 1);
+  cx.fill();
+  txt("💬", x, top - 9, 12, "#111", "center");
 }
 
 /** Añade a Álvaro, Emma y el cajero (si lo hay) a la lista de dibujo. Devuelve false en el título y la historia. */
@@ -224,7 +241,10 @@ export function familyLayers(L) {
     T = LAY.cashier;
   L.push({
     y: A.y,
-    f: () => blit(alvaroSprite(), A.x, A.y + (A.at === "walk" || A.at === "back" ? Math.sin(A.ph) * 1.5 : 0)),
+    f: () => {
+      blit(alvaroSprite(), A.x, A.y + (A.at === "walk" || A.at === "back" ? Math.sin(A.ph) * 1.5 : 0));
+      talkBubble("alvaro", A.x, A.y - 80);
+    },
   });
   if (S.staff.cashier)
     L.push({

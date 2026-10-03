@@ -308,3 +308,19 @@ test("20i · Historia: la tienda a pantalla completa y, en los primeros planos, 
   const h2 = await page.evaluate(() => document.querySelector("#cv").getBoundingClientRect().height / innerHeight);
   expect(h2).toBeLessThan(0.8);
 });
+
+test("20j · Cuando Emma o Álvaro dicen una frase, sale un bocadillo encima de su muñeco", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await openGame(page, gamePath);
+  await closeModals(page);
+  const t = await game(page, (P) => {
+    P.sayBubble("alvaro", "happy", "¡Hola!", 1500);
+    return [P.VIS.talk.who, P.VIS.talk.until > performance.now()];
+  });
+  expect(t).toEqual(["alvaro", true]);
+  await page.waitForTimeout(1700);
+  expect(await game(page, (P) => P.VIS.talk.until > performance.now())).toBe(false);
+});
