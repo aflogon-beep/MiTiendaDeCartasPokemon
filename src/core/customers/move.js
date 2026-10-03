@@ -55,8 +55,9 @@ export function updateCusts(dt) {
       ty = p.y;
       // Si la cola avanza mientras va hacia ella (o mientras espera fuera de la fila), su sitio cambia:
       // se recalcula la ruta desde donde está, para no ir recto atravesando muebles (docs/pendientes.md §1).
-      // En la fila, el paso al hueco de delante es en línea recta, como siempre.
-      if (c.rg && (c.rg.x !== p.x || c.rg.y !== p.y)) routeTo(c, p.x, p.y);
+      // En la fila, el paso al hueco de delante es en línea recta, como siempre. Si no tiene destino guardado
+      // (con 10 o más en la cola, el hueco pedido al llegar caía fuera de la tienda y no había ruta), se calcula.
+      if (!c.rg || c.rg.x !== p.x || c.rg.y !== p.y) routeTo(c, p.x, p.y);
     }
     if (c.st === "leave") {
       if (c.ex == null) {
