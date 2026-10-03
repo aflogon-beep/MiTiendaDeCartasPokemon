@@ -668,6 +668,12 @@ export const A = {
   },
   // Compartir la copia con el menú del sistema. Va como .txt (el móvil no deja compartir .json); al
   // importar se lee igual.
+  // Aviso de subida de nivel (ui/quips.js)
+  lvupok: () => $("#lvup")?.remove(),
+  lvupsets: () => {
+    $("#lvup")?.remove();
+    openM("sets");
+  },
   // Recordatorio de la copia (ui/quips.js): guardarla ahora o dentro de 2 días
   bkpsave: () => {
     $("#bkp")?.remove();

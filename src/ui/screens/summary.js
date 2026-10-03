@@ -6,6 +6,27 @@ import { fmt } from "../../core/util.js";
 import { level, tierOf } from "../../core/economy.js";
 import { marketDay } from "../../core/market.js";
 import { tipsHTML } from "../modals.js";
+/** Por qué se fueron sin comprar (los motivos que el juego apunta durante el día), agrupados. */
+export function lostWhy(w) {
+  if (!w) return "";
+  const n = { cola: 0, caro: 0, stock: 0, rival: 0 };
+  for (const k in w) {
+    const t = k.split(":")[0];
+    if (t === "pat") n.cola += w[k];
+    else if (t === "kp" || t === "pp" || t === "cp") n.caro += w[k];
+    else if (t === "ks" || t === "ps" || t === "ce") n.stock += w[k];
+    else if (t === "rv") n.rival += w[k];
+  }
+  const L = [
+    ["😤 Cansados de esperar", n.cola],
+    ["💸 Les pareció caro", n.caro],
+    ["📦 No había lo que buscaban", n.stock],
+    ["🏪 Se fueron a la rival", n.rival],
+  ].filter(([, v]) => v > 0);
+  return L.length
+    ? `<div class="twhy" data-fase="I">${L.map(([a, v]) => `<div class="tl"><span>${a}</span><i></i><span>${v}</span></div>`).join("")}</div>`
+    : "";
+}
 export function ticketHTML(s) {
   const T = TIERS[tierOf(level())],
     res = s.inc + (s.tourInc || 0) - s.rent - (s.sal || 0) - (s.refund || 0);
@@ -19,7 +40,7 @@ export function ticketHTML(s) {
     })
     .join("");
   return `<div class="ticket"><div class="tc"><b>${shopName().toUpperCase()}</b><br>${T.sub}<br>TICKET DE CIERRE · DÍA ${s.day}</div><div class="tdash"></div>
-  ${L("Clientes", s.cust)}${L("Se fueron sin comprar", s.lost)}<div class="tdash"></div>
+  ${L("Clientes", s.cust)}${L("Se fueron sin comprar", s.lost)}${lostWhy(s.why)}<div class="tdash"></div>
   ${L("Ventas", fmt(s.inc), "pos")}${s.tourInc != null ? L("Torneo", (s.tourInc >= 0 ? "+" : "") + fmt(s.tourInc), s.tourInc >= 0 ? "pos" : "neg") : ""}${L("Alquiler", "−" + fmt(s.rent), "neg")}${s.sal ? L("Sueldos", "−" + fmt(s.sal), "neg") : ""}${s.refund ? L("Devoluciones", "−" + fmt(s.refund), "neg") : ""}
   <div class="tdash"></div>${L("<b>RESULTADO DEL DÍA</b>", `<b>${res >= 0 ? "+" : ""}${fmt(res)}</b>`, res >= 0 ? "pos" : "neg")}${L("Valor de la empresa", fmt(s.net))}
   ${hist.length > 1 ? `<div class="tchart">Ventas de los últimos días<svg viewBox="0 0 ${hist.length * 28 + 4} 66" width="100%" height="72">${bars}</svg></div>` : ""}

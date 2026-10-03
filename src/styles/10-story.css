@@ -508,3 +508,43 @@ html.ui-calm #story .st-close {
   background: #f3ecdd;
   color: #1d1a15;
 }
+
+/* Aviso de subida de nivel: lo que se desbloquea */
+#lvup {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+  z-index: 59;
+  display: flex;
+  gap: 10px;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  border: 2px solid var(--sign);
+  border-radius: 14px;
+  background: #fff;
+  color: #1d1a15;
+  box-shadow: 0 8px 24px #000a;
+}
+#lvup img {
+  flex: none;
+  width: 46px;
+  height: 58px;
+  border-radius: 10px;
+  background: #ffe9a8;
+}
+#lvup b {
+  font-family: var(--fd);
+  color: #b23a12;
+}
+#lvup ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+#lvup .b:not(.pri) {
+  background: #f3ecdd;
+  color: #1d1a15;
+}

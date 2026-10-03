@@ -53,6 +53,14 @@ export function tipsList(st) {
       6 + w.pat,
       `⏱️ ${w.pat} cliente(s) se cansaron de esperar en la cola. Cobra más rápido o contrata un cajero (Más → Mejoras).`,
     );
+  {
+    const n = S.dirt ? S.dirt.length : 0;
+    if (n >= 3)
+      add(
+        6 + n,
+        `🧹 Hay ${n} cosas en el suelo de la tienda y entran un ${Math.round(Math.min(0.24, n * 0.03) * 100)} % menos clientes. Tócalas para recogerlas.`,
+      );
+  }
   if (!sealedCount()) add(8, "🎴 No te quedan sobres, y son lo que más se vende. Compra en Stock.");
   const idle = S.items.filter((i) => i.case == null && !i.gq && !i.fkK && !i.lux && itemVal(i) >= 1),
     iv = idle.reduce((a, i) => a + itemVal(i), 0);

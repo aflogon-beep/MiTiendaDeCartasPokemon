@@ -147,6 +147,7 @@ export function endDay() {
     inc: st.inc,
     cust: st.cust,
     lost: st.lost,
+    why: st.why || {}, // por qué se fueron sin comprar (en el ticket)
     bought: st.bought,
     rent,
     sal,

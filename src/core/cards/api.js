@@ -1,4 +1,5 @@
 // Descarga de sets y cartas de pokemontcg.io, con reintentos y caché.
+import { setLevel, setLocked } from "../unlocks.js";
 // Avisa por el bus: "toast" (mensaje) y "sets" (cambió el estado de la lista de colecciones).
 import { emit } from "../bus.js";
 import { rnd } from "../rng.js";
@@ -176,6 +177,14 @@ export function loadSetsFor(ids) {
 }
 export function addSets(ids) {
   ids = ids.filter((id) => !S.sets.includes(id) && SETDEF.some((d) => d.id === id));
+  // Colecciones por época: las que aún no tocan por nivel no se añaden (core/unlocks.js)
+  const locked = ids.filter((id) => setLocked(SETDEF.find((d) => d.id === id)));
+  if (locked.length) {
+    ids = ids.filter((id) => !locked.includes(id));
+    const lv = Math.min(...locked.map((id) => setLevel(SETDEF.find((d) => d.id === id))));
+    ui.toast(`🔒 ${locked.length} colección(es) se desbloquean en el nivel ${lv}`);
+    if (!ids.length) return Promise.resolve();
+  }
   if (!ids.length) {
     ui.toast("Ya están todas en tu catálogo");
     return Promise.resolve();

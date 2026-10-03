@@ -8,6 +8,7 @@ import { pay } from "./checkout.js";
 import { rnd } from "../rng.js";
 import { routeTo, queueSpot } from "../../world/nav.js";
 import { thiefGone } from "../theft.js";
+import { dirtDrop } from "../dirt.js";
 export const custs = [];
 export const queue = [];
 export const say = (c, t) => {
@@ -29,6 +30,7 @@ export function leave(c, angry) {
     if (c.reg) loy(c.reg, -8, "Se fue enfadado de la tienda");
   }
   c.st = "leave";
+  dirtDrop(c.x, c.y); // a veces deja algo en el suelo (core/dirt.js)
 }
 export function qpos(c) {
   return queueSpot(Math.max(0, queue.indexOf(c))); // en la fila, o cerca de ella si no cabe (world/nav.js)

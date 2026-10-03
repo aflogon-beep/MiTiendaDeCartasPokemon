@@ -14,6 +14,7 @@ import { CHARS, drawMini, charFace } from "../render/characters.js";
 import { NAMES } from "../story/script.js";
 import { BYID } from "../core/cards/sets.js";
 import { priceAlert, backupDue } from "../core/alerts.js";
+import { unlocksAt } from "../core/unlocks.js";
 
 const calm = () => document.documentElement.classList.contains("ui-calm");
 const busy = () => !hasState() || G.TITLE || G.STORY || (S.tut && S.tut.on);
@@ -85,6 +86,17 @@ export function quipTick(dt) {
   if (sec < 1) return;
   sec = 0;
   if (G.M || VIS.papa) return;
+  levelTick();
+  // La primera vez que hay algo en el suelo, Emma explica cómo recogerlo
+  if (!S.dirtHint && S.dirt && S.dirt.length) {
+    S.dirtHint = 1;
+    return sayBubble(
+      "emma",
+      "sweat",
+      "¡Álvaro, hay cosas en el suelo! Tócalas para recogerlas: con la tienda sucia entra menos gente.",
+      6000,
+    );
+  }
   const why = papaDue(level(), Math.random());
   if (why) return papaEnters(why);
   if (S.phase === "closed") alertsTick();
@@ -192,4 +204,24 @@ export function wishSay(id, k) {
         ? `¡Ese cliente te cambia ${n}! Está en tu lista de deseos.`
         : "¡En este lote hay una carta de tu lista de deseos!";
   sayBubble("emma", "stars", t, 5000);
+}
+
+/* ---------- Subida de nivel: lo que se desbloquea ---------- */
+function levelTick() {
+  const lv = level();
+  if (S.lvSeen == null) S.lvSeen = lv; // partidas de antes: sin avisos de niveles pasados
+  if (lv <= S.lvSeen) return;
+  const from = S.lvSeen;
+  S.lvSeen = lv;
+  const l = [];
+  for (let n = from + 1; n <= lv; n++) l.push(...unlocksAt(n));
+  if (l.length) showLevelUp(lv, l);
+}
+/** Aviso de Emma: «🔓 ¡Nivel N!» con lo nuevo (y un botón a Colecciones si se han desbloqueado). */
+export function showLevelUp(lv, list) {
+  document.querySelector("#lvup")?.remove();
+  const el = document.createElement("div");
+  el.id = "lvup";
+  el.innerHTML = `<img src="${charFace("emma", "stars")}" alt=""><div><b>🔓 ¡Nivel ${lv}! Ya puedes…</b><ul>${list.map((t) => `<li>${esc(t)}</li>`).join("")}</ul><div class="btns">${list.some((t) => t.startsWith("🗂️")) ? `<button class="b pri" data-a="lvupsets">🗂️ Ver colecciones</button>` : ""}<button class="b" data-a="lvupok">¡Genial!</button></div></div>`;
+  document.body.appendChild(el);
 }
