@@ -512,3 +512,28 @@ test("20p · Alertas: Emma avisa si una carta tuya sube mucho; flecha en la cole
   await expect.poll(() => page.evaluate(() => window.__shared)).toBe(1);
   expect(await game(page, (P) => Date.now() - P.S.bkpAt < 60_000)).toBe(true);
 });
+
+test("20q · Ticket de cierre: por qué se fueron sin comprar", async ({ page, gamePath }, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => {
+    P.S.summary = Object.assign({}, P.S.summary || {}, {
+      day: 1,
+      inc: 10,
+      cust: 20,
+      lost: 9,
+      rent: 15,
+      sal: 0,
+      net: 1000,
+      why: { pat: 4, "kp:a": 2, cp: 1, "ks:a": 1, "rv:a": 1 },
+    });
+    P.openM("sum");
+  });
+  const w = page.locator("#ovh .twhy .tl");
+  await expect(w).toHaveText([
+    /Cansados de esperar\s*4/,
+    /Les pareció caro\s*3/,
+    /No había lo que buscaban\s*1/,
+    /Se fueron a la rival\s*1/,
+  ]);
+});

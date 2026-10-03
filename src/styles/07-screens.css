@@ -731,3 +731,9 @@ html.ui-big .mu {
   background: #e3350d;
   color: #fff;
 }
+/* Ticket: por qué se fueron sin comprar */
+.twhy {
+  margin: 0 0 2px 14px;
+  font-size: 0.86em;
+  color: #6b6458;
+}
