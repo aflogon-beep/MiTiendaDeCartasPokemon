@@ -95,6 +95,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Estado global
 
+- `S.lvMax`: nivel más alto alcanzado. **El nivel nunca baja** (decisión de Alberto): `level()` devuelve este aunque la empresa valga menos tras gastar en mejoras. Partidas de antes: arranca en `S.lvSeen`.
 - `S.recInc`: récord de ventas de un día (sello «¡RÉCORD!» en el ticket; el primer día no cuenta).
 - `S.wish`: ids de las cartas de la lista de deseos (se crea al añadir la primera).
 - `S.meSet`: lo elegido en Personalizar para Álvaro (solo lo que se ha tocado; `""` = lo suyo). Las partidas de antes solo tienen `S.me`: `meSetOf()` lo deduce.

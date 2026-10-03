@@ -29,3 +29,24 @@ describe("desbloqueos por nivel", () => {
     expect(unlocksAt(4)).toEqual([]);
   });
 });
+
+describe("el nivel nunca baja", () => {
+  it("gastar dinero (p. ej. en mejoras) no devuelve la tienda al nivel de antes", async () => {
+    const { level } = await import("../../src/core/economy.js");
+    const { LV } = await import("../../src/core/constants.js");
+    nuevaPartida();
+    expect(level()).toBe(1);
+    S.money += LV[2] + 100; // sube a nivel 3
+    expect(level()).toBe(3);
+    S.money -= 2000; // compra mejoras: la empresa vale menos
+    expect(level()).toBe(3);
+    expect(S.lvMax).toBe(3);
+  });
+  it("partidas de antes: se queda con el nivel más alto que ya vieron", async () => {
+    const { level } = await import("../../src/core/economy.js");
+    nuevaPartida();
+    S.lvSeen = 3;
+    delete S.lvMax;
+    expect(level()).toBe(3);
+  });
+});
