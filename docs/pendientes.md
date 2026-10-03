@@ -73,3 +73,13 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Propuesta.** En la historia, no dibujar a nadie en la caja (papá ocupa ese sitio). Pendiente de que Alberto lo confirme.
 
 **Estado:** ✅ confirmado y hecho: durante la historia no se dibuja el tendero de la caja (`render/draw.js`).
+
+---
+
+## 6. La app se cierra sola al acercarse el cierre, de noche · 🔍 investigando
+
+**Qué pasa.** Alberto, jugando en el móvil (app instalada y actualizada): con la tienda abierta, según se acerca la hora de cerrar y ya es de noche, la app se cierra sola. Al volver a abrirla, el día empieza de nuevo (eso es lo de siempre: la partida solo guarda los días cerrados).
+
+**Lo probado.** En el navegador (también en modo móvil y con su partida antigua, mesa de juego, cajero, ampliación, sofá y cafetera) se llega al cierre sin errores, sin que suba la memoria y sin que se acumulen lienzos ni elementos.
+
+**Estado:** 🔍 hay un registro (`ui/diag.js`, clave `pcs-diag-v1`): cada 2 s, con el juego en pantalla, apunta qué pasa (día, % del día, panel abierto, velocidad, clientes, jugadores, FPS, memoria, elementos y lienzos) y los últimos errores. Si la app se cierra sola estando en pantalla, al volver a abrirla sale un aviso con esos datos y el botón «📋 Copiar» para mandárselos a Claude.

@@ -4,6 +4,8 @@ import { VitePWA } from "vite-plugin-pwa";
 // BASE_PATH lo pone el workflow de GitHub Pages (p. ej. /MiTiendaDeCartasPokemon/)
 export default defineConfig({
   base: process.env.BASE_PATH || "/",
+  // Fecha de la versión, para el registro de cierres (ui/diag.js)
+  define: { __BUILD__: JSON.stringify(new Date().toISOString().slice(0, 16).replace("T", " ")) },
   plugins: [
     // App instalable (PWA). Cuando hay versión nueva sale un aviso con el botón «Actualizar»
     // (ui/update.js): guarda la partida y recarga. Nunca recarga sola a mitad de partida.

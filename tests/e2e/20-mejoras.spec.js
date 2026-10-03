@@ -1,4 +1,4 @@
-import { test, expect, openGame, freshGame, game, closeModals, mockNetwork } from "./helpers.js";
+import { test, expect, openGame, freshGame, game, closeModals, mockNetwork, skipTutorial } from "./helpers.js";
 import { readFileSync } from "node:fs";
 
 // Mejoras tras la Fase I: funda de plástico en las cartas gradeadas y aviso de versión nueva.
@@ -651,4 +651,45 @@ test("20v · Mesa de juego: llegan jugadores, juegan, pagan 2 € por partida y 
   await game(page, (P) => P.endDay());
   await expect(page.locator("#ovh .ticket")).toContainText("Mesa de juego");
   expect(await game(page, (P) => P.players.length)).toBe(0);
+});
+
+test("20w · Registro de cierres: si la app se cerró sola, al volver sale un aviso con los datos", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  // La última vez estaba en pantalla y no se cerró bien (así queda el registro si Android la cierra)
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem("diag-done")) return;
+    sessionStorage.setItem("diag-done", "1");
+    localStorage.setItem(
+      "pcs-diag-v1",
+      JSON.stringify({
+        v: 1,
+        build: "prueba",
+        start: Date.now() - 60000,
+        fg: true,
+        snaps: [{ t: Date.now() - 5000, day: 3, ph: "open", dt: 92, M: null, fps: 55, fg: true }],
+        errs: [],
+      }),
+    );
+  });
+  await openGame(page, gamePath);
+  await expect(page.locator("#diag")).toContainText("se cerró sola");
+  await expect(page.locator("#diag")).toContainText("Día 3, al 92 % del día");
+  await expect(page.locator("#diag pre")).toContainText("versión prueba");
+  await page.locator("#diagok").click();
+  await expect(page.locator("#diag")).toHaveCount(0);
+  await skipTutorial(page);
+  // Esta sesión también se apunta, cada 2 s
+  await expect
+    .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("pcs-diag-v1")).snaps.length), { timeout: 6000 })
+    .toBeGreaterThan(0);
+  const r = await page.evaluate(() => JSON.parse(localStorage.getItem("pcs-diag-v1")));
+  expect(r.fg).toBe(true);
+  expect(r.snaps.at(-1)).toMatchObject({ day: expect.any(Number), ph: "closed" });
+  // Al recargar (cierre normal) no hay aviso
+  await page.reload();
+  await page.waitForTimeout(1500);
+  await expect(page.locator("#diag")).toHaveCount(0);
 });

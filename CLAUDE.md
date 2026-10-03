@@ -22,7 +22,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: nada en `docs/pendientes.md` (§1, §2, §4 y §5 arreglados). Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
+Pendiente: `docs/pendientes.md` §6 (la app se cierra sola de noche en el móvil; hay un registro en `ui/diag.js` para cazarlo). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
 
 ## Reglas
 
@@ -76,6 +76,7 @@ src/
     quips.js             bocadillos de frases y visita de papá
     slab.js              funda de plástico de las cartas gradeadas
     update.js            aviso «Hay una versión nueva · Actualizar»
+    diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
     tutorial.js          tutorial con Emma
     screens/ …           paneles del juego
   audio/sfx.js
@@ -104,7 +105,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Compatibilidad obligatoria
 
-- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`, `pcs-vibe` (nueva: vibración). **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
+- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`, `pcs-vibe` (nueva: vibración) y `pcs-diag-v1` (registro de cierres, `ui/diag.js`). **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
 - Formato de exportación: `{app:"pcs", v:5, mode, date, S}`.
 - Red: solo `api.pokemontcg.io`, `images.pokemontcg.io` y Google Fonts.
 
