@@ -268,3 +268,43 @@ test("20h · Prepara tu aventura: Álvaro reacciona a lo que eliges y la mascota
   await t.locator('[data-a="tadvp"][data-k="bunny"]').click();
   expect(await img()).not.toBe(dog);
 });
+
+test("20i · Historia: la tienda a pantalla completa y, en los primeros planos, quien habla mueve la boca", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tnew"]').click({ timeout: 30_000 });
+  await t.locator('[data-a="tnewin"][data-n="1"]').click();
+  await t.locator('[data-a="tadvgo"]').click();
+  await expect(page.locator("#story.wide")).toBeVisible();
+  // Planos generales: la tienda ocupa toda la pantalla (sin la franja negra de antes)
+  const h = await page.evaluate(() => document.querySelector("#cv").getBoundingClientRect().height / innerHeight);
+  expect(h).toBeGreaterThan(0.95);
+  // Hasta el primer primer plano
+  for (let i = 0; i < 10 && !(await page.locator("#story.close").count()); i++)
+    await page.evaluate(() => {
+      const s = document.querySelector("#story");
+      if (window.__pcs.storyNow().typing) s.click();
+      s.click();
+    });
+  await expect(page.locator("#story.close .st-bg")).toHaveCount(1); // la tienda difuminada de fondo
+  // Mientras se escribe la frase, el retrato de quien habla cambia (boca)
+  const shots = await page.evaluate(async () => {
+    const c = document.querySelector(".st-por"),
+      l = [];
+    for (let i = 0; i < 6; i++) {
+      l.push(c.toDataURL());
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    return new Set(l).size;
+  });
+  expect(shots).toBeGreaterThan(1);
+  // Al terminar, la vista vuelve a su sitio
+  await page.locator("#stskip").click();
+  const h2 = await page.evaluate(() => document.querySelector("#cv").getBoundingClientRect().height / innerHeight);
+  expect(h2).toBeLessThan(0.8);
+});

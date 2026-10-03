@@ -23,6 +23,7 @@ import { MUSIC, setMusic } from "../audio/sfx.js";
 import { DIFFS, PETS } from "../core/constants.js";
 import { CHARS, charFace, drawPortrait } from "../render/characters.js";
 import { petPreview } from "../render/pets.js";
+import { fitCanvas } from "../render/camera.js";
 import { startStory } from "./story.js";
 import { A } from "./actions.js";
 import { closeM } from "./modals.js";
@@ -126,7 +127,8 @@ export function showTitle() {
     el.id = "title";
     document.body.appendChild(el);
   }
-  document.documentElement.classList.add("title-on"); // sin el HUD ni los botones del juego detrás
+  document.documentElement.classList.add("title-on"); // la tienda a pantalla completa, sin HUD ni botones
+  fitCanvas();
   paintTitle();
   setMusic(MUSIC);
 }
@@ -237,6 +239,7 @@ function startGame() {
   const el = $("#title");
   if (el) el.remove();
   document.documentElement.classList.remove("title-on");
+  fitCanvas();
   if (G.M) closeM();
   if (G.paused) setPause(false);
   applyUI();

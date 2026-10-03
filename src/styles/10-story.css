@@ -361,3 +361,112 @@ html.ui-calm #quip {
 #upd span {
   flex: 1;
 }
+
+/* Título e historia: la tienda a pantalla completa, sin el HUD ni los botones del juego */
+html.title-on #cvw,
+html.st-on #cvw {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  height: auto;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+html.st-on #game > :not(#cvw),
+html.st-on #nav {
+  visibility: hidden;
+}
+
+/* Primeros planos: la tienda difuminada de fondo, con el color de la escena encima */
+.st-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.st-close::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 42%, #fff6d8cc, #f2c94ebb 60%, #c98a1aee);
+}
+#story.dramatic .st-close::before {
+  background: radial-gradient(ellipse at 50% 110%, #ffd27acc, #7a4a12dd 45%, #140c05f2 85%);
+}
+.st-close {
+  background: #3a2a14;
+}
+#story.dramatic .st-close {
+  background: #140c05;
+}
+.st-por {
+  position: relative;
+  z-index: 1;
+  animation: none;
+}
+.st-por.enter {
+  animation: st-pop-in 0.4s ease-out;
+}
+.st-por.enter.l {
+  animation-name: st-from-l;
+}
+.st-por.enter.r {
+  animation-name: st-from-r;
+}
+@keyframes st-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.85);
+  }
+}
+@keyframes st-from-l {
+  from {
+    opacity: 0;
+    transform: translateX(-60vw);
+  }
+}
+@keyframes st-from-r {
+  from {
+    opacity: 0;
+    transform: translateX(60vw);
+  }
+}
+/* golpe de zoom cuando gritan; temblor con los golpes */
+#story.punch .st-por:not(.off) {
+  animation: st-punch 0.45s ease-out;
+}
+@keyframes st-punch {
+  30% {
+    transform: scale(1.14);
+  }
+}
+#story.shake .st-close {
+  animation: st-shake 0.45s;
+}
+@keyframes st-shake {
+  20% {
+    transform: translate(-8px, 4px);
+  }
+  40% {
+    transform: translate(7px, -5px);
+  }
+  60% {
+    transform: translate(-5px, 3px);
+  }
+  80% {
+    transform: translate(3px, -2px);
+  }
+}
+html.ui-calm .st-por,
+html.ui-calm #story .st-close {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-por,
+  #story .st-close {
+    animation: none !important;
+  }
+}

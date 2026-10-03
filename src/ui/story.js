@@ -8,7 +8,7 @@
 // Con «menos animaciones» (o si el sistema pide menos movimiento): sin máquina de escribir, cámara
 // directa y efectos quietos.
 import { $, VIS } from "../render/canvas.js";
-import { VIEW, clampView } from "../render/camera.js";
+import { VIEW, clampView, fitCanvas } from "../render/camera.js";
 import { G, S, hasState, shopName } from "../core/state.js";
 import { saveNow } from "../core/save.js";
 import { CHARS, drawPortrait, drawMini, rrect, charFace } from "../render/characters.js";
@@ -44,7 +44,8 @@ export function startStory({ replay = false, onEnd = null } = {}) {
   const steps = storyScript(S.pet || "cat").filter((s) => !(replay && s.ask));
   G.STORY = true;
   VIS.story = true;
-  document.documentElement.classList.add("st-on");
+  document.documentElement.classList.add("st-on"); // la tienda a pantalla completa, sin HUD
+  fitCanvas();
   VIEW.mode = "manual";
   ST = { steps, i: -1, replay, onEnd, scene: 0, typing: null, cast: null, t0: 0, raf: 0, cam: null, brush: null };
   const r = document.createElement("div");
@@ -106,12 +107,13 @@ function show(st) {
   if (!ST.replay && st.blankSign != null && !ST.brush) VIS.signReveal = st.blankSign ? 0 : 1;
 
   if (st.shot === "wide") {
-    ST.cam = st.cam;
+    ST.cam = speakerCam(st);
     if (calm()) camStep(1);
     ST.cast = st.cast || null;
     ST.t0 = performance.now();
     $("#stclose").innerHTML = "";
   } else {
+    if (ST.cast !== null || !$("#stclose .st-bg")) snapBg();
     ST.cast = null;
     paintClose(st);
   }
@@ -120,12 +122,48 @@ function show(st) {
   bubble(st);
 }
 
+/** Plano general: si quien habla está en escena, la cámara se acerca a él (sin perder del todo el plano). */
+function speakerCam(st) {
+  const c = st.cam,
+    who = st.say && st.say[0];
+  if (!c || !who || !st.cast) return c;
+  const pts = who
+    .split("+")
+    .map((w) => st.cast[w])
+    .filter(Boolean)
+    .map((a) => a.to || a.at);
+  if (!pts.length) return c;
+  const px = pts.reduce((a, p) => a + p[0], 0) / pts.length,
+    py = pts.reduce((a, p) => a + p[1], 0) / pts.length - 24; // la cara, no los pies
+  return { x: c.x * 0.25 + px * 0.75, y: c.y * 0.25 + py * 0.75, z: Math.min(c.z * 2.3, 3) };
+}
+
+/** Fondo de los primeros planos: la tienda tal y como se ve, pequeña y difuminada. */
+function snapBg() {
+  const box = $("#stclose"),
+    cv = $("#cv");
+  if (!box || !cv || !cv.width) return;
+  const bg = document.createElement("canvas");
+  bg.width = Math.max(1, Math.round(cv.width / 4));
+  bg.height = Math.max(1, Math.round(cv.height / 4));
+  const x = bg.getContext("2d");
+  x.filter = "blur(3px)";
+  x.drawImage(cv, 0, 0, bg.width, bg.height);
+  bg.className = "st-bg";
+  ST.bg = bg;
+}
+
 function paintClose(st) {
   const box = $("#stclose"),
     who = st.who || [],
-    speaker = st.say && st.say[0];
+    speaker = st.say && st.say[0],
+    key = who.map((w) => w[0]).join("+"),
+    enter = key !== ST.whoKey; // entran deslizándose solo cuando cambia quién sale
+  ST.whoKey = key;
   box.className = "st-close n" + who.length;
   box.innerHTML = "";
+  if (ST.bg) box.appendChild(ST.bg);
+  ST.por = [];
   who.forEach(([c, ex], i) => {
     const cv = document.createElement("canvas");
     cv.width = 240;
@@ -134,10 +172,44 @@ function paintClose(st) {
       "st-por" +
       (who.length > 1 ? (i ? " r" : " l") : "") +
       (speaker && !speaker.includes(c) && who.length > 1 ? " off" : "") +
-      (st.tilt === c ? " tilt" : "");
+      (st.tilt === c ? " tilt" : "") +
+      (enter ? " enter" : "");
     drawPortrait(cv.getContext("2d"), CHARS[c], ex, 240);
     box.appendChild(cv);
+    ST.por.push({
+      cv,
+      c,
+      ex,
+      talks: !!speaker && speaker.includes(c),
+      blinkAt: performance.now() + 1200 + Math.random() * 2500,
+      st: "",
+    });
   });
+  // Momentos fuertes: golpe de zoom si gritan, temblor si hay golpe
+  const r = $("#story"),
+    text = (st.say && st.say[2]) || "";
+  r.classList.remove("punch", "shake");
+  if (!calm()) {
+    void r.offsetWidth;
+    if (/[A-ZÁÉÍÓÚÑ]{3,}/.test(text) && /!/.test(text)) r.classList.add("punch");
+    if (["fall", "keys", "dong"].includes(st.fx)) r.classList.add("shake");
+  }
+}
+
+/** Primeros planos vivos: parpadean de vez en cuando y quien habla mueve la boca mientras sale el texto. */
+function animClose(now) {
+  if (!ST.por || calm()) return;
+  for (const p of ST.por) {
+    if (now > p.blinkAt + 140) p.blinkAt = now + 2200 + Math.random() * 2600;
+    const blink = now > p.blinkAt,
+      talk = p.talks && !!ST.typing && Math.floor(now / 110) % 2 === 0,
+      key = (blink ? "b" : "") + (talk ? "t" : "");
+    if (key === p.st) continue;
+    p.st = key;
+    const x = p.cv.getContext("2d");
+    x.clearRect(0, 0, 240, 300);
+    drawPortrait(x, Object.assign({}, CHARS[p.c], { blink, talk }), p.ex, 240);
+  }
 }
 
 function bubble(st) {
@@ -243,14 +315,15 @@ function camStep(k) {
     c = ST.cam;
   if (!c) return;
   const ts = Math.min(V.max, Math.max(V.min, (V.shop || V.cover) * c.z)), // z: veces «toda la tienda a la vista»
+    fy = ST.fy || V.ch / 2, // altura de la pantalla donde se encuadra: entre la banda de arriba y el bocadillo
     cx = (V.cw / 2 - V.ox) / V.s,
-    cy = (V.ch / 2 - V.oy) / V.s,
+    cy = (fy - V.oy) / V.s,
     ns = V.s + (ts - V.s) * k,
     nx = cx + (c.x - cx) * k,
     ny = cy + (c.y - cy) * k;
   V.s = ns;
   V.ox = V.cw / 2 - nx * ns;
-  V.oy = V.ch / 2 - ny * ns;
+  V.oy = fy - ny * ns;
   clampView();
 }
 
@@ -259,8 +332,9 @@ function loop(now) {
   if (!ST) return;
   const dt = Math.min(0.05, (now - (last || now)) / 1000);
   last = now;
-  if (ST.cam && !calm()) camStep(Math.min(1, dt * 2.2));
   placeBars();
+  if (ST.cam && !calm()) camStep(Math.min(1, dt * 2.2));
+  if (ST.cast === null) animClose(now);
   drawCast(now);
   if (ST.brush) {
     const t = Math.min(1, (now - ST.brush.t0) / ST.brush.dur);
@@ -274,13 +348,18 @@ function loop(now) {
   ST.raf = requestAnimationFrame(loop);
 }
 
-/** En los planos generales, las bandas de cine tapan justo lo que no es la tienda (HUD y botones). */
+/** Planos generales: la tienda ocupa toda la pantalla, con una banda de cine arriba (título y «Saltar»);
+ * la cámara encuadra el hueco que queda entre la banda y el bocadillo. */
 function placeBars() {
   const r = $("#story");
   if (!r || !r.classList.contains("wide")) return;
-  const c = $("#cv").getBoundingClientRect();
-  r.style.setProperty("--top", Math.max(0, c.top) + "px");
+  const c = $("#cv").getBoundingClientRect(),
+    top = Math.max(c.top, Math.round(innerHeight * 0.08)),
+    b = $("#stbub"),
+    bt = b ? b.getBoundingClientRect().top : c.bottom;
+  r.style.setProperty("--top", top + "px");
   r.style.setProperty("--bot", Math.max(0, innerHeight - c.bottom) + "px");
+  ST.fy = Math.max(40, (top + Math.min(bt, c.bottom)) / 2 - c.top);
 }
 
 function drawCast(now) {
@@ -394,6 +473,7 @@ function finish() {
   document.documentElement.classList.remove("st-on");
   const r = $("#story");
   if (r) r.remove();
+  fitCanvas();
   S.storySeen = true;
   VIEW.mode = "auto";
   if (A.zfit) A.zfit();

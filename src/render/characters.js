@@ -526,7 +526,13 @@ export function drawPortrait(ctx, ch, ex, W) {
     ctx.fillStyle = ch.eye;
     ctx.strokeStyle = ch.eye;
     ctx.lineWidth = 4.5;
-    if (ex === "laugh" || (ex === "happy" && !kid)) {
+    if (ch.blink && ex !== "stars" && ex !== "laugh" && !(ex === "happy" && !kid)) {
+      // parpadeo (historia): ojos cerrados un momento
+      ctx.beginPath();
+      ctx.moveTo(x - 10, ey + 1);
+      ctx.quadraticCurveTo(x, ey + 7, x + 10, ey + 1);
+      ctx.stroke();
+    } else if (ex === "laugh" || (ex === "happy" && !kid)) {
       ctx.beginPath();
       ctx.moveTo(x - 11, ey + 3);
       ctx.quadraticCurveTo(x, ey - 9, x + 11, ey + 3);
@@ -625,7 +631,17 @@ export function drawPortrait(ctx, ch, ex, W) {
   const my = cy + (ch.beard ? 38 : 34);
   ctx.lineWidth = 4;
   ctx.strokeStyle = "#7a2e22";
-  if (ex === "happy" || ex === "stars") {
+  if (ch.talk && ex !== "laugh" && ex !== "wow") {
+    // hablando (historia): boca abierta
+    ctx.fillStyle = "#7a2e22";
+    ctx.beginPath();
+    ctx.ellipse(cx, my + 5, 13, 9, 0, 0, 7);
+    ctx.fill();
+    ctx.fillStyle = "#ef7b7b";
+    ctx.beginPath();
+    ctx.ellipse(cx, my + 10, 7, 3.5, 0, 0, 7);
+    ctx.fill();
+  } else if (ex === "happy" || ex === "stars") {
     const w = ch.n === "Emma" || ex === "stars" ? 24 : ch.beard ? 22 : 18,
       h = ch.n === "Emma" ? 20 : 14;
     ctx.fillStyle = "#7a2e22";
