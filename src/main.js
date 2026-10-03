@@ -42,6 +42,7 @@ import { recordFx } from "./ui/screens/summary.js";
 import { playersIn, tablesTick } from "./core/tables.js";
 import { initUpdates } from "./ui/update.js";
 import { initDiag } from "./ui/diag.js";
+import { initBack } from "./ui/back.js";
 import { updBirds, updPed } from "./render/city.js";
 import { updCars, updVCars, updVan } from "./render/cars.js";
 import { updCat } from "./render/pets.js";
@@ -275,3 +276,4 @@ const modules = Object.values(
 installTestHooks(G, modules);
 initUpdates();
 initDiag(); // registro para cazar cierres de la app (ui/diag.js)
+initBack(); // botón «atrás» de Android en la app instalada (ui/back.js)

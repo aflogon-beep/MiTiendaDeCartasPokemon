@@ -82,4 +82,10 @@ Pasa cada vez que se abre el juego, no solo al importar.
 
 **Lo probado.** En el navegador (también en modo móvil y con su partida antigua, mesa de juego, cajero, ampliación, sofá y cafetera) se llega al cierre sin errores, sin que suba la memoria y sin que se acumulen lienzos ni elementos.
 
-**Estado:** 🔍 hay un registro (`ui/diag.js`, clave `pcs-diag-v1`): cada 2 s, con el juego en pantalla, apunta qué pasa (día, % del día, panel abierto, velocidad, clientes, jugadores, FPS, memoria, elementos y lienzos) y los últimos errores. Si la app se cierra sola estando en pantalla, al volver a abrirla sale un aviso con esos datos y el botón «📋 Copiar» para mandárselos a Claude.
+**Primer registro (día 11, tienda cerrada).** 60 FPS, 10 MB de memoria, sin errores; lo último: abrir Más → Partida, cerrar el panel y, en menos de 2 s, fuera. Nada pesado en marcha.
+
+**Causa más probable:** el botón o gesto «atrás» de Android. El juego no lo controlaba y, en la app instalada, «atrás» sin historial cierra la app al instante (con los gestos de Xiaomi basta deslizar desde el borde de la pantalla, fácil al arrastrar la tienda o cerrar un panel). Además, al salir así no siempre llega el aviso de «segundo plano», por eso el registro lo tomó por un cierre.
+
+**Arreglo (`ui/back.js`, solo en la app instalada):** «atrás» cierra lo que esté abierto (como la ✕); en pantallas completas (sobres, gradeo, celebraciones, historia) no hace nada; sin nada abierto avisa «Vuelve atrás otra vez para salir» y solo sale si se repite en 2,5 s. Cada «atrás» queda apuntado en el registro, y salir así no cuenta como cierre. Test 20x. Pendiente de que Alberto confirme que ya no se cierra.
+
+**Registro:** hay un registro (`ui/diag.js`, clave `pcs-diag-v1`): cada 2 s, con el juego en pantalla, apunta qué pasa (día, % del día, panel abierto, velocidad, clientes, jugadores, FPS, memoria, elementos y lienzos) y los últimos errores. Si la app se cierra sola estando en pantalla, al volver a abrirla sale un aviso con esos datos y el botón «📋 Copiar» para mandárselos a Claude.
