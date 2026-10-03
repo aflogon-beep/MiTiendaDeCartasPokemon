@@ -755,3 +755,24 @@ test("20y · Con cajero, los que vienen a vender esperan aparte y la fila sigue;
     .toMatch(/leave|fuera/);
   await expect(page.locator("#offb")).toBeHidden();
 });
+
+test("20z · Versión del juego en Más → Ajustes; el aviso «Actualizar» dice a qué versión se actualiza", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => P.openM("more"));
+  const mine = await game(page, (P) => P.verLabel(P.BUILD));
+  expect(mine).toMatch(/^\d{1,2} \S+ \d{4} · \d\d:\d\d$/);
+  await expect(page.locator("#ovh .ver")).toHaveText(`📦 Versión del juego: ${mine}`);
+  await game(page, (P) => P.closeM());
+  // Hay una versión publicada más nueva
+  await page.route("**/version.json*", (r) =>
+    r.fulfill({ contentType: "application/json", body: JSON.stringify({ build: "2030-01-02T09:05:00.000Z" }) }),
+  );
+  await game(page, (P) => P.showUpdate(() => {}));
+  const nueva = await game(page, (P) => P.verLabel("2030-01-02T09:05:00.000Z"));
+  await expect(page.locator("#upd span")).toContainText(`Versión nueva: ${nueva}`);
+  await expect(page.locator("#upd span small")).toHaveText(`Tienes: ${mine}`);
+});

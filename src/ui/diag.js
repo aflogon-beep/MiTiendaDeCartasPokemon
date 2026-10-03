@@ -13,7 +13,7 @@ import { ALVARO } from "../render/family.js";
 
 export const DIAG_KEY = "pcs-diag-v1";
 const D = { snaps: [], errs: [], start: Date.now() };
-const build = typeof __BUILD__ !== "undefined" ? __BUILD__ : "dev";
+const build = typeof __BUILD__ !== "undefined" ? __BUILD__ : "dev"; // versión (ui/version.js)
 
 function read() {
   try {

@@ -16,6 +16,7 @@ import { saveNow } from "../../core/save.js";
 import { tipsList } from "../../core/tips.js";
 import { toast } from "../toast.js";
 import { trophies, trophyRep } from "../../core/trophies.js";
+import { BUILD, verLabel } from "../version.js";
 export function mMkt() {
   const pool = CARDS.filter((c) => c.b >= 1),
     arr = pool.map((c) => ({ c, d: chg(c.id, 7) })).sort((a, b) => b.d - a.d);
@@ -139,6 +140,7 @@ export function mMore() {
   <h3>🏪 Mi tienda</h3><div class="tgrid">${T("🛠️", "Mejoras", K("up"))}${T("🎨", "Personalizar", K("custom"))}${T("🗂️", "Colecciones", K("sets"))}${T("📈", "Mercado", K("mkt"))}${T("🏗️", "Ampliar", K("annex"))}${T("📊", "Estadísticas", K("stats"))}${T("🏆", "Trofeos", K("trophy"))}${T("🔔", "Avisos", K("notes"))}</div>
   <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("📳", "Vibración: " + (VIBE ? "sí" : "no"), 'data-a="vibtog" data-fase="I"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}${T("🏠", "Volver al título", 'data-a="totitle" data-fase="I"')}</div>
   <h3>❓ Ayuda</h3><div class="tgrid">${T("💡", "Consejos", K("tips"))}${T("🎓", "Tutorial", 'data-a="tutre"')}${T("🎬", "Ver la historia", 'data-a="storyre" data-fase="I"')}${T("⤢", "Ver tienda", 'data-a="zreset"')}</div>
+  <div class="mu ver" data-fase="I">📦 Versión del juego: <b>${verLabel(BUILD)}</b></div>
   <div class="pn" style="margin-top:12px"><div class="row"><span>⭐ Reputación</span><b>${repv()}</b></div><div class="mu">Sube vendiendo, con encargos, torneos y el álbum. Más reputación = más clientes.</div></div>`;
 }
 export function mNotes() {

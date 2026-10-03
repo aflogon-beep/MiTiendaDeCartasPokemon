@@ -1,12 +1,22 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const BUILD = new Date().toISOString();
+
 // BASE_PATH lo pone el workflow de GitHub Pages (p. ej. /MiTiendaDeCartasPokemon/)
 export default defineConfig({
   base: process.env.BASE_PATH || "/",
-  // Fecha de la versión, para el registro de cierres (ui/diag.js)
-  define: { __BUILD__: JSON.stringify(new Date().toISOString().slice(0, 16).replace("T", " ")) },
+  // Versión = fecha y hora de la publicación (ui/version.js): se ve en Más → Ajustes y en el aviso
+  // «Actualizar», y va en el registro de cierres (ui/diag.js)
+  define: { __BUILD__: JSON.stringify(BUILD) },
   plugins: [
+    // version.json: la versión publicada, para que el aviso «Actualizar» diga a cuál se actualiza
+    {
+      name: "pcs-version",
+      generateBundle() {
+        this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ build: BUILD }) });
+      },
+    },
     // App instalable (PWA). Cuando hay versión nueva sale un aviso con el botón «Actualizar»
     // (ui/update.js): guarda la partida y recarga. Nunca recarga sola a mitad de partida.
     VitePWA({

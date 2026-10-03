@@ -3,6 +3,7 @@
 // versión nueva cada hora (y al volver a la app).
 import { registerSW } from "virtual:pwa-register";
 import { saveNow } from "../core/save.js";
+import { BUILD, latestBuild, verLabel } from "./version.js";
 
 let apply = null;
 
@@ -15,6 +16,12 @@ export function showUpdate(go) {
     el.id = "upd";
     el.innerHTML = `<span>✨ Hay una versión nueva del juego</span><button class="b pri" id="updgo">Actualizar</button><button class="b" id="updno" aria-label="Más tarde">✕</button>`;
     document.body.appendChild(el);
+    // A qué versión se actualiza (y cuál tienes)
+    latestBuild().then((b) => {
+      const sp = el.querySelector("span");
+      if (b && sp && b !== BUILD)
+        sp.innerHTML = `✨ Versión nueva: <b>${verLabel(b)}</b><small>Tienes: ${verLabel(BUILD)}</small>`;
+    });
     el.querySelector("#updgo").onclick = () => {
       saveNow(); // la partida, a salvo antes de recargar
       el.querySelector("#updgo").disabled = true;
