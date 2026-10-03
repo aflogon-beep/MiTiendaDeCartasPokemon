@@ -36,7 +36,7 @@ import { repv, spMul } from "./core/economy.js";
 import { spawn } from "./core/customers/spawn.js";
 import { toast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
-import { quip, quipTick } from "./ui/quips.js";
+import { quip, quipTick, wishSay } from "./ui/quips.js";
 import { familyTick } from "./render/family.js";
 import { initUpdates } from "./ui/update.js";
 import { updBirds, updPed } from "./render/city.js";
@@ -46,6 +46,7 @@ import { updCat } from "./render/pets.js";
 /* ===================== AVISOS DE CORE (bus) ===================== */
 on("toast", (t, o) => toast(t, o));
 on("quip", (k) => quip(k));
+on("wishSeen", (id, k) => wishSay(id, k));
 on("sets", () => {
   if (G.M === "sets") renderM();
 });

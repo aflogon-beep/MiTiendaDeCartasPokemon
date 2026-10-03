@@ -347,3 +347,29 @@ test("20k · Compartir la partida con el menú del sistema (archivo .txt que se 
   expect([sh.name, sh.type]).toEqual([`pokemon-card-shop-dia${day}.txt`, "text/plain"]);
   expect(JSON.parse(sh.text)).toMatchObject({ app: "pcs", v: 5 });
 });
+
+test("20l · Lista de deseos: desde un hueco del álbum; Emma avisa si un cliente la vende", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await page.locator('#nav [data-k="coll"]').click();
+  await page.locator('#ovh [data-a="m"][data-k="album"]').click();
+  await page.locator('#ovh [data-a="albnext"]').click();
+  // Tocar un hueco vacío: se ve qué carta es y se añade a la lista
+  const slot = page.locator("#ovh .pk.miss .pk-w").first();
+  const id = await slot.getAttribute("data-k");
+  await slot.click();
+  await expect(page.locator("#ovh .albwish")).toBeVisible();
+  await page.locator('#ovh [data-a="wishtog"]').click();
+  expect(await game(page, (P) => P.S.wish)).toEqual([id]);
+  await expect(page.locator(`#ovh .pk-w[data-k="${id}"]`)).toHaveText("⭐");
+  await expect(page.locator('#ovh [data-a="wishtog"]')).toHaveText("Quitar de deseos");
+  await game(page, (P) => P.closeM());
+  // Un cliente que vende esa carta: Emma avisa
+  await game(page, (P, id) => P.wishCheck(id, "sell"), id);
+  const name = await game(page, (P, id) => P.BYID[id].name, id);
+  await expect(page.locator("#quip")).toContainText(name);
+  await expect(page.locator("#quip b")).toHaveText("Emma");
+});

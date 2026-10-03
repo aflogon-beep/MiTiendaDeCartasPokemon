@@ -1,7 +1,9 @@
 // Álbum por sets con páginas y premios.
 import { $ } from "../../render/canvas.js";
-import { ALBR } from "../../core/constants.js";
-import { BYS, SETDEF, setCol, setName } from "../../core/cards/sets.js";
+import { ALBR, RAR } from "../../core/constants.js";
+import { BYID, BYS, SETDEF, setCol, setName } from "../../core/cards/sets.js";
+import { isWish } from "../../core/wish.js";
+import { price } from "../../core/economy.js";
 import { G, S } from "../../core/state.js";
 import { albPct } from "../../core/achievements.js";
 import { cardTabs } from "../nav.js";
@@ -22,7 +24,18 @@ export function albPageHTML(sid, pg) {
     return `<div class="bcover"><div class="bc-in">${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : '<div class="pball" style="width:74px;margin:0"></div>'}<b>${sd.n || setName(sid)}</b><span>${sd.series || ""} ${sd.year || ""}</span><div class="bc-pc">${own}/${l.length}</div><span>Desliza o pulsa ▶ para pasar página</span></div></div>`;
   }
   const part = l.slice((pg - 1) * 9, pg * 9);
-  return `<div class="bgrid">${part.map((c) => (S.dex[c.id] ? `<div class="pk own" data-a="zoom" data-k="${c.id}" data-n="0">${face(c, false)}</div>` : `<div class="pk miss"><span>${c.num || "?"}</span></div>`)).join("")}${'<div class="pk empty"></div>'.repeat(9 - part.length)}</div>`;
+  // Huecos vacíos: al tocarlos se ve qué carta es (lista de deseos); con ⭐ si está en la lista
+  const miss = (c) =>
+    `<div class="pk miss"><span>${c.num || "?"}</span><button class="pk-w" data-a="wishsel" data-k="${c.id}" aria-label="Carta ${c.num || ""}" data-fase="I">${isWish(c.id) ? "⭐" : ""}</button></div>`;
+  return `<div class="bgrid">${part.map((c) => (S.dex[c.id] ? `<div class="pk own" data-a="zoom" data-k="${c.id}" data-n="0">${face(c, false)}</div>` : miss(c))).join("")}${'<div class="pk empty"></div>'.repeat(9 - part.length)}</div>`;
+}
+/** La carta del hueco tocado, con el botón de la lista de deseos (solo si aún no la tienes). */
+function wishPanel() {
+  const c = G.wishSel && BYID[G.wishSel];
+  if (!c || S.dex[c.id]) return "";
+  const w = isWish(c.id),
+    n = (S.wish || []).length;
+  return `<div class="pn albwish" data-fase="I"><div class="row"><b>Nº ${c.num || "?"} · ${c.name}</b><span>${fmt(price(c.id))}</span></div><div class="mu">${RAR[c.r] ? RAR[c.r].n : ""} · ${setName(c.s)} · Lista de deseos: ${n}</div><div class="btns"><button class="b ${w ? "" : "pri"}" data-a="wishtog" data-k="${c.id}">${w ? "Quitar de deseos" : "⭐ Añadir a deseos"}</button></div></div>`;
 }
 export function mAlbum() {
   if (!G.albS || !S.sets.includes(G.albS)) G.albS = S.sets[0];
@@ -48,7 +61,7 @@ export function mAlbum() {
     `<div class="chips">${chips}</div><div class="pn"><div class="row"><b>${setName(sid)}</b><span>${own}/${l.length} · ${Math.round(pc * 100)} %</span></div><div class="prog"><i style="width:${pc * 100}%"></i></div><div class="btns">${rw}</div></div>
   <div class="binder" id="binder" style="--bc:${setCol(sid)}"><div class="rings"></div><div class="bpage" id="bpage">${albPageHTML(sid, G.albPg)}</div></div>
   <div class="row" style="margin-top:10px"><button class="b" data-a="albprev"${G.albPg <= 0 ? " disabled" : ""}>◀ Anterior</button><span class="mu" id="albpn">${G.albPg === 0 ? "Portada" : "Página " + G.albPg + " de " + (np - 1)}</span><button class="b" data-a="albnext"${G.albPg >= np - 1 ? " disabled" : ""}>Siguiente ▶</button></div>
-  <p class="mu">Cuenta cada carta que hayas tenido alguna vez, aunque la hayas vendido. Toca una carta para verla en grande.</p>`
+  ${wishPanel()}<p class="mu">Cuenta cada carta que hayas tenido alguna vez, aunque la hayas vendido. Toca una carta para verla en grande.</p>`
   );
 }
 export function albTurn(dir) {

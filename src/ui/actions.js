@@ -1,4 +1,5 @@
 // Acciones de la interfaz: objeto A (data-a) e I (data-i) y sus escuchadores.
+import { isWish, wishGot, wishSet } from "../core/wish.js";
 import { quip, quipOpen, quipCard } from "./quips.js";
 import { $, VIS } from "../render/canvas.js";
 import { ACC, ALBR, DECOR, GSVC, RECO, SEAS, STAFF, UPS } from "../core/constants.js";
@@ -261,6 +262,7 @@ export const A = {
     const nw = !S.dex[t.give];
     S.items.push({ i: S.nid++, c: t.give, k: "NM", rv: false, cost: it.cost, case: null, res: false });
     S.dex[t.give] = 1;
+    wishGot(t.give);
     loy(t.c.reg, 6, "Os cambiasteis cartas");
     track("trade");
     const c = t.c;
@@ -756,6 +758,15 @@ export const A = {
     G.albPg = 0;
     renderM();
   },
+  // Lista de deseos: tocar un hueco del álbum enseña qué carta es; desde ahí se añade o se quita
+  wishsel: (d) => {
+    G.wishSel = d.k;
+    renderM();
+  },
+  wishtog: (d) => {
+    wishSet(d.k, !isWish(d.k));
+    renderM();
+  },
   albnext: () => albTurn(1),
   albprev: () => albTurn(-1),
   seastog: () => {
@@ -1150,6 +1161,7 @@ export const A = {
         x.nw = !had.has(x.c.id) && !S.dex[x.c.id];
         had.add(x.c.id);
         S.dex[x.c.id] = 1;
+        wishGot(x.c.id);
         S.items.push({ i: S.nid++, c: x.c.id, k: "NM", rv: x.rv, cost: cpp, case: null, res: false });
         pulled.push(x);
       });
