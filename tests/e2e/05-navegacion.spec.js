@@ -4,11 +4,12 @@ import { botPlay } from "./bot.js";
 test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente dentro de obstáculos", async ({
   page,
   gamePath,
-}) => {
-  // FALLO CONOCIDO del juego (docs/pendientes.md §1): al ir a la cola, si la cola avanza, el último
-  // tramo va recto al hueco nuevo y puede cruzar muebles. Se arregla al terminar las fases;
-  // entonces hay que quitar esta línea (si el test empieza a pasar, Playwright lo marca en rojo).
-  test.fail();
+}, info) => {
+  // docs/pendientes.md §1. Causa 1 (al avanzar la cola, el último tramo iba recto al hueco nuevo):
+  // arreglada en la versión de Vite; en el HTML original sigue fallando.
+  // Causa 2 (con todo el mobiliario, los huecos de la cola a partir del 7.º no tienen camino): arreglada
+  // con la opción B (los que no caben esperan cerca del final de la fila; tests/unit/nav.test.js).
+  test.fail(info.project.name === "referencia", "fallo conocido del HTML original (causa 1)");
   test.setTimeout(300_000);
   await freshGame(page, gamePath);
 
@@ -57,10 +58,11 @@ test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente
   // Vigilante: en cada fotograma, ningún cliente dentro de la tienda puede estar dentro
   // de un obstáculo (rectángulos de navObstacles sin el margen de seguridad).
   await game(page, (P) => {
-    const W = (window.__nav = { frames: 0, samples: 0, bad: [], run: true });
+    const W = (window.__nav = { frames: 0, samples: 0, bad: [], maxQ: 0, run: true });
     const tick = () => {
       if (!W.run) return;
       W.frames++;
+      W.maxQ = Math.max(W.maxQ, P.queue.length); // con 7 o más, los que no caben esperan fuera de la fila
       const obs = P.navObstacles(),
         ax = P.AX();
       for (const c of P.custs) {
@@ -82,7 +84,7 @@ test("5 · Navegación: con todo el mobiliario y la ampliación, ningún cliente
   const log = await game(page, botPlay, { days: 2, speed: 20, claim: false, maxMs: 240_000 });
   const W = await game(page, () => ((window.__nav.run = false), window.__nav));
   console.log(
-    `fotogramas ${W.frames} · posiciones revisadas ${W.samples} · clientes ${log.map((d) => d.cust).join("+")}`,
+    `fotogramas ${W.frames} · posiciones revisadas ${W.samples} · clientes ${log.map((d) => d.cust).join("+")} · cola más larga ${W.maxQ}`,
   );
   expect(log.reduce((a, d) => a + d.cust, 0)).toBeGreaterThan(20);
   expect(W.samples).toBeGreaterThan(1000);

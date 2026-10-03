@@ -5,9 +5,12 @@ import { readFileSync } from "node:fs";
 const FILE = new URL("../fixtures/partida-v22.json", import.meta.url);
 const EXPORTED = JSON.parse(readFileSync(FILE, "utf8"));
 // Campos que el juego cambia a propósito al cargar:
-// savedAt (se vuelve a guardar), phase/clock (siempre empieza cerrada) y pack
-// (ensure() → refreshPacks(true) recalcula el precio de mayorista con los precios actuales).
-const VOLATILE = ["savedAt", "phase", "clock", "pack"];
+// savedAt (se vuelve a guardar) y phase/clock (siempre empieza cerrada). En el HTML original, también
+// pack (ensure() → refreshPacks(true) recalculaba el precio de mayorista al cargar; docs/pendientes.md §2).
+let VOLATILE = ["savedAt", "phase", "clock"];
+test.beforeEach(({}, info) => {
+  VOLATILE = ["savedAt", "phase", "clock"].concat(info.project.name === "referencia" ? ["pack"] : []);
+});
 
 // Cada campo de la partida exportada debe seguir igual tras cargarla
 function lostFields(saved, loaded) {

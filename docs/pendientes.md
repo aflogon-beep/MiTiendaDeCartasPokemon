@@ -4,7 +4,7 @@ Errores o cosas mejorables encontradas durante el refactor. **No se arreglan de 
 
 ---
 
-## 1. Clientes que atraviesan muebles al ir a la cola · ✅ DECIDIDO: arreglar al terminar las fases
+## 1. Clientes que atraviesan muebles al ir a la cola · ✅ arreglado (causas 1 y 2)
 
 **Qué pasa.** Con mobiliario en la tienda, a veces un cliente que va hacia la caja (`st: "toq"`) cruza en línea recta por encima de un mueble: la máquina de café, una maceta, una estantería, la mesa de juego o el mueble de «Sellado y accesorios». Es un roce de unos píxeles o lo cruza entero.
 
@@ -23,11 +23,17 @@ Errores o cosas mejorables encontradas durante el refactor. **No se arreglan de 
 
 Pasa más cuanto más larga es la cola y cuanto más rápido se atiende (la cola se mueve mientras el cliente camina).
 
-**Decisión (Alberto):** el test 5 queda marcado como «fallo conocido» (`test.fail()`) y se arregla cuando terminen las fases del refactor (idea: recalcular la ruta cuando cambia el hueco de la cola). Al arreglarlo, quitar `test.fail()` del test 5.
+**Decisión (Alberto):** arreglarlo al terminar las fases (idea: recalcular la ruta cuando cambia el hueco de la cola).
+
+**Estado (tras la Fase I):**
+- ✅ **Causa 1 arreglada**: `routeTo` recuerda el destino (`c.rg`) y, mientras el cliente va a la cola, si su hueco cambia se recalcula la ruta desde donde está (`updateCusts`). Vale para todos los caminos que llevan a la cola (clientes que compran, que venden, lotes e intercambios). Test unitario en `tests/unit/nav.test.js`.
+- ✅ **Causa 2 arreglada (opción B, elegida por Alberto)**: con todo el mobiliario, los huecos de la cola a partir del 7.º no tenían camino (el 7.º, `y = 454`, cae encima de la zona de un mueble y los siguientes quedan encerrados entre los muebles de abajo y el mostrador); `navPath` devolvía una ruta vacía y el cliente iba en línea recta atravesando lo que hubiera. Ahora `queueSpot(i)` (`world/nav.js`) da el sitio de cada puesto de la cola: la fila de siempre mientras los huecos tengan camino desde la puerta; a partir del primero que no lo tiene, los clientes esperan de pie en los sitios libres más cercanos al último de la fila (separados entre sí) y pasan a la fila según se liberan huecos, con la ruta recalculada. Sin muebles que corten la fila, nada cambia. `qpos` usa `queueSpot`.
+- **Tests**: el test 5 es estricto (ningún cliente dentro de un obstáculo, también con colas de 7 o más; su informe dice la cola más larga). En la referencia sigue como fallo conocido. En `tests/unit/nav.test.js`: sin muebles la cola es la fila de siempre; con todo el mobiliario, los 12 primeros sitios tienen camino, no caen dentro de muebles, están separados y los que no caben quedan cerca del final de la fila.
+- **Detalle**: mientras un cliente que ya esperaba fuera de la fila camina hasta su hueco, su paciencia no corre (igual que al caminar por una ruta con puntos).
 
 ---
 
-## 2. Al cargar una partida se recalcula el precio de mayorista de los sobres · 🔧 arreglar al terminar las fases (propuesta)
+## 2. Al cargar una partida se recalcula el precio de mayorista de los sobres · ✅ arreglado
 
 `ensure()` llama a `refreshPacks(true)` cada vez que se carga o importa una partida. En modo real eso fija `S.pack[s].w` al valor objetivo calculado con los precios actuales, en vez de seguir la media móvil del día a día (`w*.7 + objetivo*.3`), y recalcula `ref`. Por eso exportar y volver a importar una partida cambia ligeramente `S.pack`; todo lo demás se conserva igual.
 
@@ -38,6 +44,10 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Impacto:** pequeño. El precio de mayorista salta al valor objetivo en vez de acercarse poco a poco; no se pierde nada de la partida.
 
 **Propuesta:** durante el refactor mantenerlo igual (mismo comportamiento) y arreglarlo junto al punto 1, al terminar las fases. Al arreglarlo, el test 11 podrá dejar de excluir `pack`.
+
+**Estado:** ✅ arreglado. `refreshPacks(true)` (al cargar o importar) solo fija el precio de golpe en los sobres que aún no lo tenían (`init`): una partida nueva o un set recién añadido. Si ya lo tenían, se conserva tal cual. Al cerrar cada día se sigue acercando poco a poco al objetivo (`w*.7 + objetivo*.3`). Las partidas guardadas ya tienen `init`, así que la de Alberto carga su precio de mayorista guardado. El test 11 ya no excluye `pack` en Vite (en la referencia sí, porque allí sigue el comportamiento antiguo); test unitario en `tests/unit/logica.test.js`.
+
+---
 
 ## 3. Fase I · gag del tropiezo de Álvaro — descartado
 

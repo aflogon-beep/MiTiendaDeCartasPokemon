@@ -1,13 +1,12 @@
 // Clientes en la tienda y cola de la caja: movimiento, espera, paciencia y salida.
 import { ui } from "../bus.js";
-import { LAY } from "../../world/layout.js";
 import { S } from "../state.js";
 import { decide } from "./decide.js";
 import { loy } from "../regulars.js";
 import { pStock, why } from "../economy.js";
 import { pay } from "./checkout.js";
 import { rnd } from "../rng.js";
-import { routeTo } from "../../world/nav.js";
+import { routeTo, queueSpot } from "../../world/nav.js";
 import { thiefGone } from "../theft.js";
 export const custs = [];
 export const queue = [];
@@ -32,8 +31,7 @@ export function leave(c, angry) {
   c.st = "leave";
 }
 export function qpos(c) {
-  const i = queue.indexOf(c);
-  return { x: LAY.qx, y: LAY.qy + Math.max(0, i) * LAY.qs };
+  return queueSpot(Math.max(0, queue.indexOf(c))); // en la fila, o cerca de ella si no cabe (world/nav.js)
 }
 export function front() {
   const c = queue[0];
@@ -55,6 +53,10 @@ export function updateCusts(dt) {
       const p = qpos(c);
       tx = p.x;
       ty = p.y;
+      // Si la cola avanza mientras va hacia ella (o mientras espera fuera de la fila), su sitio cambia:
+      // se recalcula la ruta desde donde está, para no ir recto atravesando muebles (docs/pendientes.md §1).
+      // En la fila, el paso al hueco de delante es en línea recta, como siempre.
+      if (c.rg && (c.rg.x !== p.x || c.rg.y !== p.y)) routeTo(c, p.x, p.y);
     }
     if (c.st === "leave") {
       if (c.ex == null) {
