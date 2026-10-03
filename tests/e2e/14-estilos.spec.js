@@ -295,6 +295,7 @@ async function prepare(page, url) {
     }
     const m = P.meCfg();
     P.S.meSet = { shirt: m.shirt, hair: m.hair, cap: m.cap };
+    P.G.noLocks = true; // colecciones por nivel (core/unlocks.js): sin candados, como en el original
   });
   await page.waitForTimeout(600);
   await closeModals(page); // por si el HUD abre una celebración de categoría

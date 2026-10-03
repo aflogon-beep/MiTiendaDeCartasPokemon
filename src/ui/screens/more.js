@@ -1,4 +1,5 @@
 // Más: ajustes, dificultad, colecciones, mercado, partida, avisos, consejos, trofeos y regalo.
+import { setLevel, setLocked } from "../../core/unlocks.js";
 import { BYID, BYS, CARDS, SETDEF, seriesList, setName } from "../../core/cards/sets.js";
 import { DF } from "../../core/difficulty.js";
 import { DIFFS, RAR, RECO, SEAS } from "../../core/constants.js";
@@ -33,7 +34,7 @@ export function setRows() {
       .map((d) => {
         const inn = S.sets.includes(d.id),
           used = S.sealed[d.id] > 0 || S.items.some((i) => BYID[i.c] && BYID[i.c].s === d.id);
-        return `<div class="srow">${d.sym ? `<img src="${d.sym}" alt="" onerror="this.remove()">` : '<span style="width:30px"></span>'}<div style="flex:1;min-width:0"><b>${d.n}</b><div class="mu">${d.series || ""} · ${d.year}${d.total ? " · " + d.total + " cartas" : ""}</div></div>${inn && !BYS[d.id] ? `<button class="b pri" data-a="retrysets">⚠️ Reintentar</button>` : inn ? `<button class="b"${used ? " disabled" : ""} data-a="delset" data-k="${d.id}">${used ? "En uso" : "Quitar"}</button>` : `<button class="b pri" data-a="addset" data-k="${d.id}">Añadir</button>`}</div>`;
+        return `<div class="srow">${d.sym ? `<img src="${d.sym}" alt="" onerror="this.remove()">` : '<span style="width:30px"></span>'}<div style="flex:1;min-width:0"><b>${d.n}</b><div class="mu">${d.series || ""} · ${d.year}${d.total ? " · " + d.total + " cartas" : ""}</div></div>${inn && !BYS[d.id] ? `<button class="b pri" data-a="retrysets">⚠️ Reintentar</button>` : inn ? `<button class="b"${used ? " disabled" : ""} data-a="delset" data-k="${d.id}">${used ? "En uso" : "Quitar"}</button>` : setLocked(d) ? `<button class="b" disabled>🔒 Nivel ${setLevel(d)}</button>` : `<button class="b pri" data-a="addset" data-k="${d.id}">Añadir</button>`}</div>`;
       })
       .join("") + (tot > 60 ? `<p class="mu">Mostrando 60 de ${tot}. Usa el buscador.</p>` : "") ||
     '<p class="mu">Sin resultados.</p>'
@@ -43,9 +44,16 @@ export function mSets() {
   const ser = seriesList(),
     cur = ser.find((x) => x.n === G.setQ.trim()),
     miss = cur ? SETDEF.filter((d) => d.series === cur.n && !S.sets.includes(d.id)).length : 0,
-    reco = RECO.filter((id) => SETDEF.some((d) => d.id === id) && !S.sets.includes(id));
+    reco = RECO.filter((id) => {
+      const d = SETDEF.find((x) => x.id === id);
+      return d && !S.sets.includes(id) && !setLocked(d);
+    }),
+    recoN = reco
+      .slice(0, 2)
+      .map((id) => SETDEF.find((x) => x.id === id).n)
+      .join(", ");
   return `<h2>Colecciones</h2>${SETLIST_ST !== "ok" || SETDEF.length <= 3 ? `<div class="pn">${SETLIST_ST === "loading" ? "⏳ Descargando la lista completa de colecciones… La API puede tardar hasta un minuto." : `⚠️ No se ha podido descargar la lista completa de colecciones: la API de pokemontcg.io va lenta o no responde ahora mismo.<div class="btns"><button class="b pri" data-a="setlist">Reintentar</button></div>`}</div>` : ""}${FAILED.size ? `<div class="pn"><div class="down">⚠️ ${FAILED.size} colección(es) de tu catálogo no han cargado (la API va lenta o limita peticiones).</div><div class="btns"><button class="b pri" data-a="retrysets">Reintentar ahora</button></div></div>` : ""}<p class="mu">Añade sets a tu catálogo para comprar sus sobres. En catálogo: <b>${S.sets.length}</b> de ${SETDEF.length}. ${G.MODE === "real" ? "" : "Sin conexión: solo están los 3 sets básicos."}</p>
-  ${G.MODE === "real" && reco.length ? `<button class="b pri big" data-a="addreco" style="margin:0 0 10px">⭐ Añadir ${reco.length} sets populares (Base Set, Evolving Skies…)</button>` : ""}
+  ${G.MODE === "real" && reco.length ? `<button class="b pri big" data-a="addreco" style="margin:0 0 10px">⭐ Añadir ${reco.length} sets populares (${recoN}${reco.length > 2 ? "…" : ""})</button>` : ""}
   <div class="serchips"><button class="b ${G.setQ ? "" : "on"}" data-a="serf" data-k="">Todas</button>${ser.map((x) => `<button class="b ${cur && cur.n === x.n ? "on" : ""}" data-a="serf" data-k="${x.n.replace(/"/g, "")}">${x.n} (${x.c})</button>`).join("")}</div>
   ${cur && miss ? `<button class="b pri big" data-a="addseries" style="margin:0 0 10px">➕ Añadir ${miss === 1 ? "el set que falta" : "los " + miss + " sets"} de ${cur.n}</button>` : ""}<input class="inp" data-i="setq" placeholder="Buscar: Evolving Skies, Base Set, 2019…" value="${G.setQ.replace(/"/g, "")}"><p class="mu">Cada set trae todas sus cartas con precio de Cardmarket. Muchos sets a la vez pueden tardar en cargar al abrir el juego.</p><div id="setlist">${setRows()}</div>`;
 }

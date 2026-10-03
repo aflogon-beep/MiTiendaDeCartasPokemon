@@ -537,3 +537,32 @@ test("20q · Ticket de cierre: por qué se fueron sin comprar", async ({ page, g
     /Se fueron a la rival\s*1/,
   ]);
 });
+
+test("20r · Al subir de nivel, Emma cuenta lo nuevo; las colecciones antiguas, con candado hasta su nivel", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  // Colecciones: la de 2016 y la del 2000, con candado en nivel 1
+  await game(page, (P) => P.openM("sets"));
+  await expect(page.locator('#ovh [data-a="addset"]')).not.toHaveCount(0);
+  await expect(page.locator("#ovh .srow", { hasText: "Fixture Media" }).locator("button")).toHaveText("🔒 Nivel 3");
+  await expect(page.locator("#ovh .srow", { hasText: "Fixture Clásica" }).locator("button")).toHaveText("🔒 Nivel 5");
+  await game(page, (P) => P.closeM());
+  // Sube a nivel 3: aviso con lo nuevo y botón a Colecciones
+  await game(page, (P) => {
+    P.S.lvSeen = 1;
+    P.S.money += P.LV[2] + 100;
+    P.hud();
+  });
+  // primero sale la celebración de categoría de siempre; el aviso espera a que se cierre
+  await expect.poll(() => game(page, (P) => P.G.M), { timeout: 5000 }).toBe("tierup");
+  await game(page, (P) => P.closeM());
+  await expect(page.locator("#lvup")).toContainText("¡Nivel 3!", { timeout: 6000 });
+  await expect(page.locator("#lvup li")).toContainText(["2003 a 2016", "local de al lado"]);
+  await page.locator('#lvup [data-a="lvupsets"]').click();
+  await expect(page.locator("#lvup")).toHaveCount(0);
+  await expect(page.locator("#ovh .srow", { hasText: "Fixture Media" }).locator("button")).toHaveText("Añadir");
+  await expect(page.locator("#ovh .srow", { hasText: "Fixture Clásica" }).locator("button")).toHaveText("🔒 Nivel 5");
+});
