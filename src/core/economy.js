@@ -25,7 +25,11 @@ export const level = () => {
   LV.forEach((v, i) => {
     if (n >= v) l = i + 1;
   });
-  return l;
+  // El nivel nunca baja (decisión de Alberto): se guarda el más alto alcanzado (S.lvMax). Así, gastar en
+  // mejoras no devuelve la tienda a la categoría de antes. Partidas de antes: el más alto que ya vieron (S.lvSeen).
+  if (S.lvMax == null) S.lvMax = Math.max(1, S.lvSeen || 1);
+  if (l > S.lvMax) S.lvMax = l;
+  return S.lvMax;
 };
 export const caseCap = () => 8 + 8 * S.up.case;
 export const caseItems = () => S.items.filter((i) => i.case != null && !i.lux);
