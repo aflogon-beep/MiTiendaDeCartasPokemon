@@ -129,7 +129,22 @@ export const sfx = {
     for (let i = 0; i < 10; i++) setTimeout(() => nz(0.08, 2600, 2300, 0.05, "bandpass", 6), i * 120);
   },
 };
+// Vibración: se puede apagar en Más → Ajustes (pcs-vibe; activada por defecto)
+export let VIBE = (() => {
+  try {
+    return localStorage.getItem("pcs-vibe") !== "0";
+  } catch (e) {
+    return true;
+  }
+})();
+export function setVibe(v) {
+  VIBE = v;
+  try {
+    localStorage.setItem("pcs-vibe", v ? "1" : "0");
+  } catch (e) {}
+}
 export const vibe = (pt) => {
+  if (!VIBE) return;
   try {
     navigator.vibrate && navigator.vibrate(pt);
   } catch (e) {}

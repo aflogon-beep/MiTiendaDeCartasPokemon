@@ -6,7 +6,7 @@ import { BYID, CARDS, SETDEF, indexCards, setCards, setName } from "../core/card
 import { CY0, CY1, H, W } from "../world/layout.js";
 import { DF } from "../core/difficulty.js";
 import { G, S, SETS, assignSlots, ensure, meCfg, newState } from "../core/state.js";
-import { MUSIC, setMusic, sfx } from "../audio/sfx.js";
+import { MUSIC, VIBE, setMusic, setVibe, sfx, vibe } from "../audio/sfx.js";
 import { NG } from "../world/nav.js";
 import { RG, loy, regS } from "../core/regulars.js";
 import { TYPEW, mgEnd, mgHL, mgNew, mgWho, pool4, power, wname } from "../core/minigames.js";
@@ -704,6 +704,11 @@ export const A = {
       } catch (e) {}
     }
     setMusic(!MUSIC);
+    renderM();
+  },
+  vibtog: () => {
+    setVibe(!VIBE);
+    vibe(40); // al activarla, se nota que funciona
     renderM();
   },
   zreset: () => {

@@ -69,3 +69,31 @@ test("20b · Versión nueva: aviso con «Actualizar», que guarda la partida ant
   await page.locator("#updno").click();
   await expect(page.locator("#upd")).toHaveCount(0);
 });
+
+test("20c · Vibración: interruptor en Ajustes (activada por defecto; apagada, no vibra)", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await page.addInitScript(() => {
+    window.__vib = [];
+    Object.defineProperty(navigator, "vibrate", { value: (p) => (window.__vib.push(p), true), configurable: true });
+  });
+  await openGame(page, gamePath);
+  await closeModals(page);
+  await page.locator('#nav [data-k="more"]').click();
+  const btn = page.locator('#ovh [data-a="vibtog"]');
+  await expect(btn).toContainText("Vibración: sí");
+  await game(page, (P) => P.vibe(30));
+  expect(await page.evaluate(() => window.__vib)).toEqual([30]);
+  // Apagada: se guarda y no vibra
+  await btn.click();
+  await expect(btn).toContainText("Vibración: no");
+  expect(await page.evaluate(() => localStorage.getItem("pcs-vibe"))).toBe("0");
+  await game(page, (P) => P.vibe([60, 40, 140]));
+  expect(await page.evaluate(() => window.__vib)).toEqual([30]);
+  // Al volver a encenderla, vibra un momento para que se note
+  await btn.click();
+  await expect(btn).toContainText("Vibración: sí");
+  expect(await page.evaluate(() => window.__vib)).toEqual([30, 40]);
+});

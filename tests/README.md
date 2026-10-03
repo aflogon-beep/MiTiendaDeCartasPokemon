@@ -29,7 +29,7 @@ Playwright tiene dos proyectos con los mismos tests:
 | `e2e/17-titulo.spec.js` | Fase I · pantalla de carga y título: primera vez (solo «Nueva partida»), «Continuar», «Cargar partida», sobrescribir y borrar con confirmación, importar en una ranura, volver al título y ajustes rápidos. Solo en el proyecto `vite`. |
 | `e2e/18-historia.spec.js` | Fase I · historia de inicio: saltarla y llegar al tutorial con Emma; verla entera tocando (nombre de la tienda en la escena 7, que aparece en el cartel; la mascota elegida); repetirla desde Más sin pedir el nombre; «menos animaciones». Solo en el proyecto `vite`. |
 | `e2e/19-frases.spec.js` | Fase I · frases recurrentes (bocadillo con retrato, sin amontonarse, nunca en el tutorial; desde la lógica por el bus y desde los sobres) y visitas de papá (entra, consejo, despedida y se va; también al subir de nivel). Solo en el proyecto `vite`. |
-| `e2e/20-mejoras.spec.js` | Cartas gradeadas en su funda (colección y ficha) y aviso de versión nueva con «Actualizar» (guarda la partida antes de recargar). Solo en el proyecto `vite`. |
+| `e2e/20-mejoras.spec.js` | Cartas gradeadas en su funda (colección y ficha), aviso de versión nueva con «Actualizar» (guarda la partida antes de recargar) e interruptor de vibración. Solo en el proyecto `vite`. |
 | `unit/` | Tests de Vitest de la lógica pura (`core/` y `world/`) y de la API simulada. |
 
 ## Red

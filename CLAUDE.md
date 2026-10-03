@@ -88,7 +88,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Compatibilidad obligatoria
 
-- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`. **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
+- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`, `pcs-vibe` (nueva: vibración). **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
 - Formato de exportación: `{app:"pcs", v:5, mode, date, S}`.
 - Red: solo `api.pokemontcg.io`, `images.pokemontcg.io` y Google Fonts.
 
