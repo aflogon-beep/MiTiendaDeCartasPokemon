@@ -23,7 +23,9 @@ export function lighting() {
     cx.fillRect(A, B, Wd, Hd);
   }
   if (n > 0) {
-    cx.fillStyle = `rgba(12,18,52,${0.62 * n})`;
+    // Con la tienda abierta (o cerrando), las luces de dentro están encendidas: menos oscuro y más luz
+    const on = S.phase !== "closed" || !!VIS.endAt;
+    cx.fillStyle = `rgba(12,18,52,${(on ? 0.3 : 0.62) * n})`;
     cx.fillRect(AX(), 0, W - AX(), FRONT_Y);
     cx.fillStyle = `rgba(8,12,40,${0.66 * n})`;
     cx.fillRect(A, B, Wd, -B);
@@ -45,7 +47,8 @@ export function lighting() {
       [170, 430],
       [450, 430],
       [700, 300],
-    ].forEach(([x, y]) => pool(x, y, 150, 0.075 * n, "255,236,190"));
+    ].forEach(([x, y]) => pool(x, y, on ? 175 : 150, (on ? 0.17 : 0.075) * n, "255,236,190"));
+    if (on && S.annex) pool(-140, 330, 170, 0.15 * n, "255,236,190");
     pool(195, 430, 140, (S.decor.lights ? 0.2 : 0.08) * n, "190,235,255");
     LAMPS.forEach(([x, y, s]) => pool(x + (s > 0 ? 12 : -12), y - 30, 85, 0.3 * n, "255,230,160"));
     CITYWIN.forEach(([x, y, w, h], i) => {

@@ -427,3 +427,12 @@ html.ui-big #hint {
     }
   }
 }
+/* Con la tienda abierta no hay texto de ayuda: la tienda gana ese espacio */
+html.no-hint #hint {
+  display: none;
+}
+@media (max-aspect-ratio: 1/1) {
+  html.no-hint #cvw {
+    height: calc(min(56vh, 620px) + 58px);
+  }
+}

@@ -45,7 +45,7 @@ export function mPacks() {
         p = S.pack[s],
         q = S.sealed[s],
         on = S.slots.includes(s);
-      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}">${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div style="flex:1;min-width:0"><b>${sd.n}</b><div class="mu">${q} en stock${on ? " · en estantería" : q > 0 ? " · ⚠️ sin hueco" : ""}</div></div><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
+      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}"><i class="stk-q" data-fase="I"><b class="${q ? "" : "z"}">${q}</b></i>${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div style="flex:1;min-width:0"><b>${sd.n}</b><div class="mu">${q} en stock${on ? " · en estantería" : q > 0 ? " · ⚠️ sin hueco" : ""}</div></div><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
     <div>${accTag(packAcc(s))}${Math.abs(S.shelf[s] - recPack(s)) > 0.04 ? ` <button class="b mini" data-a="recp" data-k="${s}">🎯 ${fmt(recPack(s))}</button>` : ""}</div>
     <div class="btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}>✨ Abrir 1</button></div>
     <details><summary class="mu">Detalles y más opciones</summary><div class="mu">Mayorista ${fmt(p.w)} por sobre · los clientes pagan ~${fmt(p.ref)} · valor esperado ${fmt(EVC[s] || 0)}</div><div class="btns">${[
@@ -83,7 +83,12 @@ export function mUp() {
   );
 }
 export function packTabs() {
-  return `${S.deliv && S.deliv.length ? `<div class="pn">🚚 En camino: ${delivSummary()}</div>` : ""}<div class="row" style="margin-bottom:8px"><span class="mu">Entrega: ${S.express ? "⚡ al momento (+8 %)" : "🚚 furgoneta gratis (tarda unos segundos)"}</span><button class="b" data-a="exptog">Cambiar</button></div><div class="tabs">${[
+  // Dinero disponible, siempre a la vista mientras compras (baja con cada compra)
+  const was = G.stkCash,
+    now = performance.now(),
+    down = !!was && now - was.t < 4000 && S.money < was.m - 0.004; // solo justo después de comprar
+  G.stkCash = { m: S.money, t: now };
+  return `<div class="stk-cash${down ? " down" : ""}" data-fase="I">💶 Tienes <b>${fmt(S.money)}</b>${down ? `<i>−${fmt(was.m - S.money)}</i>` : ""}</div>${S.deliv && S.deliv.length ? `<div class="pn">🚚 En camino: ${delivSummary()}</div>` : ""}<div class="row" style="margin-bottom:8px"><span class="mu">Entrega: ${S.express ? "⚡ al momento (+8 %)" : "🚚 furgoneta gratis (tarda unos segundos)"}</span><button class="b" data-a="exptog">Cambiar</button></div><div class="tabs">${[
     ["packs", "🎴 Sobres"],
     ["sealed", "🗃️ Sellado"],
     ["acc", "🛡️ Accesorios"],
