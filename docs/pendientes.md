@@ -56,16 +56,20 @@ Pasa cada vez que se abre el juego, no solo al importar.
 
 ---
 
-## 4. Avisos del juego encima de la pantalla de título · ⏳ preguntar
+## 4. Avisos del juego encima de la pantalla de título · ✅ arreglado
 
 **Qué pasa.** Al abrir el juego, mientras se ve el título, aparecen encima avisos de la partida de fondo: «🗂️ 6 colecciones disponibles en Más → Colecciones» y «🎯 He bajado el precio de 1 set(s) de sobres…». Tapan el logo y no tienen sentido todavía (aún no has elegido partida). En la historia ya se ocultan (`html.st-on #toast`), en el título no.
 
 **Propuesta.** Ocultarlos también mientras se ve el título (o guardarlos y enseñarlos al entrar en la partida). Pendiente de que Alberto diga cuál.
 
+**Estado:** ✅ Alberto eligió guardarlos. Mientras se ve el título, los avisos que llegan por el bus se guardan (`holdToast`, `ui/toast.js`) y se enseñan al entrar en la partida (`flushToasts`). Los de la partida de fondo solo si se entra en esa misma (misma ranura); en una partida nueva se descartan. Los generales (`{ keep: true }`, como «N colecciones disponibles») salen siempre; en una partida nueva, al terminar la historia. Test 20n.
+
 ---
 
-## 5. En la historia sale el tendero genérico en la caja, junto a papá · ⏳ preguntar
+## 5. En la historia sale el tendero genérico en la caja, junto a papá · ✅ arreglado
 
 **Qué pasa.** En los planos generales de la historia, papá está detrás del mostrador y, a su lado, sigue dibujado el tendero de siempre (camiseta y gorra rojas). Pasaba igual antes de las mejoras (en la historia se mantuvo la tienda como antes). Ahora que Álvaro ya es el de la caja, ese tendero sobra en la historia.
 
 **Propuesta.** En la historia, no dibujar a nadie en la caja (papá ocupa ese sitio). Pendiente de que Alberto lo confirme.
+
+**Estado:** ✅ confirmado y hecho: durante la historia no se dibuja el tendero de la caja (`render/draw.js`).

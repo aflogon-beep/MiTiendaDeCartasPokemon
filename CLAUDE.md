@@ -18,7 +18,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §4 (avisos encima del título) y §5 (tendero genérico en la caja durante la historia): **proponer y preguntar**. §1 y §2: arreglados.
+Pendiente: nada en `docs/pendientes.md` (§1, §2, §4 y §5 arreglados). Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
 
 ## Reglas
 
@@ -105,7 +105,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 - **API simulada** (`tests/fixtures/api.js`): sets y cartas inventados; imágenes con un PNG genérico.
 - **Los tests saltan el título y la historia**: `openGame` pone `window.__pcsSkipTitle` y el juego entra directo en la última partida, como antes de la Fase I. Para probar el título: `openGame(page, gamePath, { title: true })`.
 - **Service worker bloqueado** en todos los tests salvo el 15 (`serviceWorkers: "block"`).
-- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual. Si una mejora pedida cambia el estilo de un elemento de siempre, márcalo con **`data-mejora`** (el test quita el atributo antes de comparar). Con la tienda abierta ya no hay texto de ayuda (`html.no-hint`) y la tienda es 58 px más alta (test 6).
+- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual. Si una mejora pedida cambia el estilo de un elemento de siempre, márcalo con **`data-mejora`** (el test quita el atributo antes de comparar). Las mejoras generales de estilo van bajo **`html.ux`** (p. ej. los botones de los paneles en cuadrícula); el test quita la clase antes de comparar. Con la tienda abierta ya no hay texto de ayuda (`html.no-hint`) y la tienda es 58 px más alta (test 6).
 - Test 5: en Vite pasa y es estricto (`docs/pendientes.md` §1 arreglado; con colas largas, los que no caben esperan cerca del final de la fila: `queueSpot` en `world/nav.js`). En la referencia, `test.fail()`. Test 4: 2 reintentos (partida con azar).
 
 ## Forma de trabajar
