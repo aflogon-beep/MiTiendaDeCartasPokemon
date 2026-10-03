@@ -394,3 +394,43 @@ test("20m · Stock: el dinero disponible a la vista (baja al comprar) y el núme
   await expect(page.locator("#ovh .stk-cash.down i")).toContainText("−");
   await expect(page.locator("#ovh .stk-q b").first()).toHaveText(String(+q0 + 6));
 });
+
+test("20n · Los avisos de la partida no salen encima del título: se enseñan al entrar (§4)", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.addInitScript((js) => {
+    if (sessionStorage.getItem("__s20n")) return;
+    localStorage.setItem("pcs-save-real-v3", js);
+    sessionStorage.setItem("__s20n", "1");
+  }, JSON.stringify(SAVE));
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tcont"]').waitFor({ timeout: 30_000 });
+  await page.waitForTimeout(500);
+  await game(page, (P) => {
+    P.emit("toast", "AVISO DE LA PARTIDA");
+    P.emit("toast", "AVISO GENERAL", { keep: true });
+  });
+  await page.waitForTimeout(400);
+  await expect(page.locator("#toast")).not.toContainText("AVISO");
+  // Continuar: salen los dos
+  await t.locator('[data-a="tcont"]').click();
+  await expect(page.locator("#toast")).toContainText("AVISO DE LA PARTIDA");
+  await expect(page.locator("#toast")).toContainText("AVISO GENERAL", { timeout: 5000 });
+  // Partida nueva: el de la partida de fondo no; el general, al terminar la historia
+  await game(page, (P) => P.showTitle());
+  await game(page, (P) => {
+    P.emit("toast", "OTRO DE LA PARTIDA");
+    P.emit("toast", "OTRO GENERAL", { keep: true });
+  });
+  await t.locator('[data-a="tnew"]').click();
+  await t.locator('[data-a="tnewin"][data-n="2"]').click();
+  await t.locator('[data-a="tadvgo"]').click();
+  await page.locator("#stskip").click();
+  await expect(page.locator("#toast")).toContainText("OTRO GENERAL", { timeout: 5000 });
+  await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => (window.__pcs.VIS.notes || []).map((n) => n.t))).not.toContain("OTRO DE LA PARTIDA");
+});

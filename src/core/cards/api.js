@@ -48,7 +48,8 @@ export function refreshSetList(force) {
       const before = SETDEF.length;
       j.data.forEach(mkSetDef);
       SETLIST_ST = "ok";
-      if (SETDEF.length > before) emit("toast", `🗂️ ${SETDEF.length} colecciones disponibles en Más → Colecciones`);
+      if (SETDEF.length > before)
+        emit("toast", `🗂️ ${SETDEF.length} colecciones disponibles en Más → Colecciones`, { keep: true });
       emit("sets");
     })
     .catch(() => {

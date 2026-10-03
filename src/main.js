@@ -34,7 +34,7 @@ import { on } from "./core/bus.js";
 import { paintNav } from "./ui/nav.js";
 import { repv, spMul } from "./core/economy.js";
 import { spawn } from "./core/customers/spawn.js";
-import { toast } from "./ui/toast.js";
+import { toast, holdToast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
 import { quip, quipTick, wishSay } from "./ui/quips.js";
 import { familyTick } from "./render/family.js";
@@ -44,7 +44,7 @@ import { updCars, updVCars, updVan } from "./render/cars.js";
 import { updCat } from "./render/pets.js";
 
 /* ===================== AVISOS DE CORE (bus) ===================== */
-on("toast", (t, o) => toast(t, o));
+on("toast", (t, o) => (G.TITLE ? holdToast(t, o, G.SLOT) : toast(t, o))); // en el título, se guardan (§4)
 on("quip", (k) => quip(k));
 on("wishSeen", (id, k) => wishSay(id, k));
 on("sets", () => {

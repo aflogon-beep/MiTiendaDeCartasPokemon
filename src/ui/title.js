@@ -29,7 +29,7 @@ import { A } from "./actions.js";
 import { closeM } from "./modals.js";
 import { hud, setPause, applyUI } from "./hud.js";
 import { parseSave } from "./screens/more.js";
-import { toast } from "./toast.js";
+import { dropHeldToasts, flushToasts, toast } from "./toast.js";
 
 const ICON = import.meta.env.BASE_URL + "icons/icon-192.png";
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -230,7 +230,7 @@ const impBox = () =>
   <div class="btns"><button class="b pri" data-a="timpcode">Importar código</button></div></div>`;
 
 /** Entra en el juego con la partida que haya en S (ya cargada o recién creada). */
-function startGame() {
+function startGame(holdToasts) {
   G.TITLE = false;
   custs.length = 0;
   queue.length = 0;
@@ -240,6 +240,7 @@ function startGame() {
   if (el) el.remove();
   document.documentElement.classList.remove("title-on");
   fitCanvas();
+  if (!holdToasts) flushToasts(G.SLOT); // los avisos guardados mientras se veía el título (§4)
   if (G.M) closeM();
   if (G.paused) setPause(false);
   applyUI();
@@ -299,11 +300,12 @@ Object.assign(A, {
   tadvgo: () => {
     useSlot(adv.slot);
     newState();
+    dropHeldToasts(); // los avisos de la partida de fondo no son de esta
     S.diff = adv.diff;
     S.pet = adv.pet;
     adv = null;
-    startGame();
-    startStory(); // después, el tutorial con Emma (empieza solo al terminar o saltar la historia)
+    startGame(true);
+    startStory({ onEnd: () => flushToasts(G.SLOT) }); // los avisos, al terminar la historia; después, el tutorial con Emma (empieza solo al terminar o saltar la historia)
   },
   topen: (d) => enterSlot(+d.n),
   tdel: (d) => {
