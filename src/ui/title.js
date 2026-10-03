@@ -67,15 +67,25 @@ export function loadProgress(d, n) {
   if (b) b.style.width = (n ? Math.round(8 + (92 * d) / n) : 4) + "%";
 }
 
-/** Termina la carga: espera hasta el mínimo de 1,5 s y quita la pantalla. */
+/** Termina la carga: espera hasta el mínimo de 1,5 s, la tienda se ilumina (sube la persiana y los sobres
+ * se abren en abanico) y se quita la pantalla. Sin esperas si se salta el título (tests). */
 export function loadDone(skipWait) {
-  const wait = skipWait ? 0 : Math.max(0, LOAD_MIN_MS - (performance.now() - loadT0));
-  return new Promise((r) => setTimeout(r, wait)).then(() => {
-    clearInterval(phraseT);
-    loadProgress(1, 1);
-    const el = $("#load");
-    if (el) el.remove();
-  });
+  const wait = skipWait ? 0 : Math.max(0, LOAD_MIN_MS - (performance.now() - loadT0)),
+    still = skipWait || matchMedia("(prefers-reduced-motion: reduce)").matches,
+    pause = (ms) => new Promise((r) => setTimeout(r, ms));
+  return pause(wait)
+    .then(() => {
+      clearInterval(phraseT);
+      loadProgress(1, 1);
+      const el = $("#load");
+      if (!el || still) return;
+      el.classList.add("lit");
+      return pause(750).then(() => (el.classList.add("out"), pause(350)));
+    })
+    .then(() => {
+      const el = $("#load");
+      if (el) el.remove();
+    });
 }
 
 /* ===================== TÍTULO ===================== */

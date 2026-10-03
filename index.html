@@ -12,13 +12,29 @@
 <link rel="stylesheet" href="/src/styles/index.css">
 </head>
 <body>
-<div id="load"><div class="load-in">
-  <div class="load-logo"><img src="/icons/icon-192.png" alt="" width="88" height="88"><h2>Pokémon Card Shop</h2></div>
+<div id="load"><div class="load-sky" aria-hidden="true"></div><div class="load-in">
+  <div class="load-logo"><img src="/icons/icon-192.png" alt="" width="88" height="88"><span class="load-spark" aria-hidden="true">✦</span><span class="load-spark" aria-hidden="true">✦</span><span class="load-spark" aria-hidden="true">✦</span><h2>Pokémon Card Shop</h2></div>
   <div class="load-packs" aria-hidden="true"><i></i><i></i><i></i></div>
-  <div class="load-bar"><i id="loadbar"></i></div>
+  <div class="load-bar"><i id="loadbar"><b class="load-ball" aria-hidden="true"></b></i></div>
   <p class="mu" id="loadtxt">Cargando cartas reales y precios de Cardmarket…</p>
   <p class="load-fun on" id="loadfun"></p>
-</div></div>
+</div><svg class="load-shop" viewBox="0 0 390 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+  <defs><clipPath id="ldoor"><rect x="160" y="112" width="70" height="72"/></clipPath>
+  <radialGradient id="lglow" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#ffe7a8"/><stop offset="1" stop-color="#f2a93b"/></radialGradient></defs>
+  <rect x="0" y="184" width="390" height="16" fill="#2a2f3d"/>
+  <rect x="40" y="44" width="310" height="140" fill="#6e4127"/>
+  <g fill="#5d3620"><rect x="40" y="70" width="310" height="3"/><rect x="40" y="100" width="310" height="3"/><rect x="40" y="130" width="310" height="3"/><rect x="40" y="160" width="310" height="3"/></g>
+  <rect x="96" y="14" width="198" height="30" rx="6" fill="#2a2f3d" stroke="#f2b705" stroke-width="3"/>
+  <g class="load-sign"><circle cx="195" cy="29" r="10" fill="#fff"/><path d="M185 29a10 10 0 0 1 20 0z" fill="#e3350d"/><rect x="185" y="28" width="20" height="2.4" fill="#1d1d20"/><circle cx="195" cy="29" r="3.4" fill="#fff" stroke="#1d1d20" stroke-width="1.6"/></g>
+  <g class="load-awn"><path d="M30 52h330l-8 22H38z" fill="#1d1d20"/><path d="M30 52h41.25l-4 22H38zM112.5 52h41.25l-2 22h-37.25zM195 52h41.25l1 22h-41.25zM277.5 52h41.25l4 22h-41.25z" fill="#f2b705"/><path d="M38 74q8.6 8 17.2 0t17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0 17.2 0z" fill="#f2b705" stroke="#1d1d20" stroke-width="2"/></g>
+  <rect class="load-win" x="60" y="104" width="84" height="64" rx="4"/>
+  <rect class="load-win" x="246" y="104" width="84" height="64" rx="4"/>
+  <g class="load-cards"><rect x="72" y="122" width="16" height="22" rx="2" fill="#3f7fc4"/><rect x="94" y="118" width="16" height="22" rx="2" fill="#e3350d"/><rect x="116" y="124" width="16" height="22" rx="2" fill="#8e4cb5"/><rect x="260" y="120" width="16" height="22" rx="2" fill="#2fa557"/><rect x="282" y="124" width="16" height="22" rx="2" fill="#f2b705"/><rect x="304" y="118" width="16" height="22" rx="2" fill="#e07a2f"/></g>
+  <rect class="load-in-door" x="160" y="112" width="70" height="72"/>
+  <g clip-path="url(#ldoor)"><g class="load-shutter"><rect x="160" y="112" width="70" height="72" fill="#8a909c"/><g fill="#6d7380"><rect x="160" y="120" width="70" height="2"/><rect x="160" y="130" width="70" height="2"/><rect x="160" y="140" width="70" height="2"/><rect x="160" y="150" width="70" height="2"/><rect x="160" y="160" width="70" height="2"/><rect x="160" y="170" width="70" height="2"/><rect x="160" y="180" width="70" height="2"/></g></g></g>
+  <rect x="156" y="108" width="78" height="76" fill="none" stroke="#3b2416" stroke-width="5"/>
+  <g class="load-lamp"><rect x="12" y="96" width="4" height="88" fill="#1d1d20"/><circle cx="14" cy="94" r="6"/><rect x="374" y="96" width="4" height="88" fill="#1d1d20"/><circle cx="376" cy="94" r="6"/></g>
+</svg></div>
 <div id="game">
   <div id="hud"><div><b>Pokémon Card Shop</b><small id="lv"></small></div><div class="hr"><button class="hb" data-a="m" data-k="notes" aria-label="Avisos">🔔<i id="bellN" class="hbn"></i></button><button class="hb" data-a="m" data-k="medals" aria-label="Medallas">🏅</button><button class="hb" data-a="savebtn" aria-label="Guardar partida">💾</button><div id="money"></div></div></div>
   <div class="bar"><i id="clk"></i></div>
