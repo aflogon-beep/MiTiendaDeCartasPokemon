@@ -814,8 +814,8 @@ function star(ctx, x, y, r, c) {
   ctx.lineWidth = 1.5;
   ctx.stroke();
 }
-/* muñeco pequeño para la tienda */
-export function drawMini(ctx, ch, x, y, ph) {
+/* muñeco pequeño para la tienda (ex: la cara; por defecto, contento) */
+export function drawMini(ctx, ch, x, y, ph, ex = "happy") {
   const b = Math.sin(ph || 0) * 1.5,
     sc = ch.kid ? 0.85 : 1;
   ctx.save();
@@ -882,7 +882,7 @@ export function drawMini(ctx, ch, x, y, ph) {
       shirt: "rgba(0,0,0,0)",
       shirtS: "rgba(0,0,0,0)",
     }),
-    "happy",
+    ex,
     240,
   );
   ctx.restore();

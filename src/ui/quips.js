@@ -15,6 +15,7 @@ import { NAMES } from "../story/script.js";
 import { BYID } from "../core/cards/sets.js";
 import { priceAlert, backupDue } from "../core/alerts.js";
 import { unlocksAt } from "../core/unlocks.js";
+import { alvaroWow } from "../render/family.js";
 
 const calm = () => document.documentElement.classList.contains("ui-calm");
 const busy = () => !hasState() || G.TITLE || G.STORY || (S.tut && S.tut.on);
@@ -56,13 +57,13 @@ export function quipOpen(n, cards) {
   if (packsDay !== S.day) ((packsDay = S.day), (packsN = 0));
   packsN += n;
   const r = n > 1 ? pullQuip(cards) : null; // abriendo de uno en uno, reacciona al girar la carta
-  if (r) quip(r);
+  if (r) (alvaroWow(), quip(r));
   else if (packsN >= 3) quip("packs");
 }
 /** Al girar una carta (apertura de una en una). */
 export function quipCard(c) {
   const r = pullQuip([c]);
-  if (r) quip(r);
+  if (r) (alvaroWow(), quip(r));
 }
 
 /* ---------- Cada fotograma ---------- */

@@ -17,6 +17,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Carga, título, «Prepara tu aventura» e historia más vistosos; bocadillos en la tienda; compartir partida; lista de deseos | ✅ |
 | Mejoras · Botones en cuadrícula, velocidades 1,25×/1,5×, alertas de precio y recordatorio de copia | ✅ |
 | Mejoras · Ticket con motivos de los que se van, desbloqueos por nivel (colecciones por época) y limpieza | ✅ |
+| Mejoras · Sello de récord en el ticket, Álvaro con ojos de estrella y mesa de juego con jugadores | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -60,11 +61,13 @@ src/
     alerts.js            alertas de precio (S.palert) y recordatorio de copia (S.bkpAt, 7 días reales)
     unlocks.js           desbloqueos por nivel: colecciones por época (1 · 3 · 5) y aviso «🔓 ¡Nivel N!» (S.lvSeen)
     dirt.js              suciedad en el suelo (S.dirt): se recoge tocándola; −3 % clientes por cosa (máx. −24 %)
+    tables.js            mesa de juego: grupos de 2 o 4 juegan y pagan 2 € por jugador y partida; a veces compran (players, no se guardan)
     …                    economía, sobres, tratos, lotes, gradeo, misiones, rival, ladrón, día…
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
     characters.js        Emma, Álvaro y papá (drawPortrait, drawMini, charFace)
-    family.js            Álvaro (caja; con cajero contratado, pasea) y Emma (mesa del ordenador ↔ sofá)
+    family.js            Álvaro (caja; con cajero contratado, pasea; ojos de estrella con una carta rara) y Emma (mesa del ordenador ↔ sofá)
+    tables.js            jugadores de la mesa de juego y las cartas que juegan
   story/script.js        guion de la historia de inicio, como datos
   ui/
     title.js             pantalla de carga, título, ranuras, «Prepara tu aventura», importar
@@ -89,6 +92,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 
 ## Estado global
 
+- `S.recInc`: récord de ventas de un día (sello «¡RÉCORD!» en el ticket; el primer día no cuenta).
 - `S.wish`: ids de las cartas de la lista de deseos (se crea al añadir la primera).
 - `S.meSet`: lo elegido en Personalizar para Álvaro (solo lo que se ha tocado; `""` = lo suyo). Las partidas de antes solo tienen `S.me`: `meSetOf()` lo deduce.
 - `S`: objeto con identidad estable. Para cargar una partida, `replaceState(obj)`. Nada de `S = …`.

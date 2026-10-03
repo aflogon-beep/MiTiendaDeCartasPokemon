@@ -19,6 +19,7 @@ import { refreshPacks } from "./packs.js";
 import { rivalUpd } from "./rival.js";
 import { rollGrade } from "./grading.js";
 import { saveNow } from "./save.js";
+import { tablesReset } from "./tables.js";
 import { step } from "./cards/prices.js";
 export function dayT() {
   if (S.phase === "closed") return 0;
@@ -81,6 +82,10 @@ export function endDay() {
     S.rival.str = Math.max(0, S.rival.str - 5);
   const rivMsg = rivalUpd();
   const st = S.stats;
+  // Récord de ventas: más que cualquier día anterior (el primer día no cuenta)
+  const prevBest = Math.max(S.recInc || 0, ...(S.hist || []).map((h) => h.inc)),
+    rec = !!(S.hist || []).length && st.inc > 0 && st.inc > prevBest;
+  S.recInc = Math.max(prevBest, st.inc);
   S.hist = (S.hist || [])
     .concat([
       { d: S.day, inc: Math.round(st.inc * 100) / 100, net: Math.round(netWorth()), cust: st.cust, lost: st.lost },
@@ -152,6 +157,9 @@ export function endDay() {
     rent,
     sal,
     tourInc,
+    tbl: st.tbl || 0, // mesa de juego: lo cobrado y las partidas
+    tblN: st.tblN || 0,
+    rec, // ¡RÉCORD! (sello en el ticket)
     news,
     net: netWorth(),
     grN,
@@ -163,12 +171,14 @@ export function endDay() {
   };
   S.phase = "closed";
   S.clock = 0;
+  tablesReset();
   S.stats = { inc: 0, cust: 0, lost: 0, bought: 0 };
   checkAch();
   saveNow();
   ui.vis({ dawn: 1 });
   ui.openM("sum");
   ui.sfx("print");
+  if (rec) ui.record();
   ui.hud();
   // Día muy bueno (récord de ventas y al menos 150 €): Emma ya huele a Sephora
   if (st.inc >= 150 && st.inc > (S.bestInc || 0)) {

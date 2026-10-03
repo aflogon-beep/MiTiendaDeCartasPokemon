@@ -236,9 +236,9 @@ export function pcHTML(c, rv, back, lv) {
   const h = holoOf(c, rv);
   return `<div class="pc${back ? " back charge" : ""}${back && lv >= 3 ? " l3" : ""}" style="--rc:${RAR[c.r].c};--ho:${h.ho}"><div class="ent"><div class="wob"><div class="inner"><div class="fr">${faceBig(c, rv)}<div class="holo ${h.cl}"></div><div class="glare"></div></div><div class="bk"><div class="pball"></div></div></div></div></div></div>`;
 }
-export function confetti(lv, col) {
+export function confetti(lv, col, at) {
   if (RM || (hasState() && S.ui && S.ui.calm)) return;
-  const root = $("#px") || $("#zv");
+  const root = at || $("#px") || $("#zv");
   if (!root) return;
   const cv = document.createElement("canvas");
   cv.className = "conf";
