@@ -1,4 +1,4 @@
-import { test, expect, openGame, game, closeModals, mockNetwork } from "./helpers.js";
+import { test, expect, openGame, freshGame, game, closeModals, mockNetwork } from "./helpers.js";
 import { readFileSync } from "node:fs";
 
 // Mejoras tras la Fase I: funda de plástico en las cartas gradeadas y aviso de versión nueva.
@@ -323,4 +323,27 @@ test("20j · Cuando Emma o Álvaro dicen una frase, sale un bocadillo encima de 
   expect(t).toEqual(["alvaro", true]);
   await page.waitForTimeout(1700);
   expect(await game(page, (P) => P.VIS.talk.until > performance.now())).toBe(false);
+});
+
+test("20k · Compartir la partida con el menú del sistema (archivo .txt que se puede volver a importar)", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await page.addInitScript(() => {
+    window.__shared = null;
+    navigator.canShare = () => true;
+    navigator.share = async (d) => {
+      window.__shared = { name: d.files[0].name, type: d.files[0].type, text: await d.files[0].text() };
+    };
+  });
+  await freshGame(page, gamePath);
+  await page.locator('#nav [data-k="more"]').click();
+  await page.locator('#ovh [data-a="m"][data-k="backup"]').click();
+  await page.locator('#ovh [data-a="sharesave"]').click();
+  await expect(page.locator("#toast")).toContainText("Copia compartida");
+  const sh = await page.evaluate(() => window.__shared);
+  const day = await game(page, (P) => P.S.day);
+  expect([sh.name, sh.type]).toEqual([`pokemon-card-shop-dia${day}.txt`, "text/plain"]);
+  expect(JSON.parse(sh.text)).toMatchObject({ app: "pcs", v: 5 });
 });

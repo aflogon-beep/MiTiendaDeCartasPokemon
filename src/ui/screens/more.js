@@ -49,9 +49,21 @@ export function mSets() {
   <div class="serchips"><button class="b ${G.setQ ? "" : "on"}" data-a="serf" data-k="">Todas</button>${ser.map((x) => `<button class="b ${cur && cur.n === x.n ? "on" : ""}" data-a="serf" data-k="${x.n.replace(/"/g, "")}">${x.n} (${x.c})</button>`).join("")}</div>
   ${cur && miss ? `<button class="b pri big" data-a="addseries" style="margin:0 0 10px">➕ Añadir ${miss === 1 ? "el set que falta" : "los " + miss + " sets"} de ${cur.n}</button>` : ""}<input class="inp" data-i="setq" placeholder="Buscar: Evolving Skies, Base Set, 2019…" value="${G.setQ.replace(/"/g, "")}"><p class="mu">Cada set trae todas sus cartas con precio de Cardmarket. Muchos sets a la vez pueden tardar en cargar al abrir el juego.</p><div id="setlist">${setRows()}</div>`;
 }
+/** ¿Se puede compartir un archivo con el menú del sistema (Android: WhatsApp, Drive, correo…)? */
+export const canShareFiles = () => {
+  try {
+    return (
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function" &&
+      navigator.canShare({ files: [new File(["x"], "x.txt", { type: "text/plain" })] })
+    );
+  } catch (e) {
+    return false;
+  }
+};
 export function mBackup() {
   return `<h2>Partida</h2><div class="pn"><div>Se guarda sola cada 10 segundos, al cerrar y al terminar el día.</div><div class="mu">Último guardado: ${S.savedAt ? new Date(S.savedAt).toLocaleString("es-ES") : "—"}</div><div class="btns"><button class="b pri" data-a="savebtn">💾 Guardar ahora</button></div></div>
-  <div class="pn"><b>Copia de seguridad</b><div class="mu">Si el navegador borra sus datos, perderías la partida. Descarga una copia de vez en cuando.</div><div class="btns"><button class="b pri" data-a="export">⬇️ Exportar archivo</button><button class="b" data-a="importf">⬆️ Importar archivo</button><button class="b" data-a="copycode">📋 Copiar código</button></div>
+  <div class="pn"><b>Copia de seguridad</b><div class="mu">Si el navegador borra sus datos, perderías la partida. Descarga una copia de vez en cuando.</div><div class="btns"><button class="b pri" data-a="export">⬇️ Exportar archivo</button>${canShareFiles() ? `<button class="b" data-a="sharesave" data-fase="I">📤 Compartir</button>` : ""}<button class="b" data-a="importf">⬆️ Importar archivo</button><button class="b" data-a="copycode">📋 Copiar código</button></div>
   <textarea class="inp" id="impcode" rows="3" placeholder="…o pega aquí un código de partida"></textarea><button class="b" data-a="importc">Cargar código</button></div>
   <div class="pn"><b>Empezar de cero</b><div class="btns"><button class="b danger" data-a="reset">🗑️ Borrar partida</button></div></div>`;
 }

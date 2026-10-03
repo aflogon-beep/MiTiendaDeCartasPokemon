@@ -662,6 +662,16 @@ export const A = {
     }, 1500);
     toast("⬇️ Copia descargada");
   },
+  // Compartir la copia con el menú del sistema. Va como .txt (el móvil no deja compartir .json); al
+  // importar se lee igual.
+  sharesave: () => {
+    saveNow();
+    const f = new File([exportStr()], `pokemon-card-shop-dia${S.day}.txt`, { type: "text/plain" });
+    navigator
+      .share({ files: [f], title: "Pokémon Card Shop", text: `Copia de mi tienda (día ${S.day})` })
+      .then(() => toast("📤 Copia compartida"))
+      .catch((e) => e && e.name !== "AbortError" && toast("⚠️ No se pudo compartir. Usa «Exportar archivo»"));
+  },
   importf: () => $("#impfile").click(),
   copycode: () => {
     const code = btoa(unescape(encodeURIComponent(exportStr())));
