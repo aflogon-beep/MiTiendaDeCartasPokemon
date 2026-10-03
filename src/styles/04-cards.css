@@ -422,3 +422,24 @@
   background: linear-gradient(115deg, #fff6d0, #ffe9a0 45%, #fffbe8 60%, #ffe08a);
   color: #9a6b00;
 }
+/* Colección: cambio de precio de la semana, debajo del precio */
+.tile .trend {
+  position: absolute;
+  left: auto;
+  right: 4px;
+  top: 24px;
+  width: max-content;
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  box-shadow: 0 2px 4px #0007;
+}
+.tile .trend.up {
+  background: #1f8a4c;
+  color: #fff;
+}
+.tile .trend.down {
+  background: #b23a2a;
+  color: #fff;
+}

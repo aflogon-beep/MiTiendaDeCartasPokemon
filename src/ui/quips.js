@@ -13,6 +13,7 @@ import { custs } from "../core/customers/move.js";
 import { CHARS, drawMini, charFace } from "../render/characters.js";
 import { NAMES } from "../story/script.js";
 import { BYID } from "../core/cards/sets.js";
+import { priceAlert, backupDue } from "../core/alerts.js";
 
 const calm = () => document.documentElement.classList.contains("ui-calm");
 const busy = () => !hasState() || G.TITLE || G.STORY || (S.tut && S.tut.on);
@@ -85,7 +86,33 @@ export function quipTick(dt) {
   sec = 0;
   if (G.M || VIS.papa) return;
   const why = papaDue(level(), Math.random());
-  if (why) papaEnters(why);
+  if (why) return papaEnters(why);
+  if (S.phase === "closed") alertsTick();
+}
+
+/* ---------- Alertas (con la tienda cerrada) ---------- */
+/** Una carta tuya ha subido mucho esta semana (una vez al día) y el recordatorio de la copia. */
+function alertsTick() {
+  const a = priceAlert();
+  if (a) {
+    const c = BYID[a.id];
+    if (c)
+      return sayBubble(
+        "emma",
+        "stars",
+        `¡Tu ${c.name} ha subido un ${a.pct} % esta semana! Buen momento para venderla.`,
+        6000,
+      );
+  }
+  if (!$("#bkp") && backupDue(Date.now())) showBackup();
+}
+
+/** Recordatorio de Emma: hace una semana que no se guarda una copia de la partida. */
+export function showBackup() {
+  const el = document.createElement("div");
+  el.id = "bkp";
+  el.innerHTML = `<img src="${charFace("emma", "sweat")}" alt=""><div><b>Emma</b><p>Hace una semana que no guardas una copia de la tienda. Si el móvil borra los datos, la perderíamos.</p><div class="btns"><button class="b pri" data-a="bkpsave">📤 Guardar copia</button><button class="b" data-a="bkplater">Luego</button></div></div>`;
+  document.body.appendChild(el);
 }
 
 /* ---------- Visita de papá ---------- */
