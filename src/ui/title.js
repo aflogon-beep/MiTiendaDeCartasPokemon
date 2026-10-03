@@ -21,7 +21,7 @@ import { fmt } from "../core/util.js";
 import { giftCheck } from "../core/gift.js";
 import { MUSIC, setMusic } from "../audio/sfx.js";
 import { DIFFS, PETS } from "../core/constants.js";
-import { CHARS, drawPortrait } from "../render/characters.js";
+import { CHARS, charFace, drawPortrait } from "../render/characters.js";
 import { startStory } from "./story.js";
 import { A } from "./actions.js";
 import { closeM } from "./modals.js";
@@ -125,6 +125,7 @@ export function showTitle() {
     el.id = "title";
     document.body.appendChild(el);
   }
+  document.documentElement.classList.add("title-on"); // sin el HUD ni los botones del juego detrás
   paintTitle();
   setMusic(MUSIC);
 }
@@ -151,7 +152,12 @@ export function paintTitle() {
   const any = hasAnySlot(),
     cont = continueSlot(),
     big = document.documentElement.classList.contains("ui-big");
-  const logo = `<div class="title-logo"><img src="${ICON}" alt="" width="96" height="96"><h1>Pokémon Card Shop</h1></div>`;
+  // Emma y Álvaro asomados a los lados del icono, y papá detrás (solo en el menú principal)
+  const cast =
+    view === "main"
+      ? `<img class="title-pj l" src="${charFace("emma", "happy")}" alt=""><img class="title-pj r" src="${charFace("alvaro", "stars")}" alt=""><img class="title-pj b" src="${charFace("alberto", "laugh")}" alt="">`
+      : "";
+  const logo = `<div class="title-logo"><div class="title-icon">${cast}<img src="${ICON}" alt="" width="96" height="96"></div><h1>Pokémon Card Shop</h1></div>`;
   const back = `<button class="b title-back" data-a="tback">← Volver</button>`;
   let body = "";
   if (view === "main")
@@ -225,6 +231,7 @@ function startGame() {
   bigPref = null;
   const el = $("#title");
   if (el) el.remove();
+  document.documentElement.classList.remove("title-on");
   if (G.M) closeM();
   if (G.paused) setPause(false);
   applyUI();

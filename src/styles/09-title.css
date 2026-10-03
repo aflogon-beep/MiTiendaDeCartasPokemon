@@ -532,3 +532,68 @@ html.ui-calm .load-packs i::after {
   margin-top: 16px;
   font-size: 20px;
 }
+
+/* Título: sin el HUD ni los botones del juego detrás */
+html.title-on #game > :not(#cvw),
+html.title-on #cvw > :not(#cv),
+html.title-on #nav {
+  visibility: hidden;
+}
+/* Emma, Álvaro y papá junto al icono */
+.title-icon {
+  position: relative;
+  display: inline-block;
+}
+.title-icon > img:last-child {
+  position: relative;
+  z-index: 1;
+}
+.title-logo .title-pj {
+  position: absolute;
+  width: 74px;
+  height: 92px;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  filter: drop-shadow(0 6px 10px #000a);
+  animation:
+    title-pj-in 0.6s ease-out both,
+    title-bob 3.2s ease-in-out 0.6s infinite alternate;
+}
+.title-logo .title-pj.l {
+  right: calc(100% - 6px);
+  bottom: -8px;
+}
+.title-logo .title-pj.r {
+  left: calc(100% - 6px);
+  bottom: -8px;
+  animation-delay: 0.15s, 1.2s;
+}
+.title-logo .title-pj.b {
+  left: 50%;
+  bottom: 74%;
+  width: 62px;
+  height: 78px;
+  margin-left: -31px;
+  z-index: 0;
+  animation-delay: 0.3s, 0.9s;
+}
+@keyframes title-pj-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.8);
+  }
+}
+@keyframes title-bob {
+  to {
+    transform: translateY(-4px);
+  }
+}
+html.ui-calm .title-pj {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-pj {
+    animation: none;
+  }
+}

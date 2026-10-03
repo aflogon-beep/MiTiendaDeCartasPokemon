@@ -81,3 +81,17 @@ export function camFollow(dt) {
   V.oy = V.ch / 2 - ny * ns;
   clampView();
 }
+
+/** Título: la cámara recorre despacio la tienda y la calle, como un tráiler (quieta con «menos animaciones»). */
+export function titleCam(now, still) {
+  const V = VIEW,
+    t = still ? 0 : now / 1000;
+  V.s = clamp(V.cover * 1.15, V.min, V.max);
+  const wx = W / 2 + Math.sin(t * 0.21) * W * 0.32,
+    wy = 360 + Math.sin(t * 0.13) * 220;
+  V.ox = V.cw / 2 - wx * V.s;
+  V.oy = V.ch / 2 - wy * V.s;
+  V.mode = "auto";
+  V.user = 0;
+  clampView();
+}

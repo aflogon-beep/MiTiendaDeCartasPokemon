@@ -8,7 +8,7 @@ import { FRONT_Y } from "./world/layout.js";
 import { G, S, hasState } from "./core/state.js";
 import { MUSIC, setMusic, sfx, tone, vibe } from "./audio/sfx.js";
 import { SETDEF, indexCards, mkSetDef, offlineCards, setCards } from "./core/cards/sets.js";
-import { camFollow, fitCanvas } from "./render/camera.js";
+import { camFollow, fitCanvas, titleCam } from "./render/camera.js";
 import { cget } from "./core/cards/cache.js";
 import { closeM, confetti, openM, renderM } from "./ui/modals.js";
 import { coinBurst, fx, heartsAt, shake, starsAt, updFx, updPfx } from "./render/effects.js";
@@ -75,6 +75,7 @@ function frame(now) {
   last = now;
   if (hasState() && (G.TITLE || G.STORY)) {
     // Título o historia: la tienda y la calle siguen vivas (peatones, coches, pájaros), sin juego
+    if (G.TITLE && !G.STORY) titleCam(now, document.documentElement.classList.contains("ui-calm"));
     updPed(raw);
     updCars(raw);
     updBirds(raw);

@@ -1,4 +1,4 @@
-import { test, expect, openGame, game, closeModals } from "./helpers.js";
+import { test, expect, openGame, game, closeModals, mockNetwork } from "./helpers.js";
 import { readFileSync } from "node:fs";
 
 // Mejoras tras la Fase I: funda de plástico en las cartas gradeadas y aviso de versión nueva.
@@ -212,4 +212,30 @@ test("20f · Con cajero, el cajero se pone en la caja y Álvaro pasea por la tie
   expect(await game(page, (P) => [P.ALVARO.x, P.ALVARO.y])).toEqual([748, 330]);
   expect(await page.evaluate(() => window.__alv.bad)).toEqual([]);
   expect(errs).toEqual([]);
+});
+
+test("20g · Título: sin el HUD detrás, la cámara recorre la tienda y Emma, Álvaro y papá junto al icono", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await mockNetwork(page);
+  await page.goto(gamePath);
+  const t = page.locator("#title");
+  await t.locator('[data-a="tnew"]').waitFor({ timeout: 30_000 });
+  await expect(t.locator(".title-pj")).toHaveCount(3);
+  await expect(page.locator("#hud")).toBeHidden();
+  await expect(page.locator("#nav")).toBeHidden();
+  const ox = () => page.evaluate(() => [window.__pcs.VIEW.ox, window.__pcs.VIEW.oy]);
+  const a = await ox();
+  await page.waitForTimeout(1500);
+  expect(await ox()).not.toEqual(a);
+  // Al empezar la partida, todo vuelve
+  await t.locator('[data-a="tnew"]').click();
+  await t.locator('[data-a="tnewin"][data-n="1"]').click();
+  await t.locator('[data-a="tadvgo"]').click();
+  await page.locator("#stskip").click();
+  await expect(page.locator("#title")).toHaveCount(0);
+  await expect(page.locator("#hud")).toBeVisible();
+  await expect(page.locator("#nav")).toBeVisible();
 });
