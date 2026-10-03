@@ -1,6 +1,10 @@
 // Barra de navegación inferior, iconos y pestañas de Cartas y Retos.
 import { $, VIS } from "../render/canvas.js";
-import { G } from "../core/state.js";
+import { G, S } from "../core/state.js";
+import { ALBR } from "../core/constants.js";
+import { albPct } from "../core/achievements.js";
+import { ownFor } from "../core/orders.js";
+import { setName } from "../core/cards/sets.js";
 import { updBadges } from "./hud.js";
 export const ICON = {
   packs: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
@@ -33,7 +37,7 @@ export function paintNav() {
     ).join("");
   const c = $("#cvctl");
   if (c)
-    c.innerHTML = `<button data-a="pause" aria-label="Pausa">${G.paused ? "▶" : "⏸"}</button><button data-a="speed" aria-label="Velocidad">${G.speed}×</button>`;
+    c.innerHTML = `<button data-a="pause" aria-label="Pausa">${G.paused ? "▶" : "⏸"}</button><button data-a="speed" aria-label="Velocidad">${String(G.speed).replace(".", ",")}×</button>`;
   navAct();
   updBadges();
 }
@@ -78,9 +82,35 @@ export const cardTabs = (k) => {
     )
     .join("")}</div>`;
 };
+/** Lo que cuenta el número rojo de «Retos»: qué hay por cobrar y dónde (data-fase="I"). */
+export function claimBox() {
+  const mis = S.dm ? S.dm.list.filter((m) => m.done && !m.cl).length : 0,
+    ord = S.orders.filter((o) => ownFor(o)).length,
+    alb = S.sets.filter((s) => {
+      const p = albPct(s),
+        c = S.albR[s] || [];
+      return ALBR.some(([t], i) => p >= t && !c.includes(i));
+    });
+  const l = [];
+  if (mis)
+    l.push(
+      `<button class="b pri" data-a="goclaim" data-k="mis">✅ ${mis} ${mis > 1 ? "misiones" : "misión"} por cobrar</button>`,
+    );
+  if (ord)
+    l.push(
+      `<button class="b pri" data-a="goclaim" data-k="ord">📋 ${ord} encargo${ord > 1 ? "s" : ""} por entregar</button>`,
+    );
+  if (alb.length)
+    l.push(
+      `<button class="b pri" data-a="goclaim" data-k="alb" data-n="${alb[0]}">📒 Premio del álbum (${setName(alb[0])})</button>`,
+    );
+  return l.length
+    ? `<div class="pn claimbox" data-fase="I"><b>🎁 Tienes premios esperando</b><div class="btns">${l.join("")}</div></div>`
+    : "";
+}
 export const retoTabs = (k) => {
   VIS.lastReto = k;
-  return `<h2>🏆 Retos</h2><div class="tabs t4">${[
+  return `<h2>🏆 Retos</h2>${claimBox()}<div class="tabs t4">${[
     ["tasks", "📋 Tareas"],
     ["medals", "🏅 Medallas"],
     ["story", "📖 Historia"],

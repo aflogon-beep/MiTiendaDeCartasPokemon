@@ -330,7 +330,7 @@ for (const [w, h] of [
           // Mejoras pedidas en elementos de siempre (data-mejora y el texto de ayuda oculto con la tienda
           // abierta): se quitan para comparar lo de siempre con la referencia
           document.querySelectorAll("[data-mejora]").forEach((e) => e.removeAttribute("data-mejora"));
-          document.documentElement.classList.remove("no-hint");
+          document.documentElement.classList.remove("no-hint", "ux");
           // Textos que la Fase I cambia a propósito (Carla → Emma): el mismo texto en las dos para comparar estilos
           document.querySelectorAll("#tut .tbub b, #tut .tbub p").forEach((e) => (e.textContent = "Fase I"));
           P.TILT.el = null;

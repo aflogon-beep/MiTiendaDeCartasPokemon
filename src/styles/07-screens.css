@@ -723,3 +723,11 @@ html.ui-big .mu {
     inset 0 0 0 1px #d8ccb4,
     0 2px 0 #d8ccb4;
 }
+/* Stock: estanterías sin sobres (lo que cuenta el número rojo) */
+.stk-out {
+  border-color: #e3350d;
+}
+.stk-q b.out {
+  background: #e3350d;
+  color: #fff;
+}

@@ -27,9 +27,10 @@ test("3 · Día completo con cajero: abrir, clientes, cierre y ticket del día",
   const money0 = await game(page, (P) => P.S.money);
   await page.locator("#act").click();
   expect(await game(page, (P) => P.S.phase)).toBe("open");
-  await page.locator('#cvctl [data-a="speed"]').click();
-  await page.locator('#cvctl [data-a="speed"]').click();
-  await expect(page.locator('#cvctl [data-a="speed"]')).toHaveText("4×");
+  // (en Vite hay más pasos: 1×, 1,25×, 1,5×, 2×, 4×; se pulsa hasta llegar a 4×)
+  const spd = page.locator('#cvctl [data-a="speed"]');
+  for (let i = 0; i < 6 && (await spd.textContent()) !== "4×"; i++) await spd.click();
+  await expect(spd).toHaveText("4×");
 
   // Durante el día: el cajero cobra solo; si alguien quiere vender o cambiar, se le dice que no.
   let sawCustomer = false;

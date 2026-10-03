@@ -434,3 +434,38 @@ test("20n · Los avisos de la partida no salen encima del título: se enseñan a
   await page.waitForTimeout(1500);
   expect(await page.evaluate(() => (window.__pcs.VIS.notes || []).map((n) => n.t))).not.toContain("OTRO DE LA PARTIDA");
 });
+
+test("20o · Velocidad 1×, 1,25×, 1,5×, 2× y 4×; Retos y Stock dicen qué cuenta su número rojo", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  // Velocidad
+  const sp = page.locator('#cvctl [data-a="speed"]');
+  const seen = [];
+  for (let i = 0; i < 5; i++) {
+    seen.push(await sp.textContent());
+    await sp.click();
+  }
+  expect(seen).toEqual(["1×", "1,25×", "1,5×", "2×", "4×"]);
+  await expect(sp).toHaveText("1×");
+  // Retos: premios por cobrar, con un botón que lleva a donde se cobran
+  await game(page, (P) => {
+    P.S.dm.list[0].done = true;
+    P.hud();
+    P.openM("medals");
+  });
+  await expect(page.locator("#ovh .claimbox")).toContainText("1 misión por cobrar");
+  await page.locator('#ovh [data-a="goclaim"][data-k="mis"]').click();
+  await expect(page.locator('#ovh [data-a="mclaim"]').first()).toBeVisible();
+  // Stock: estanterías sin sobres
+  await game(page, (P) => {
+    P.closeM();
+    const s = P.S.slots.find(Boolean);
+    P.S.sealed[s] = 0;
+    P.openM("packs");
+  });
+  await expect(page.locator("#ovh .stk-out")).toContainText("sin sobres");
+  await expect(page.locator("#ovh .stk-q b.out").first()).toHaveText("0");
+});

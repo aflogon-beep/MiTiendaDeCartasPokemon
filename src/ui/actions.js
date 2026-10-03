@@ -791,6 +791,17 @@ export const A = {
     hud();
     renderM();
   },
+  // Desde el aviso de premios de Retos: a donde se cobra cada cosa
+  goclaim: (d) => {
+    if (d.k === "alb") {
+      G.albS = d.n;
+      G.albPg = 0;
+      openM("album");
+    } else {
+      G.tTab = d.k;
+      openM("tasks");
+    }
+  },
   ttab: (d) => {
     G.tTab = d.k;
     renderM();
@@ -1040,7 +1051,9 @@ export const A = {
   },
 
   speed: () => {
-    G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 4 : 1;
+    // 1× → 1,25× → 1,5× → 2× → 4× → 1× (los saltos de 1 a 2 eran grandes)
+    const L = [1, 1.25, 1.5, 2, 4];
+    G.speed = L[(L.indexOf(G.speed) + 1) % L.length];
     paintNav();
   },
   custserve: () => {

@@ -130,3 +130,22 @@
   margin: 0 0 12px;
   box-shadow: 0 6px 18px #0006;
 }
+/* Botones de los paneles en una cuadrícula ordenada: los principales a todo el ancho y el resto, de dos en
+ * dos y del mismo tamaño (html.ux; el test 14 quita la clase para comparar lo de siempre) */
+html.ux #ovh .btns:not(:has(> .mini)) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 8px;
+}
+html.ux #ovh .btns:not(:has(> .mini)) > .b {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+}
+html.ux #ovh .btns:not(:has(> .mini)) > .b.pri {
+  grid-column: 1 / -1;
+}
+/* Retos: los premios que esperan (lo que cuenta el número rojo) */
+.claimbox {
+  border-color: var(--sign);
+}
