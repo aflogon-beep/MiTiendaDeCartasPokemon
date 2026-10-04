@@ -243,9 +243,9 @@ export function fkPrice(u) {
 export function fkCost(f, v = "") {
   if (f.gold) return FK_GOLD_COST;
   if (f.grail) return r05(f.b * 0.9);
-  if (f.dlx) return r05(f.b * 0.7);
-  if (v) return r05(f.b * fkVm(v) * 0.6);
-  return r05(f.b * (f.r ? 0.7 : 0.6));
+  if (f.dlx) return r05(f.b * 0.65);
+  if (v) return r05(f.b * fkVm(v) * 0.55);
+  return r05(f.b * (f.r ? 0.6 : 0.5)); // como en las tiendas de verdad: se compran a mitad de precio
 }
 
 /* ---------- Unidades ---------- */
