@@ -2,7 +2,7 @@
 // eventos de la ventana y carga de cartas y partida.
 import { installTestHooks } from "./debug.js";
 import { $, VIS, perfTick } from "./render/canvas.js";
-import { DAYLEN, DEFAULT_SETS } from "./core/constants.js";
+import { CUST_MAX, DAYLEN, DEFAULT_SETS } from "./core/constants.js";
 import { FAILED, loadMany, loadSetList, refreshSetList } from "./core/cards/api.js";
 import { FRONT_Y } from "./world/layout.js";
 import { G, S, hasState } from "./core/state.js";
@@ -12,7 +12,7 @@ import { camFollow, fitCanvas, titleCam } from "./render/camera.js";
 import { cget } from "./core/cards/cache.js";
 import { closeM, confetti, openM, renderM } from "./ui/modals.js";
 import { coinBurst, fx, heartsAt, shake, starsAt, updFx, updPfx } from "./render/effects.js";
-import { custs, updateCusts } from "./core/customers/move.js";
+import { custs, inShop, updateCusts } from "./core/customers/move.js";
 import { draw } from "./render/draw.js";
 import { endDay } from "./core/day.js";
 import { fmt } from "./core/util.js";
@@ -32,7 +32,7 @@ import {
 } from "./ui/title.js";
 import { on } from "./core/bus.js";
 import { paintNav } from "./ui/nav.js";
-import { repv, spMul } from "./core/economy.js";
+import { repMul, spMul } from "./core/economy.js";
 import { spawn } from "./core/customers/spawn.js";
 import { toast, holdToast } from "./ui/toast.js";
 import { tutTick } from "./ui/tutorial.js";
@@ -105,13 +105,17 @@ function frame(now) {
         S.clock += dt;
         G.spawnT -= dt;
         if (G.spawnT <= 0) {
-          spawn();
-          if (S.burst > 0) {
-            S.burst--;
-            G.spawnT = 0.8;
-          } else {
-            const base = 4.2 / (1 + repv() * 0.03) / (1 + S.up.ads * 0.3) / spMul();
-            G.spawnT = base * (0.6 + Math.random() * 0.8);
+          // Menos clientes y cestas más grandes (core/customers/decide.js): con la tienda llena, el que llega no entra
+          if (inShop() >= CUST_MAX) G.spawnT = 1;
+          else {
+            spawn();
+            if (S.burst > 0) {
+              S.burst--;
+              G.spawnT = 0.8;
+            } else {
+              const base = 8.4 / repMul() / (1 + S.up.ads * 0.15) / spMul();
+              G.spawnT = base * (0.6 + Math.random() * 0.8);
+            }
           }
         }
         if (S.clock >= DAYLEN) S.phase = "closing";

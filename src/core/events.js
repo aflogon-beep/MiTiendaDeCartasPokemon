@@ -14,7 +14,7 @@ export function season() {
 export function evMul() {
   const t = S.ev && S.ev.t;
   return (
-    (t === "launch" ? 1.8 : t === "rain" ? 0.65 : t === "vip" ? 1.25 : 1) *
+    (t === "launch" ? 1.4 : t === "rain" ? 0.65 : t === "vip" ? 1.25 : 1) *
     (S.tour ? 1.35 : 1) *
     ({ xmas: 1.25, hallo: 1.1, summer: 0.95 }[season()] || 1)
   );

@@ -937,7 +937,7 @@ export function launchQ() {
   if (!VIS.lq || VIS.lq.day !== S.day)
     VIS.lq = {
       day: S.day,
-      p: Array.from({ length: 8 }, (_, i) => ({
+      p: Array.from({ length: 5 }, (_, i) => ({
         x: 420 + i * 34,
         y: 590 + (i % 2) * 10,
         out: mkOutfit(pick(["kid", "collector", "whale", "kid"]), null),

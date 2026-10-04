@@ -27,12 +27,16 @@ export function holdNote(h, sign) {
   H[k] = (H[k] || 0) + sign * h.qty;
   if (H[k] <= 0) delete H[k];
 }
+/** Clientes dentro de la tienda (los que ya se van no cuentan). */
+export const inShop = () => custs.filter((c) => c.st !== "leave").length;
 export function leave(c, angry) {
   if (c.hold) {
-    holdNote(c.hold, -1);
-    if (c.hold.k === "pack") S.sealed[c.hold.s] += c.hold.qty;
-    else if (c.hold.k === "prod") S.prod[c.hold.pid] = pStock(c.hold.pid) + c.hold.qty;
-    else c.hold.it.res = false;
+    for (const h of [c.hold, ...(c.hold.x || [])]) {
+      holdNote(h, -1);
+      if (h.k === "pack") S.sealed[h.s] += h.qty;
+      else if (h.k === "prod") S.prod[h.pid] = pStock(h.pid) + h.qty;
+      else h.it.res = false;
+    }
     c.hold = null;
   }
   const qi = queue.indexOf(c);

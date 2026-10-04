@@ -133,7 +133,7 @@ $("#act").addEventListener("click", () => {
     S.phase = "open";
     S.clock = 0;
     G.spawnT = 1;
-    S.burst = S.ev && S.ev.t === "launch" ? 6 : 0;
+    S.burst = S.ev && S.ev.t === "launch" ? 3 : 0;
     S.vipDone = false;
     {
       const lq = VIS.lq && VIS.lq.day === S.day && S.ev && S.ev.t === "launch" ? VIS.lq.p : null;

@@ -12,6 +12,7 @@ import { regS } from "../regulars.js";
 import { routeTo } from "../../world/nav.js";
 import { startTheft } from "../theft.js";
 import { trophies } from "../trophies.js";
+import { pickProd } from "./spawn.js";
 export function decide(c) {
   if (c.thief && !c.run) return startTheft(c);
   if (c.want.k === "admire") {
@@ -78,14 +79,7 @@ export function decide(c) {
       why("kp:" + s);
       return leave(c, true);
     }
-    let qty =
-      c.type === "whale"
-        ? 3 + rnd(4)
-        : c.type === "investor"
-          ? 2 + rnd(3)
-          : c.type === "collector"
-            ? 1 + rnd(3)
-            : 1 + (Math.random() < 0.35 ? 1 : 0);
+    let qty = PQTY[c.type] ? PQTY[c.type]() : 2 + rnd(3);
     qty = Math.min(qty, st);
     if (c.type === "kid" && sh > 14) {
       say(c, "😢 No me llega");
@@ -112,6 +106,58 @@ export function decide(c) {
     it.res = true;
     c.hold = { k: "single", it, total: itemVal(it) * it.case };
   }
+  addExtras(c, m);
   c.st = "toq";
   routeTo(c, LAY.qx, LAY.qy + queue.length * LAY.qs);
+}
+// Cestas más grandes (a petición de Alberto: menos clientes, pero cada uno se deja 20 € o más)
+/** Sobres que se lleva cada tipo de cliente que viene a por sobres. */
+export const PQTY = {
+  kid: () => 2 + rnd(3), // 2–4
+  collector: () => 3 + rnd(4), // 3–6
+  investor: () => 4 + rnd(5), // 4–8
+  whale: () => 8 + rnd(8), // 8–15
+};
+/** Sobres de más que coge el que viene a por otra cosa: probabilidad y cuántos. */
+const XPACK = {
+  kid: [0.5, () => 1 + rnd(2)],
+  collector: [0.6, () => 2 + rnd(3)],
+  investor: [0.5, () => 3 + rnd(4)],
+  whale: [0.7, () => 6 + rnd(6)],
+};
+export const XPROD = 0.35; // probabilidad de llevarse también un accesorio o producto
+/** Lo que se suma a la cesta (c.hold.x): sobres de una estantería y un accesorio o producto, si hay y el precio le parece bien. */
+export function addExtras(c, m) {
+  const h = c.hold,
+    x = [];
+  if (!h || (S.tut && S.tut.on)) return;
+  const xp = XPACK[c.type];
+  if (h.k !== "pack" && xp && Math.random() < xp[0]) {
+    const sets = S.slots.filter((s) => s && S.sealed[s] > 0 && S.shelf[s] != null);
+    const s = sets.length ? pick(sets) : null;
+    if (s) {
+      const ref = S.pack[s].ref * m * tolMul() * (0.9 + Math.random() * 0.25),
+        sh = r05(S.shelf[s] * (S.myPromo && S.myPromo.day === S.day && S.myPromo.s === s ? 0.85 : 1)),
+        qty = Math.min(xp[1](), S.sealed[s]);
+      if (sh <= ref && !(c.type === "kid" && sh > 14)) {
+        S.sealed[s] -= qty;
+        x.push({ k: "pack", s, qty, total: sh * qty });
+      }
+    }
+  }
+  if (Math.random() < XPROD) {
+    const pid = pickProd(c.type);
+    if (pid && pid !== h.pid && pStock(pid) > 0) {
+      const pr = pPrice(pid),
+        ref = pInfo(pid).ref * m * tolMul() * (0.9 + Math.random() * 0.25);
+      if (pr <= ref) {
+        S.prod[pid]--;
+        x.push({ k: "prod", pid, qty: 1, total: pr });
+      }
+    }
+  }
+  if (!x.length) return;
+  h.x = x;
+  h.base = h.total; // lo que cuesta lo principal (para el regateo de una carta)
+  x.forEach((e) => ((h.total += e.total), holdNote(e, 1)));
 }

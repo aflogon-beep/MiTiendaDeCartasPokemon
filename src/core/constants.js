@@ -52,6 +52,8 @@ export const DAYLEN = 100;
 export const RENT = 15;
 export const LV = [0, 1600, 3200, 6500, 14000, 30000, 70000, 180000, 700000];
 export const VOL = { C: 0.3, U: 0.3, R: 0.5, DR: 0.8, IR: 1, UR: 1, SIR: 1.2, HR: 1.3 };
+/** Clientes dentro de la tienda a la vez, como mucho (main.js): si está llena, el que llega no entra. */
+export const CUST_MAX = 10;
 export const CT = {
   kid: { w: 0.3, col: "#4a90d9", hair: "#4b2e1a", sc: 0.85, mult: 0.95 },
   collector: { w: 0.28, col: "#4fa36a", hair: "#222", sc: 1, mult: 1.02 },
@@ -191,7 +193,7 @@ export const GSVC = { std: { n: "Estándar", cost: 12, days: 4 }, exp: { n: "Exp
 export const MT = [
   { k: "open", n: "Abre {g} sobres", g: [2, 4, 6], r: [20, 35, 60] },
   { k: "sellpack", n: "Vende {g} sobres en la tienda", g: [4, 7, 12], r: [20, 40, 70] },
-  { k: "serve", n: "Atiende a {g} clientes", g: [5, 9, 14], r: [25, 45, 70] },
+  { k: "serve", n: "Atiende a {g} clientes", g: [3, 5, 8], r: [25, 45, 70] },
   { k: "earn", n: "Ingresa {g} € en caja", g: [40, 90, 180], r: [20, 45, 80] },
   { k: "buycard", n: "Compra {g} carta(s) a clientes", g: [1, 2, 3], r: [15, 30, 50] },
   { k: "exact", n: "Da el cambio exacto {g} veces", g: [2, 3, 5], r: [20, 30, 50] },
