@@ -1,5 +1,6 @@
 import { test, expect, freshGame, game } from "./helpers.js";
 import { readFileSync } from "node:fs";
+import { compactPrice } from "../../src/core/cards/prices.js";
 
 // Partida exportada desde la v22 (Más → Partida → Exportar) jugando contra la API simulada.
 const FILE = new URL("../fixtures/partida-v22.json", import.meta.url);
@@ -8,16 +9,26 @@ const EXPORTED = JSON.parse(readFileSync(FILE, "utf8"));
 // savedAt (se vuelve a guardar) y phase/clock (siempre empieza cerrada). En el HTML original, también
 // pack (ensure() → refreshPacks(true) recalculaba el precio de mayorista al cargar; docs/pendientes.md §2).
 let VOLATILE = ["savedAt", "phase", "clock"];
+// En Vite, el historial de precios se recorta al cargar (31 días y 6 cifras, para que la partida quepa al guardar):
+// se compara con el de la exportación recortado igual.
+let COMPACT = false;
 test.beforeEach(({}, info) => {
   VOLATILE = ["savedAt", "phase", "clock"].concat(info.project.name === "referencia" ? ["pack"] : []);
+  COMPACT = info.project.name !== "referencia";
 });
+const compacted = (prices) => {
+  const o = JSON.parse(JSON.stringify(prices));
+  Object.values(o).forEach(compactPrice);
+  return o;
+};
 
 // Cada campo de la partida exportada debe seguir igual tras cargarla
 function lostFields(saved, loaded) {
   const lost = [];
   for (const k of Object.keys(saved)) {
     if (VOLATILE.includes(k)) continue;
-    if (JSON.stringify(saved[k]) !== JSON.stringify(loaded[k])) lost.push(k);
+    const want = COMPACT && k === "prices" ? compacted(saved[k]) : saved[k];
+    if (JSON.stringify(want) !== JSON.stringify(loaded[k])) lost.push(k);
   }
   return lost;
 }

@@ -8,7 +8,7 @@ import { BYID, CARDS } from "./cards/sets.js";
 import { DEFAULT_SETS } from "./constants.js";
 import { genMissions } from "./missions.js";
 import { genOrder } from "./orders.js";
-import { initPrice } from "./cards/prices.js";
+import { compactPrice, initPrice } from "./cards/prices.js";
 import { r05 } from "./util.js";
 import { refreshPacks } from "./packs.js";
 
@@ -91,6 +91,7 @@ export function ensure() {
   CARDS.forEach((c) => {
     if (!S.prices[c.id]) S.prices[c.id] = initPrice(c);
   });
+  Object.values(S.prices).forEach(compactPrice); // que la partida quepa al guardar (cards/prices.js)
   if (S.orph && S.orph.length) {
     S.items = S.items.concat(S.orph.filter((i) => BYID[i.c]));
     S.orph = S.orph.filter((i) => !BYID[i.c]);
