@@ -98,7 +98,7 @@ Pasa cada vez que se abre el juego, no solo al importar.
 
 **Arreglo:** al cargar o importar una partida se sueltan las cartas apartadas (`releaseHolds`, `core/save.js`), salvo las del mercadillo pendiente. La partida de Alberto (día 19) se arregla sola al abrirla.
 
-**Relacionado, sin tocar (pregunta para Alberto):** con los sobres y productos pasa algo parecido: el cliente los quita del stock al cogerlos; si la app se cierra antes de pagar, esos sobres no vuelven (se pierden unos pocos).
+**Sobres y productos (también arreglado, pedido por Alberto):** el cliente los quita del stock al cogerlos; si la app se cerraba antes de pagar, se perdían. Ahora se apuntan en la partida mientras van a la caja (`S.held`, `holdNote` en `core/customers/move.js`) y, al cargar, vuelven al stock.
 
 ---
 
