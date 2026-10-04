@@ -7,3 +7,4 @@ tests/fixtures/*.json
 *.md
 index.html
 docs/intro/personajes.html
+docs/funkos/

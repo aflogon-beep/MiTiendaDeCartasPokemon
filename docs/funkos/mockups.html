@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tienda de Funkos · mockups</title>
+<!-- Mockups de diseño (docs/funkos/DISENO.md). No es código del juego: sirve para ver las pantallas antes de hacerlas. -->
+<style>
+:root{--bg:#1b1f2a;--panel:#252b3a;--panel2:#2f3648;--ink:#eef1f7;--mu:#98a3b8;--up:#4cc98a;--down:#ff7a6b;--line:#39415a;--fd:"Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif;--fk:#ff4fd8}
+*{box-sizing:border-box}
+body{margin:0;background:#0e1118;color:var(--ink);font-family:system-ui,sans-serif;width:390px}
+.scr{background:var(--bg);padding:14px 14px 18px;border-bottom:6px solid #000;position:relative}
+.cap{font:700 11px var(--fd);color:#0e1118;background:#ffd54a;display:inline-block;padding:2px 8px;border-radius:6px;margin-bottom:6px}
+h2{font-family:var(--fd);margin:4px 0 10px;font-size:24px}
+h3{font-family:var(--fd);margin:14px 0 8px;font-size:17px}
+.mu{color:var(--mu);font-size:12.5px}
+.pn{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0}
+.tip{background:var(--panel2);border-radius:10px;padding:8px 10px;margin:6px 0;font-size:13.5px}
+.b{border:0;border-radius:12px;padding:11px 6px;font-family:var(--fd);font-weight:700;font-size:14.5px;color:#fff;background:var(--panel2);box-shadow:0 3px 0 #0005;text-align:center;display:block}
+.b.pri{background:linear-gradient(#53d48f,#2fa564);box-shadow:0 3px 0 #1d7a47}
+.b.fk{background:linear-gradient(#ff7ae3,#d23cb6);box-shadow:0 3px 0 #8a1f76}
+.b small{display:block;font-weight:500;font-size:11px;opacity:.85}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.hero{display:flex;gap:10px;align-items:center;border-radius:16px;padding:10px 12px;font-size:13.5px;color:#2a1830;background:linear-gradient(135deg,#ffe3f1,#ffd0e6)}
+.hero.sun{background:linear-gradient(135deg,#fff3c4,#ffe08a);color:#3a2a00}
+.hero.sky{background:linear-gradient(135deg,#d9f0ff,#b8e0ff);color:#0b2a44}
+.hero .av{width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:26px;flex:none}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}
+.chip{font:700 11px var(--fd);border-radius:20px;padding:3px 8px;background:var(--panel2)}
+.chip.ch{background:linear-gradient(90deg,#c9a227,#ffe27a);color:#3a2a00}
+.chip.ex{background:#2a5bd0}
+.chip.va{background:#5a2a2a;color:#ffc9c9}
+.chip.ok{background:#1f6f43;color:#c9ffd9}
+.tabs{display:flex;gap:6px;overflow:hidden;margin:10px 0}
+.tabs b{background:var(--panel2);border-radius:10px;padding:8px 11px;font:600 12.5px var(--fd);white-space:nowrap}
+.tabs b.on{background:var(--fk);color:#2a0028}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.qty{background:var(--panel2);border-radius:12px;padding:6px 10px;text-align:center;min-width:60px}
+.qty b{font-family:var(--fd);font-size:21px;display:block;line-height:1}
+.qty i{font-style:normal;font-size:10.5px;color:var(--mu)}
+.up{color:var(--up)}.down{color:var(--down)}
+/* Caja de Funko */
+.box{position:relative;width:96px;height:128px;border-radius:7px;background:var(--fc);box-shadow:inset -9px 0 0 #0002,0 6px 14px #0007;padding:20px 6px 6px;overflow:hidden;flex:none}
+.box .top{position:absolute;left:0;right:0;top:0;height:18px;background:#111;color:#fff;font:800 9.5px/18px var(--fd);text-align:center;letter-spacing:.05em}
+.box .win{height:84px;border-radius:7px;background:radial-gradient(circle at 50% 35%,#fff 0%,#e7ecf5 60%,#cbd3e2 100%);box-shadow:inset 0 0 0 2px #ffffffaa,inset 0 0 18px #0003;position:relative;overflow:hidden}
+.box .win:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#ffffff99 45%,transparent 55%)}
+.box .win svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:80px}
+.box .lb{margin-top:3px;color:#fff;font:700 10.5px/1.1 var(--fd);text-shadow:0 1px 0 #0006;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.box .num{position:absolute;right:4px;top:21px;background:#111;color:#fff;font:800 9.5px var(--fd);padding:1px 4px;border-radius:4px;z-index:2}
+.box.dmg{transform:rotate(-2deg)}
+.box.dmg:before{content:"";position:absolute;right:-6px;top:-6px;width:30px;height:30px;background:#0e1118;transform:rotate(45deg);z-index:3}
+.stk{position:absolute;left:-4px;bottom:20px;z-index:3;transform:rotate(-12deg);background:radial-gradient(circle,#fff6c4,#e2b12c);color:#3a2a00;font:900 8.5px/1 var(--fd);border-radius:50%;width:36px;height:36px;display:grid;place-items:center;text-align:center;box-shadow:0 2px 4px #0006}
+.stk.ex{background:radial-gradient(circle,#dbe6ff,#3f6fe0);color:#fff}
+.stk.gl{background:radial-gradient(circle,#d9ffe2,#34c26b);color:#05341a}
+.fkc{display:grid;grid-template-columns:96px 1fr;gap:12px;position:relative;overflow:hidden}
+.fkc:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,var(--fc) 0%,transparent 55%);opacity:.2;pointer-events:none}
+.fkc b.n{font-family:var(--fd);font-size:17px;display:block}
+.step{display:flex;align-items:center;gap:6px;margin-top:6px}
+.step span{width:28px;height:28px;border-radius:9px;background:var(--panel2);display:grid;place-items:center;font-weight:800}
+.step b{font-family:var(--fd);font-size:17px;min-width:60px;text-align:center}
+/* calle */
+.street{position:relative;height:230px;border-radius:16px;overflow:hidden;background:linear-gradient(#8fd0ff,#cfeaff 55%,#9aa3ad 55%,#8b939c 72%,#5d636b 72%)}
+.bld{position:absolute;bottom:28%;border-radius:6px 6px 0 0}
+.bld .sign{position:absolute;left:8%;right:8%;top:8px;height:22px;border-radius:5px;font:800 11px/22px var(--fd);text-align:center}
+.bld .wn{position:absolute;left:12%;right:12%;bottom:0;height:52%;background:linear-gradient(#bfe7ff,#7cb6dd);border:4px solid #3a3f4a;border-bottom:0}
+.sale{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-6deg);background:#fff;color:#c0392b;border:3px solid #c0392b;font:900 12px var(--fd);padding:4px 7px;border-radius:6px;white-space:nowrap}
+.pin{position:absolute;font:700 11px var(--fd);background:#111c;color:#fff;padding:2px 6px;border-radius:8px}
+/* interior */
+.shop{position:relative;height:470px;border-radius:16px;overflow:hidden}
+.wall{position:absolute;left:0;right:0;top:0;height:118px;background:linear-gradient(#3a2a58,#2a1f3d)}
+.floor{position:absolute;left:0;right:0;top:118px;bottom:0;background:repeating-linear-gradient(45deg,#efe2fb 0 18px,#e6d4f6 18px 36px)}
+.neon{position:absolute;left:50%;top:6px;transform:translateX(-50%);font:900 20px var(--fd);color:#ffd1ff;text-shadow:0 0 6px #ff4fd8,0 0 16px #ff4fd8,0 0 30px #b44fff;letter-spacing:.04em;white-space:nowrap}
+.wsh{position:absolute;top:72px;height:40px;display:flex;gap:2px;align-items:end;padding:0 5px;border-bottom:6px solid #8a5a2b}
+.mini{width:18px;height:28px;border-radius:3px;position:relative}
+.mini:after{content:"";position:absolute;inset:6px 3px 4px;background:#fff9;border-radius:2px}
+.tag{position:absolute;font:800 9.5px var(--fd);background:#111;color:#fff;padding:1px 5px;border-radius:5px}
+.isl{position:absolute;width:110px;height:52px;border-radius:10px;background:#b07a46;box-shadow:0 6px 0 #7a4e26;display:flex;gap:4px;justify-content:center;padding-top:8px}
+.grail{position:absolute;right:16px;top:200px;width:96px;height:132px;border-radius:10px;background:linear-gradient(#ffffff55,#ffffff22);border:3px solid #ffd54a;box-shadow:0 0 18px #ffd54a88}
+.grail svg{width:76px;position:absolute;left:8px;top:14px}
+.cnt{position:absolute;left:18px;bottom:62px;width:150px;height:44px;border-radius:10px;background:#5a3a8a;box-shadow:0 6px 0 #3a2460;color:#fff;font:700 11px/44px var(--fd);text-align:center}
+.ppl{position:absolute;font-size:24px}
+.hud{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:8px}
+.hud .b{flex:1;padding:8px 4px;font-size:13px}
+.sw{position:absolute;right:10px;top:128px;display:flex;flex-direction:column;gap:6px}
+.sw b{background:#111d;color:#fff;border-radius:12px;padding:6px 10px;font:700 12px var(--fd)}
+.sw b.on{background:var(--fk);color:#2a0028}
+/* figuras */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fg{background:var(--panel2);border-radius:12px;padding:4px 2px 6px;text-align:center;font:600 10.5px/1.15 var(--fd);position:relative}
+.fg svg{width:70px;height:84px;display:block;margin:0 auto}
+.fg i{display:block;font-style:normal;color:var(--mu);font-size:9.5px}
+.fg.miss svg{filter:brightness(0) opacity(.3)}
+.fg.ch{background:linear-gradient(#5a4512,#2f3648)}
+.bar{height:10px;border-radius:6px;background:var(--panel2);overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ff7ae3,#9b6bff)}
+.ticket{background:#fffdf5;color:#222;border-radius:10px;padding:12px 14px;font:12.5px ui-monospace,monospace;box-shadow:0 8px 20px #0008}
+.ticket h4{margin:0 0 6px;text-align:center;font:800 15px var(--fd)}
+.tl{display:flex;justify-content:space-between;gap:8px}
+.tl.t{border-top:1px dashed #999;margin-top:6px;padding-top:6px;font-weight:800}
+.inp{background:#fff;color:#111;border-radius:12px;padding:12px;font:700 18px var(--fd);text-align:center;margin:8px 0}
+.sug{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.sug span{background:var(--panel2);border-radius:20px;padding:5px 10px;font:600 12px var(--fd)}
+.cand{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center}
+.cand .av{width:52px;height:52px;border-radius:50%;background:var(--panel2);display:grid;place-items:center;font-size:30px}
+.stars{color:#ffd54a;letter-spacing:1px}
+.big{display:flex;justify-content:center;padding:10px 0 16px}
+.big .box{transform:scale(1.8);transform-origin:top center;margin-bottom:104px}
+.reveal{text-align:center;background:radial-gradient(circle at 50% 40%,#3b3214,#14161f 70%);border-radius:18px;padding:16px 10px;position:relative;overflow:hidden}
+.reveal:before{content:"";position:absolute;left:50%;top:48%;width:340px;height:340px;transform:translate(-50%,-50%);background:repeating-conic-gradient(#ffd54a33 0 8deg,transparent 8deg 22deg);border-radius:50%;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.reveal h4{font-family:var(--fd);font-size:23px;margin:2px 0 8px;color:#ffe27a;text-shadow:0 0 18px #ffcf3a;position:relative}
+.val{font-family:var(--fd);font-size:28px;font-weight:700;position:relative}
+.spark{width:84px;height:26px}
+.queue{display:flex;gap:2px;font-size:22px;justify-content:center;margin:6px 0}
+.conv{background:linear-gradient(135deg,#1d2b6b,#5a1f6b);border-radius:16px;padding:14px;text-align:center}
+.conv h3{margin:2px 0;color:#fff}
+.timer{font:800 26px var(--fd);color:#ffd54a}
+</style>
+</head>
+<body>
+<script src="figuras.js"></script>
+<script>
+const W = (h) => document.write(h);
+const fig = (n) => FIG.find((x) => x[0] === n)[2];
+// Caja de Funko: figura, número, nombre, color de la colección y pegatina (chase, exclusiva, brilla)
+function box(n, num, col, st, cls) {
+  const S = { chase: '<div class="stk">CHASE</div>', ex: '<div class="stk ex">EXCLU-<br>SIVA</div>', gl: '<div class="stk gl">BRILLA<br>OSCURO</div>' }[st] || "";
+  return `<div class="box ${cls || ""}" style="--fc:${col}"><div class="top">POP! VINILO</div><div class="num">#${num}</div><div class="win">${F(fig(n))}</div><div class="lb">${n}</div>${S}</div>`;
+}
+const spark = (up) => `<svg class="spark" viewBox="0 0 84 26"><polyline fill="none" stroke="${up ? "#4cc98a" : "#ff7a6b"}" stroke-width="2" points="${up ? "0,22 12,20 24,21 36,16 48,17 60,11 72,8 84,4" : "0,6 12,8 24,7 36,12 48,11 60,16 72,18 84,21"}"/></svg>`;
+const scr = (n, t, h) => W(`<div class="scr" id="m${n}"><div class="cap">${n} · ${t}</div>${h}</div>`);
+
+// 1 · La calle
+scr(1, "La calle: el local en venta", `<div class="street">
+<div class="bld" style="left:4%;width:42%;height:62%;background:#e3350d"><div class="sign" style="background:#f2b705;color:#2a2000">POKÉ CARDS</div><div class="wn"></div></div>
+<div class="bld" style="left:52%;width:44%;height:58%;background:#6e6a73"><div class="sign" style="background:#3a3a40;color:#aaa">JUGUETES PACO</div><div class="wn" style="background:repeating-linear-gradient(90deg,#c9c3b6 0 10px,#b3ac9d 10px 12px)"></div><div class="sale">SE TRASPASA</div></div>
+<div class="pin" style="left:58%;bottom:4%">👆 Toca el local</div></div>
+<div class="pn"><h3 style="margin-top:0">🧸 Se traspasa: Juguetes Paco</h3><p style="margin:0 0 8px">El señor Paco se jubila y traspasa su tienda, dos puertas más abajo. Es perfecta para una tienda <b>solo de Funkos</b>.</p>
+<div class="tip">🧸 Marvel, DC, Star Wars, Harry Potter, anime, videojuegos, Disney, terror… y Pokémon</div>
+<div class="tip">👔 Mientras estás en una tienda, la otra la lleva un encargado</div>
+<div class="tip">📈 Olas nuevas, Chase, exclusivas de convención y descatalogados que suben de precio</div>
+<span class="b pri" style="margin-top:8px">Comprar el local · 15.000 €<small>Necesitas nivel 5</small></span></div>`);
+
+// 2 · Nombre de la tienda
+scr(2, "Al comprarlo: el nombre", `<div class="hero sun"><div class="av">👴</div><div><b>Señor Paco:</b> Aquí tenéis las llaves, chavales. Cuidádmela, que en esta tienda vendí juguetes cuarenta años.</div></div>
+<h2 style="margin-top:14px">¿Cómo se llama vuestra tienda de Funkos?</h2>
+<div class="inp">Pop Galaxy</div>
+<div class="sug"><span>Funko Corner</span><span>Pop Galaxy</span><span>Cabezones</span><span>Vinilo Store</span><span>🎲 Otro</span></div>
+<div class="hero" style="margin-top:14px"><div class="av">🤩</div><div><b>Álvaro:</b> ¡¡Una tienda entera de Funkos!! ¿Puedo poner el Vader en el escaparate?</div></div>
+<span class="b pri" style="margin-top:12px">¡Abrimos! 🎉</span>`);
+
+// 3 · Interior
+const mini = (c) => `<div class="mini" style="background:${c}"></div>`;
+scr(3, "Dentro de la tienda de Funkos", `<div class="shop"><div class="wall"></div><div class="floor"></div>
+<div class="neon">POP GALAXY</div>
+<div class="wsh" style="left:8px">${["#d0202a", "#d0202a", "#2a4bb8", "#d0202a", "#d0202a", "#2a4bb8"].map(mini).join("")}</div><div class="tag" style="left:12px;top:58px">MARVEL</div>
+<div class="wsh" style="left:140px">${["#1a1a1e", "#f2f4f7", "#1a1a1e", "#1a1a1e", "#f2f4f7", "#a9c98d"].map(mini).join("")}</div><div class="tag" style="left:144px;top:58px">STAR WARS</div>
+<div class="wsh" style="right:8px">${["#2b2b33", "#7a1018", "#2b2b33", "#7a1018", "#2b2b33"].map(mini).join("")}</div><div class="tag" style="right:12px;top:58px">HARRY POTTER</div>
+<div class="isl" style="left:18px;top:180px">${["#f07a1e", "#f2c21a", "#f07a1e", "#3c9a4a", "#d0202a"].map(mini).join("")}</div><div class="tag" style="left:22px;top:242px">ANIME · VIDEOJUEGOS</div>
+<div class="isl" style="left:150px;top:230px;width:96px">${["#f7d02c", "#78c8b4", "#f08a3c", "#6b4a9c"].map(mini).join("")}</div><div class="tag" style="left:154px;top:292px">POKÉMON</div>
+<div class="grail">${F(fig("Darth Vader"))}</div><div class="tag" style="right:20px;top:338px;background:#c9a227;color:#2a2000">VITRINA · GRAILS</div>
+<div class="cnt">CAJA · Emma</div>
+<div class="ppl" style="left:120px;top:330px">🧑‍🎤</div><div class="ppl" style="left:250px;top:150px">🧔</div><div class="ppl" style="left:70px;top:280px">👧</div><div class="ppl" style="left:205px;top:360px">🧑</div>
+<div class="sw"><b>🃏 Poké Cards<br><span style="font-weight:500;font-size:10px">encargada: Lucía</span></b><b class="on">🧸 Pop Galaxy</b></div>
+<div class="hud"><span class="b">📦 Stock</span><span class="b">🧸 Colección</span><span class="b pri">Cobrar 34,90 €</span></div></div>
+<p class="mu">Se dibujará en el canvas con el mismo estilo que la tienda de cartas (paredes, suelo, gente, luz de día y noche).</p>`);
+
+// 4 · Cambiar de tienda
+scr(4, "Cambiar de tienda", `<div class="street" style="height:200px">
+<div class="bld" style="left:4%;width:42%;height:62%;background:#e3350d"><div class="sign" style="background:#f2b705;color:#2a2000">POKÉ CARDS</div><div class="wn"></div></div>
+<div class="bld" style="left:52%;width:44%;height:62%;background:#5a2a7a"><div class="sign" style="background:#2a1f3d;color:#ffd1ff;text-shadow:0 0 6px #ff4fd8">POP GALAXY</div><div class="wn" style="background:linear-gradient(#ffe3ff,#d9b8ff)"></div></div>
+<div class="pin" style="left:24%;bottom:6%">🚶 Emma y Álvaro van calle abajo →</div></div>
+<div class="pn"><div class="row"><div><b>🃏 Poké Cards</b><div class="mu">La lleva Lucía · hoy 214,60 € · stock de sobres para 2 días</div></div><span class="b" style="padding:8px 10px">Ir</span></div></div>
+<div class="pn" style="border-color:var(--fk)"><div class="row"><div><b>🧸 Pop Galaxy</b><div class="mu">Estás aquí · hoy 388,20 €</div></div><span class="chip" style="background:var(--fk);color:#2a0028">Aquí</span></div></div>
+<p class="mu">Al cambiar, la cámara baja por la calle (1–2 s) y entra en la otra tienda. El reloj del día es el mismo para las dos.</p>`);
+
+// 5 · Encargado
+scr(5, "Contratar encargado", `<h2>👔 Encargado</h2><div class="hero sky"><div class="av">🤓</div><div><b>Papá:</b> Un buen encargado vale su peso en oro. Uno malo… en Stormtroopers fallando el tiro.</div></div>
+<div class="pn cand"><div class="av">👩</div><div><b>Lucía</b> <span class="stars">★★★☆</span><div class="mu">Habitual de la tienda. Vende el 80 % de lo que venderías tú y repone sola.</div></div><span class="b pri" style="padding:8px">90 €<small>/día</small></span></div>
+<div class="pn cand"><div class="av">🧑‍🦱</div><div><b>Marcos</b> <span class="stars">★★☆☆</span><div class="mu">Estudiante. Vende el 65 % y no repone: tienes que dejarle stock.</div></div><span class="b pri" style="padding:8px">50 €<small>/día</small></span></div>
+<div class="pn cand"><div class="av">👵</div><div><b>Doña Pili</b> <span class="stars">★★★★</span><div class="mu">Ex dependienta de Paco. Vende el 95 %, repone y regatea bien.</div></div><span class="b pri" style="padding:8px">160 €<small>/día</small></span></div>
+<p class="mu">Sin encargado, la tienda en la que no estás se queda cerrada ese día.</p>`);
+
+// 6 · Stock de Funkos
+scr(6, "Stock de Funkos", `<h2>📦 Stock · Pop Galaxy</h2>
+<div class="hero"><div class="av">🤩</div><div><b>Álvaro:</b> ¡Ha salido la <b>ola 3 de Star Wars</b>! Si pillamos la Chase de Grogu…</div></div>
+<div class="tabs"><b class="on">Star Wars</b><b>Marvel</b><b>DC</b><b>Harry Potter</b><b>Anime</b></div>
+<div class="pn fkc" style="--fc:#a9c98d">${box("Grogu", 368, "#7a8f62")}
+<div><b class="n">Grogu</b><div class="chips"><span class="chip">#368 · Ola 3</span><span class="chip ch">✨ Chase 1 de 6</span></div>
+<div class="row"><div class="mu">Mercado <b style="color:#fff">14,95 €</b> <span class="up">▲ 6 %</span><br>En estantería</div><div class="qty"><b>4</b><i>en stock</i></div></div>
+<div class="step"><span>−</span><b>15,95 €</b><span>+</span></div></div>
+<div class="btns" style="grid-column:1/-1"><span class="b pri">Caja de 6 · 54 €<small>llega mañana · puede traer Chase</small></span><span class="b">Precio para todos<small>los de Star Wars</small></span></div></div>
+<div class="pn fkc" style="--fc:#1a1a1e">${box("Darth Vader", 157, "#2b2b33")}
+<div><b class="n">Darth Vader</b><div class="chips"><span class="chip">#157 · Ola 1</span><span class="chip va">🔒 Descatalogado</span></div>
+<div class="row"><div class="mu">Mercado <b style="color:#fff">39,90 €</b> <span class="up">▲ 31 %</span><br>Ya no se puede pedir</div><div class="qty"><b>1</b><i>en stock</i></div></div></div>
+<div class="btns" style="grid-column:1/-1"><span class="b" style="opacity:.5">Sin pedidos</span><span class="b fk">🏆 A la vitrina<small>vale más expuesto</small></span></div></div>`);
+
+// 7 · Ficha de figura
+scr(7, "Ficha de una figura", `<div class="big">${box("Batman", 1, "#2b2d36", "chase")}</div>
+<h2 style="text-align:center;margin:0">Batman</h2>
+<div class="chips" style="justify-content:center"><span class="chip">DC · #1 · Ola 1</span><span class="chip ch">Chase</span><span class="chip ok">📦 Caja perfecta</span></div>
+<div class="pn"><div class="row"><span>Valor de mercado</span><b style="font:700 20px var(--fd)">89,90 €</b></div><div class="row">${spark(1)}<span class="mu">7 d <span class="up">+4,1 %</span> · 30 d <span class="up">+18,0 %</span></span></div></div>
+<div class="pn"><b>📦 Estado de la caja</b><div class="mu">Perfecta · Un golpe la deja en «Dañada» (vale un 40 % menos). Con protector, no se daña.</div><div class="btns"><span class="b pri">🛡️ Poner protector<small>2,50 €</small></span><span class="b">💰 Vender<small>76,40 €</small></span></div></div>`);
+
+// 8 · Llega una caja: ¡Chase!
+scr(8, "Llega una caja con Chase", `<div class="reveal"><h4>✨ ¡HA SALIDO UNA CHASE! ✨</h4><div class="big">${box("Spider-Man", 593, "#d0202a", "chase")}</div>
+<div class="val">74,90 € <span class="mu" style="font-size:14px">(la normal: 14,95 €)</span></div><div class="mu" style="margin-top:6px;position:relative">5 normales a la estantería · la Chase, a ti</div></div>
+<div class="btns"><span class="b fk">🏆 A la vitrina</span><span class="b">❤️ Me la quedo</span></div>`);
+
+// 9 · Convención
+scr(9, "Evento: convención con exclusivas", `<div class="conv"><div class="mu" style="color:#cdd6ff">📢 Este sábado · Salón del Cómic</div><h3>🎪 Exclusivas de convención</h3><div class="timer">⏳ 02:48</div><div class="mu" style="color:#cdd6ff">Solo hoy · unidades limitadas</div></div>
+<div class="pn fkc" style="--fc:#d0202a">${box("Iron Man", 1031, "#b5121b", "ex")}
+<div><b class="n">Iron Man dorado</b><div class="chips"><span class="chip ex">Exclusiva · 3 000 unidades</span></div><div class="mu">Precio de convención <b style="color:#fff">29,90 €</b><br>En una semana: unos <b class="up">60–90 €</b></div><div class="btns" style="grid-template-columns:1fr"><span class="b pri">Comprar (quedan 2)</span></div></div></div>
+<div class="pn"><b>🧍 Cola en la puerta de tu tienda</b><div class="queue">🧑🧔👧🧑‍🎤👩🧓🧑‍🦱</div><div class="mu">Si las tienes, al día siguiente viene gente a tu tienda a por ellas. Véndelas rápido… o guárdalas y espera a que suban.</div></div>`);
+
+// 10 · Colección y álbum
+const ALB = [["Spider-Man", 1], ["Iron Man", 1], ["Capitán América", 0], ["Batman", 2], ["Darth Vader", 1], ["Stormtrooper", 1], ["Grogu", 0], ["Harry Potter", 1], ["Hermione", 0], ["Goku", 1], ["Naruto", 0], ["Mario", 1]];
+scr(10, "Colección y álbum", `<h2>🧸 Colección</h2><div class="tabs"><b class="on">Álbum</b><b>Mis Funkos</b><b>Encargos</b><b>Logros</b></div>
+<div class="row"><b>Marvel · 2 de 15</b><span class="mu">premio 120 €</span></div><div class="bar"><i style="width:13%"></i></div>
+<div class="row"><b>Star Wars · 3 de 15</b><span class="mu">premio 150 €</span></div><div class="bar"><i style="width:20%"></i></div>
+<div class="row"><b>Harry Potter · 1 de 12</b><span class="mu">premio 100 €</span></div><div class="bar"><i style="width:8%"></i></div>
+<div class="grid" style="margin-top:10px">${ALB.map(([n, s]) => `<div class="fg${s === 0 ? " miss" : s === 2 ? " ch" : ""}">${F(fig(n))}${s === 0 ? "?" : n}${s === 2 ? "<i>Chase</i>" : ""}</div>`).join("")}</div>
+<div class="pn"><b>📋 Encargo · Hugo busca Grogu (Chase)</b><div class="mu">Paga 95,00 € · quedan 4 días</div></div>`);
+
+// 11 · Catálogo del generador
+scr(11, "Figuras del generador (muestra)", `<div class="grid">${FIG.map(([n, col, o]) => `<div class="fg">${F(o)}${n}<i>${col}</i></div>`).join("")}</div>
+<p class="mu">Todas con el mismo cuerpo de vinilo y piezas que se combinan: cabeza, pelo, máscara o casco, capa, emblema y accesorio. Unas 150 figuras en 10 colecciones.</p>`);
+
+// 12 · Ticket
+scr(12, "Ticket del día con las dos tiendas", `<div class="ticket"><h4>DÍA 34 · TUS TIENDAS</h4>
+<div class="tl"><span>🃏 Poké Cards (Lucía)</span><span>612,40 €</span></div>
+<div class="tl"><span>🧸 Pop Galaxy (tú)</span><span>874,10 €</span></div>
+<div class="tl"><span>  ✨ Chase vendida: Batman</span><span>89,90 €</span></div>
+<div class="tl"><span>Sueldo de Lucía</span><span>−90,00 €</span></div>
+<div class="tl"><span>Alquiler de los dos locales</span><span>−120,00 €</span></div>
+<div class="tl t"><span>TOTAL</span><span>1.366,40 €</span></div></div>
+<div class="pn"><b>📢 Mañana sale la ola 3 de Star Wars</b><div class="mu">La ola 1 pasa a <b>descatalogada</b>: ya no se puede pedir y su precio sube.</div></div>`);
+</script>
+</body>
+</html>
