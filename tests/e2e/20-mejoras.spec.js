@@ -810,3 +810,29 @@ test("20ab · Las ventas no se apuntan en Avisos (salen en pantalla, pero no tap
   expect(r).toEqual({ notes: ["📋 Hay un encargo nuevo"], unread: 1 });
   await expect(page.locator("#toast")).toContainText("+ 4,50 €");
 });
+
+test("20ac · Cartas gradeadas: en la vista grande salen en su funda y, en la ficha, la carta se ve entera", async ({
+  page,
+  gamePath,
+}) => {
+  await freshGame(page, gamePath);
+  await game(page, (P) => {
+    const c = P.CARDS[0];
+    P.S.items.push({ i: 9001, c: c.id, k: "NM", rv: false, gr: 10, case: null });
+    P.S.dex[c.id] = 1;
+  });
+  await page.locator('#nav [data-k="coll"]').click();
+  await page.locator('#ovh [data-a="m"][data-k="grading"]').click();
+  await page.locator('#ovh .tile[data-g="9001"]').click();
+  await expect(page.locator("#zv .slab .gnum")).toHaveText("10");
+  await expect(page.locator("#zv .cinfo")).toContainText("PGS 10");
+  await page.locator("#zv").click();
+  await page.locator('#ovh [data-a="callc"]').click();
+  await page
+    .locator("#ovh .tile[data-a=sel]", { has: page.locator(".slabm") })
+    .first()
+    .click();
+  // El hueco de la carta tiene forma de carta (63 × 88), así que no se recorta
+  const r = await page.locator("#cbig .slab-card").evaluate((e) => e.clientWidth / e.clientHeight);
+  expect(r).toBeCloseTo(63 / 88, 2);
+});

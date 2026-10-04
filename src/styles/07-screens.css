@@ -636,6 +636,28 @@ html.ui-big .mu {
   width: 100%;
   height: 100%;
 }
+/* La carta dentro de la funda, entera (con su forma de carta, sin recortar arriba ni abajo); la funda crece lo que haga falta */
+html.ux .slab {
+  aspect-ratio: auto;
+}
+html.ux .slab-card {
+  flex: none;
+  aspect-ratio: 63/88;
+}
+html.ux .cbig.gr {
+  aspect-ratio: auto;
+}
+html.ux .cbig.gr .slab {
+  height: auto;
+}
+/* Vista grande de una carta gradeada (al tocarla en Gradeo): en su funda */
+.zslab {
+  width: min(72vw, 290px);
+  perspective: 900px;
+}
+.zslab .slab {
+  width: 100%;
+}
 /* Lista de deseos: el hueco del álbum se puede tocar; con ⭐ si está en la lista */
 .pk-w {
   position: absolute;
