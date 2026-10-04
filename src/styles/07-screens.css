@@ -946,3 +946,101 @@ html.ui-big .mu {
 .stk.prod .stk-btns.two {
   grid-template-columns: 1fr 1fr;
 }
+/* Retos: tarjetas de misión, logro y encargo (rediseño pedido por Alberto) */
+.msn-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.msn-top b {
+  font-family: var(--fd);
+  font-size: 16px;
+  line-height: 1.25;
+}
+.msn-rew {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #f2b70526;
+  color: #f2c94e;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.msn-bar {
+  position: relative;
+  height: 22px;
+  margin-top: 8px;
+  border-radius: 11px;
+  background: #0006;
+  overflow: hidden;
+}
+.msn-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #2fa557, #4cc98a);
+}
+.msn-bar span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 12px var(--fd);
+  color: #fff;
+  text-shadow: 0 1px 2px #000a;
+}
+.msn .msn-go {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 8px;
+}
+.msn-ok {
+  margin-top: 6px;
+  color: #4cc98a;
+  font-weight: 700;
+  font-size: 13px;
+}
+.msn.ready {
+  border-color: #4cc98a;
+  box-shadow: 0 0 0 1px #4cc98a55;
+}
+.msn.claimed,
+.msn.locked {
+  opacity: 0.8;
+}
+.msn.ord {
+  display: flex;
+  gap: 10px;
+}
+.ord-c {
+  width: 72px;
+  flex: none;
+}
+.ord-b {
+  flex: 1;
+  min-width: 0;
+}
+.ord-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ord-dl {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ffffff12;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ord-dl.last {
+  background: #e3350d33;
+  color: #ff8a7a;
+}
+.ord-no {
+  margin-top: 6px;
+  font-size: 12.5px;
+}
