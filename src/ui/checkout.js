@@ -87,11 +87,18 @@ export function mCk() {
     c = k.c,
     h = c.hold;
   const items =
-    h.k === "prod"
+    (h.k === "prod"
       ? `${pInfo(h.pid).ic} ${pInfo(h.pid).n}`
       : h.k === "pack"
         ? `${h.qty} × sobre ${setName(h.s)} · ${fmt(S.shelf[h.s])} c/u`
-        : `${BYID[h.it.c].name}${h.it.gr ? " · PGS " + h.it.gr : ""} · carta suelta`;
+        : `${BYID[h.it.c].name}${h.it.gr ? " · PGS " + h.it.gr : ""} · carta suelta`) +
+    // Lo demás de la cesta (core/customers/decide.js, addExtras)
+    (h.x || [])
+      .map(
+        (e) =>
+          `<span data-fase="I"><br>${e.k === "prod" ? `${pInfo(e.pid).ic} ${pInfo(e.pid).n}` : `${e.qty} × sobre ${setName(e.s)} · ${fmt(e.total / e.qty)} c/u`}</span>`,
+      )
+      .join("");
   const R = c.reg ? RG(c.reg) : null,
     av = R ? R.e : { kid: "🧒", collector: "🧑", investor: "🧑‍💼", whale: "🤑" }[c.type] || "🙂";
   const top = `<div class="cust"><div class="av">${av}</div><div class="sp">${R ? `<b>${R.n}</b> <span style="font-size:11px">${hearts(regS(c.reg).loy)}</span><br>` : ""}${k.say}</div></div><div class="lcd"><span>TOTAL</span><b>${fmt(k.tc / 100)}</b></div><div class="ckitems">${items}</div>`;
@@ -130,7 +137,7 @@ export function finishCK(recv) {
 }
 export function openHaggle(c) {
   c.hg = true;
-  const full = r05(c.hold.total),
+  const full = r05(c.hold.base ?? c.hold.total), // solo la carta (sin lo demás de la cesta)
     offer = r05(full * (0.74 + Math.random() * 0.14));
   G.HG = {
     c,
@@ -153,7 +160,9 @@ export function mHag() {
 }
 export function dealHg(v) {
   const c = G.HG.c;
-  c.hold.total = v;
+  const h = c.hold;
+  h.total = v + (h.total - (h.base ?? h.total)); // la carta, al precio acordado, y lo demás de la cesta
+  if (h.base != null) h.base = v;
   G.HG = null;
   openCheckout(c);
 }

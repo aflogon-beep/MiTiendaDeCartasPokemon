@@ -22,6 +22,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · El nivel nunca baja; botón «atrás»; con cajero, las ofertas esperan aparte («📥 N ofertas esperando») | ✅ |
 | Mejoras · Botones verde/gris/rojo; rediseño de Stock, Mejoras, Retos, colección y ficha de carta | ✅ |
 | Mejoras · Sobre imitado (logo e ilustración reales), tarjetas con el color de la colección y banners con Emma, Álvaro y papá | ✅ |
+| Mejoras · Menos clientes y cestas más grandes (≥ 20 €): reputación con techo ×2, máx. 10 dentro, extras en la cesta | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -60,6 +61,8 @@ src/
     save.js slots.js     guardado por ranuras (3), exportar/importar
     bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
     cards/ customers/    API y caché de cartas; clientes (con cajero, los que venden, cambian o traen lote esperan aparte: «aside»/«offer», `offers()`)
+                         menos clientes y cestas grandes: `repMul` (reputación, máx. ×2), `CUST_MAX` (10 dentro), `PQTY` (sobres por tipo)
+                         y `addExtras` (sobres y accesorio de más: `c.hold.x`, `c.hold.base` = lo principal, para el regateo)
     quips.js             frases de Emma y Álvaro y visitas de papá: varias por situación (la 1.ª, la del guion; luego al azar sin repetir, S.quipV)
     wish.js              lista de deseos (S.wish): avisos si un cliente o un lote trae una carta
     alerts.js            alertas de precio (S.palert) y recordatorio de copia (S.bkpAt, 7 días reales)

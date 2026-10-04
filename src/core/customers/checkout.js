@@ -9,21 +9,25 @@ import { track } from "../missions.js";
 import { wpick } from "../rng.js";
 export function pay(c, got) {
   const h = c.hold;
-  holdNote(h, -1);
   if (got == null) got = h.total;
   S.money += got;
   S.stats.inc += got;
-  S.sales++;
-  if (h.k === "single") {
-    const i = S.items.indexOf(h.it);
-    if (i >= 0) S.items.splice(i, 1);
-    track("bigsale", got);
-    if (h.it.fk) S.fkRet.push({ got, reg: c.reg || null });
-  } else if (h.k === "prod") track("sellprod", h.qty);
-  else {
-    track("sellpack", h.qty);
-    S.lt.setSold = S.lt.setSold || {};
-    S.lt.setSold[h.s] = (S.lt.setSold[h.s] || 0) + h.qty;
+  // Reputación: cuenta lo que se gasta (1 por cada 10 €, de 1 a 5), no solo que haya comprado
+  S.sales += Math.max(1, Math.min(5, Math.floor(got / 10)));
+  for (const e of [h, ...(h.x || [])]) {
+    holdNote(e, -1);
+    if (e.k === "single") {
+      const i = S.items.indexOf(e.it);
+      if (i >= 0) S.items.splice(i, 1);
+      const cg = got - (h.total - (h.base ?? h.total)); // lo que se pagó por la carta (sin lo demás de la cesta)
+      track("bigsale", cg);
+      if (e.it.fk) S.fkRet.push({ got: cg, reg: c.reg || null });
+    } else if (e.k === "prod") track("sellprod", e.qty);
+    else {
+      track("sellpack", e.qty);
+      S.lt.setSold = S.lt.setSold || {};
+      S.lt.setSold[e.s] = (S.lt.setSold[e.s] || 0) + e.qty;
+    }
   }
   if (c.reg) loy(c.reg, 3 + (c.wt < c.pat * 0.4 ? 2 : 0));
   track("earn", got);
