@@ -17,14 +17,14 @@ import { mColl } from "./screens/cards.js";
 import { mCust } from "./screens/customer.js";
 import { mCustom } from "./customize.js";
 import { mGames, mHunt, mMG, mMedals, mStory, mTasks } from "./screens/retos.js";
-import { mGrading, mountGR } from "./screens/grading.js";
+import { mGrading, mountGR, slabHTML } from "./screens/grading.js";
 import { mOpen, mountBox, mountPX } from "./packOpening.js";
 import { mPacks, mUp } from "./screens/stock.js";
 import { mStats } from "./screens/stats.js";
 import { mSum } from "./screens/summary.js";
 import { navAct } from "./nav.js";
 import { pick } from "../core/rng.js";
-import { price } from "../core/economy.js";
+import { itemVal, price } from "../core/economy.js";
 import { rvr } from "../core/cards/prices.js";
 import { saveNow } from "../core/save.js";
 import { sfx, vibe } from "../audio/sfx.js";
@@ -298,19 +298,21 @@ export function countUp(el, v, ms) {
     if (k < 1 && el.isConnected) requestAnimationFrame(f);
   })(t0);
 }
-export function zoom(id, rv) {
+export function zoom(id, rv, gi) {
   const c = BYID[id];
   if (!c) return;
+  // Gradeada: se ve en su funda, como en la ficha (gi = el número de la carta en la colección)
+  const it = gi != null && gi !== "" ? S.items.find((x) => String(x.i) === String(gi) && x.gr) : null;
   const old = $("#zv");
   if (old) old.remove();
   const el = document.createElement("div");
   el.id = "zv";
   el.className = "px zv";
   el.style.setProperty("--sc", RAR[c.r].c);
-  el.innerHTML = `<div class="pxstage"><div class="cstack">${pcHTML(c, rv, false, 0)}</div></div><div class="pxhint"><div class="cinfo" style="--rc:${RAR[c.r].c}"><div><b style="color:#fff">${c.name}</b> <span class="rchip">${RAR[c.r].n}</span>${rv ? ' <span class="rchip rv">Reverse</span>' : ""}</div><div class="cv">${fmt(price(id) * (rv ? rvr(c) : 1))}</div><div class="mu">Mueve el dedo o inclina el móvil · toca para cerrar</div></div></div>`;
+  el.innerHTML = `<div class="pxstage">${it ? `<div class="zslab" data-fase="I">${slabHTML(c, rv, it.gr, false, it)}</div>` : `<div class="cstack">${pcHTML(c, rv, false, 0)}</div>`}</div><div class="pxhint"><div class="cinfo" style="--rc:${RAR[c.r].c}"><div><b style="color:#fff">${c.name}</b> <span class="rchip">${RAR[c.r].n}</span>${rv ? ' <span class="rchip rv">Reverse</span>' : ""}${it ? ` <span class="rchip" data-fase="I">PGS ${it.gr}</span>` : ""}</div><div class="cv">${fmt(it ? itemVal(it) : price(id) * (rv ? rvr(c) : 1))}</div><div class="mu">Mueve el dedo o inclina el móvil · toca para cerrar</div></div></div>`;
   document.body.appendChild(el);
   const prev = TILT.el;
-  TILT.el = el.querySelector(".pc");
+  TILT.el = el.querySelector(".pc, .slab");
   el.addEventListener("pointerdown", () => askGyro());
   el.addEventListener("pointermove", ptTilt);
   el.addEventListener("click", () => {

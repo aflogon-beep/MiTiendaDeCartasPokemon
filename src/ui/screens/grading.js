@@ -121,7 +121,7 @@ export function mGrading() {
     .slice(0, 120)
     .map((i) => {
       const c = BYID[i.c];
-      return `<div class="tile zoomable" data-a="zoom" data-k="${c.id}" data-n="${i.rv ? 1 : 0}">${face(c, i.rv)}${slabOver(i.gr)}<div class="pt">${fmt(itemVal(i))}</div><div class="gb">PGS ${i.gr}</div></div>`;
+      return `<div class="tile zoomable" data-a="zoom" data-k="${c.id}" data-n="${i.rv ? 1 : 0}" data-g="${i.i}">${face(c, i.rv)}${slabOver(i.gr)}<div class="pt">${fmt(itemVal(i))}</div><div class="gb">PGS ${i.gr}</div></div>`;
     })
     .join("")}</div>`
   );

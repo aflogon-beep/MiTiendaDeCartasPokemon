@@ -1104,7 +1104,7 @@ export const A = {
     renderM();
   },
   pause: () => setPause(!G.paused),
-  zoom: (d) => zoom(d.k, d.n === "1"),
+  zoom: (d) => zoom(d.k, d.n === "1", d.g),
   nextc: () => {
     const o = G.openState;
     if (!o.fl) {
