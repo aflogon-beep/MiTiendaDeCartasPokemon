@@ -24,11 +24,11 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Sobre imitado (logo e ilustración reales), tarjetas con el color de la colección y banners con Emma, Álvaro y papá | ✅ |
 | Mejoras · Menos clientes y cestas más grandes (≥ 20 €): reputación con techo ×2, máx. 10 dentro, extras en la cesta | ✅ |
 | Zona Funko · F1: la librería se traspasa (nivel 5, 15.000 €), Don Ramón, nombre, zona dibujada y Emma en su sofá (`docs/funkos/`) | ✅ |
-| Zona Funko · F2–F5: catálogo y stock, vender, lo pro, colección | ⏳ |
+| Zona Funko · F2–F5: catálogo (220 figuras + Deluxe, grails y oro), stock, venta en la misma caja, encargado, nivel de zona, mobiliario, Chase, olas, eventos, álbum, encargos y logros | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. En marcha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`): F1 hecha; siguen F2–F5.
+Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. Hecha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`, F1–F5).
 
 ## Reglas
 
@@ -73,6 +73,9 @@ src/
     dirt.js              suciedad en el suelo (S.dirt): se recoge tocándola; −3 % clientes por cosa (máx. −24 %)
     tables.js            mesa de juego: grupos de 2 o 4 juegan y pagan 2 € por jugador y partida; a veces compran (players, no se guardan)
     funko.js             zona Funko (S.fk): la librería se traspasa a nivel 5 (FK_LV) por 15.000 € (FK_COST), nombre, frases de Emma al despertarla
+    funko/               catalog.js (11 colecciones, FIGS/DLX/GRAILS/GOLD, look), zone.js (nivel ⭐, mercado, olas, pedidos,
+                         almacén/estanterías/vitrina, encargado, eventos, encargos, álbum, logros, cierre del día),
+                         sell.js (clientes de la zona, gancho, torpe, quien vende un Funko)
     …                    economía, sobres, tratos, lotes, gradeo, misiones, rival, ladrón, día…
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
@@ -91,13 +94,15 @@ src/
     packart.js           sobre imitado: bordes dentados, brillo, logo oficial (sd.logo) e ilustración de la carta estrella
     hero.js              banners con Emma, Álvaro o papá en Stock, Mejoras, Retos y Cartas (data-fase)
     screens/funko.js     zona Funko: ficha de la librería (fklocal) y poner nombre (fkname), con Don Ramón
+    screens/funkoStock.js  Stock → 🧸 Funkos, ficha de figura (fkfig), nivel (fklv), colección (fkcolec), evento (fkev), Chase (fkchase)
+    funko/fig.js         dibujo SVG de las figuras (piezas del catálogo y variantes) y de su caja (boxHTML)
     version.js           versión del juego = fecha del último commit (__BUILD__; mismo código, misma versión); se ve en Más → Ajustes
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
     screens/ …           paneles del juego
   audio/sfx.js
-  styles/                01-base … 08-tutorial (juego) · 09-title · 10-story (Fase I)
+  styles/                01-base … 08-tutorial (juego) · 09-title · 10-story (Fase I) · 11-funko (zona Funko)
 public/icons/            iconos de la app (se generan con docs/icono/iconos.py)
 tests/
   e2e/                   Playwright: 01–13 (tabla original), 14 estilos, 15 PWA, 16–19 Fase I, 20 mejoras, 21 zona Funko
@@ -115,7 +120,7 @@ docs/                    pendientes.md, app.md, intro/, icono/, funkos/
 - `S.held`: sobres y productos que llevan los clientes a la caja (`holdNote`); al cargar vuelven al stock (`releaseHolds`, junto con las cartas de vitrina apartadas).
 - `S.recInc`: récord de ventas de un día (sello «¡RÉCORD!» en el ticket; el primer día no cuenta).
 - `S.wish`: ids de las cartas de la lista de deseos (se crea al añadir la primera).
-- `S.fk`: zona Funko (`{ name, since }`); no existe hasta comprar el local. Con ella, la tienda llega hasta x 1084 (`RX()` en `world/layout.js`: luz de noche, lluvia/hojas y persiana) y la librería desaparece de la calle.
+- `S.fk`: zona Funko; no existe hasta comprar el local. `name`, `since`, `u` (unidades: f, v variante, d dañada, p protector, at a|s|v|m|h), `mk` (mercado), `wv`/`wd`/`vd` (olas y descatalogados), `pp` (precios), `del` (pedidos), `xp`/`lv` (nivel de la zona, no baja), `mob` (muebles), `stf`/`bud` (encargado), `ev`/`evd` (eventos), `ord` (encargos), `alb`/`albR` (álbum), `ach` (logros), `st` (cuentas del día). Ver `core/funko/zone.js`. Con ella, la tienda llega hasta x 1084 (`RX()` en `world/layout.js`: luz de noche, lluvia/hojas y persiana) y la librería desaparece de la calle.
 - `S.meSet`: lo elegido en Personalizar para Álvaro (solo lo que se ha tocado; `""` = lo suyo). Las partidas de antes solo tienen `S.me`: `meSetOf()` lo deduce.
 - `S`: objeto con identidad estable. Para cargar una partida, `replaceState(obj)`. Nada de `S = …`.
 - `custs`, `queue`: arrays que se mutan en sitio.

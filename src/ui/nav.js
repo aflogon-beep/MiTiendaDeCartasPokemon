@@ -47,6 +47,12 @@ export function paintNav() {
 }
 export const SEC = {
   packs: "packs",
+  fkfig: "packs",
+  fklv: "packs",
+  fkcolec: "packs",
+  fkev: "packs",
+  fkchase: "packs",
+  fkdeal: "home",
   coll: "coll",
   card: "coll",
   album: "coll",

@@ -13,6 +13,8 @@ import { routeTo } from "../../world/nav.js";
 import { startTheft } from "../theft.js";
 import { trophies } from "../trophies.js";
 import { pickProd } from "./spawn.js";
+import { fkClaw, fkClumsy, fkPick } from "../funko/sell.js";
+import { fkPrice, fkUVal } from "../funko/zone.js";
 export function decide(c) {
   if (c.thief && !c.run) return startTheft(c);
   if (c.want.k === "admire") {
@@ -28,6 +30,22 @@ export function decide(c) {
     return leave(c, false);
   }
   const m = CT[c.type].mult * (c.reg ? 1 + regS(c.reg).loy / 1000 : 1);
+  if (c.want.k === "funko") {
+    // Zona Funko (core/funko/sell.js): elige figuras de la estantería (o de la vitrina) y va a la caja
+    fkClaw(c);
+    const r = fkPick(c, m, tolMul());
+    if (!r.units) {
+      say(c, r.why === "caro" ? "💸 Muy caros estos Funkos" : pick(["🤔 Hoy no me llevo nada", "👀 Solo miraba"]));
+      why(r.why === "caro" ? "kp:fk" : "ks:fk");
+      if (fkClumsy()) say(c, "😬 ¡Uy! Le he dado a una caja…");
+      return leave(c, r.why === "caro");
+    }
+    c.hold = { k: "funko", us: r.units, qty: r.units.length, total: r.total };
+    say(c, pick(["🤩 ¡Este me falta!", "😍 ¡Qué Funkos!", "🧸 ¡Me lo llevo!"]));
+    c.st = "toq";
+    routeTo(c, LAY.qx, LAY.qy + queue.length * LAY.qs);
+    return;
+  }
   if (c.want.k === "prod") {
     const pid = c.want.pid,
       i = pInfo(pid);
@@ -154,6 +172,14 @@ export function addExtras(c, m) {
         S.prod[pid]--;
         x.push({ k: "prod", pid, qty: 1, total: pr });
       }
+    }
+  }
+  if (S.fk && S.fk.u && Math.random() < 0.12) {
+    const u = S.fk.u.find((q) => q.at === "s" && fkPrice(q) <= 25);
+    if (u && fkPrice(u) <= r05(fkUVal(u) * 1.12 * m * tolMul())) {
+      u.from = u.at;
+      u.at = "h";
+      x.push({ k: "funko", us: [u], qty: 1, total: fkPrice(u) });
     }
   }
   if (!x.length) return;

@@ -7,6 +7,7 @@ import { loy } from "../regulars.js";
 import { holdNote, queue, say } from "./move.js";
 import { track } from "../missions.js";
 import { wpick } from "../rng.js";
+import { fkSold } from "../funko/zone.js";
 export function pay(c, got) {
   const h = c.hold;
   if (got == null) got = h.total;
@@ -23,7 +24,11 @@ export function pay(c, got) {
       track("bigsale", cg);
       if (e.it.fk) S.fkRet.push({ got: cg, reg: c.reg || null });
     } else if (e.k === "prod") track("sellprod", e.qty);
-    else {
+    else if (e.k === "funko") {
+      // Zona Funko: lo que se paga por los Funkos (en una cesta con más cosas, su parte)
+      fkSold(e.us, e === h ? got - (h.total - (h.base ?? h.total)) : e.total);
+      track("sellfk", e.qty);
+    } else {
       track("sellpack", e.qty);
       S.lt.setSold = S.lt.setSold || {};
       S.lt.setSold[e.s] = (S.lt.setSold[e.s] || 0) + e.qty;

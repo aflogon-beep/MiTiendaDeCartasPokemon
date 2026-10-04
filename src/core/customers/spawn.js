@@ -15,6 +15,8 @@ import { pick, rnd, wpick } from "../rng.js";
 import { routeTo } from "../../world/nav.js";
 import { trophyOn } from "../trophies.js";
 import { wishCheck } from "../wish.js";
+import { fkBuyDeal, fkMakeDeal, fkShare, fkSpot } from "../funko/sell.js";
+import { FBYID } from "../funko/catalog.js";
 export let cid = 0;
 export function shelfSpot(i) {
   const s = LAY.shelf(i);
@@ -32,6 +34,7 @@ export function spawn() {
     const t = dayT();
     if (S.phase !== "closed" && (t < 0.18 || (t > 0.55 && t < 0.72))) wts.kid *= 1.8;
     if (S.school && S.school.until >= S.day) wts.kid *= 1.6;
+    if (S.fk && S.fk.mob && S.fk.mob.pika) wts.kid *= 1.1; // Pikachu gigante en la zona Funko
   }
   wts.lot = S.day >= 2 && !custs.some((x) => x.type === "lot") ? 0.05 : 0;
   if (S.tour) wts.collector *= 2;
@@ -105,6 +108,25 @@ export function spawn() {
       return;
     }
   }
+  if (type === "seller" && S.fk && Math.random() < 0.3) {
+    // Viene a vender un Funko (core/funko/sell.js). Con encargado, se lo compra él si el precio es bueno.
+    const D = fkMakeDeal();
+    if (D) {
+      if (S.fk.stf && D.ask <= D.val * 0.8 && fkBuyDeal(D)) {
+        // (no hace falta que entre: el encargado lo atiende en la puerta)
+        S.stats.cust++;
+        ui.toast(`🧑‍🎤 El encargado ha comprado un ${FBYID[D.f].name} por ${D.ask.toFixed(2).replace(".", ",")} €`);
+        return;
+      }
+      c.want = { k: "fksell" };
+      c.fkdeal = D;
+      c.st = "toq";
+      routeTo(c, LAY.qx, LAY.qy + queue.length * LAY.qs);
+      custs.push(c);
+      S.stats.cust++;
+      return;
+    }
+  }
   if (type === "seller" || type === "lot") {
     c.want = { k: type === "lot" ? "lot" : "sell" };
     if (type === "seller") {
@@ -120,7 +142,13 @@ export function spawn() {
   const ptry =
     S.tut && S.tut.on ? 0 : R && R.acc ? 0.6 : { kid: 0.25, collector: 0.3, investor: 0.4, whale: 0.45 }[type] || 0;
   const pid = Math.random() < ptry ? pickProd(R && R.acc ? "player" : type) : null;
-  if (pid) {
+  if (!pid && type !== "seller" && Math.random() < fkShare()) {
+    // A la zona Funko
+    c.want = { k: "funko" };
+    const p = fkSpot();
+    c.tx = p.x;
+    c.ty = p.y;
+  } else if (pid) {
     c.want = { k: "prod", pid };
     const b = LAY.prod;
     c.tx = b.x + 20 + rnd(b.w - 40);
@@ -147,7 +175,14 @@ export function spawn() {
     c.ty = p.y;
     c.wps = [];
   }
-  if ((c.type === "collector" || c.type === "kid") && !c.reg && !c.thief && trophyOn() && Math.random() < 0.14) {
+  if (
+    (c.type === "collector" || c.type === "kid") &&
+    !c.reg &&
+    !c.thief &&
+    c.want.k !== "funko" &&
+    trophyOn() &&
+    Math.random() < 0.14
+  ) {
     c.want = { k: "admire" };
     const a = admireSpot();
     c.tx = a.x;
@@ -157,6 +192,7 @@ export function spawn() {
     c.type === "collector" &&
     !c.reg &&
     c.want.k !== "admire" &&
+    c.want.k !== "funko" &&
     theftOK() &&
     Math.random() < (S.cams ? 0.035 : 0.07) * DF().theft
   )

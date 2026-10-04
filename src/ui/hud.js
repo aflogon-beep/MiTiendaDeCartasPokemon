@@ -78,7 +78,9 @@ export function hud() {
           ? "📦 Atender: vende un lote"
           : f.want.k === "trade"
             ? "🔄 Atender: quiere cambiar una carta"
-            : (S.staff.cashier ? "Cobrando… " : "💶 Cobrar ") + fmt(f.hold.total);
+            : f.want.k === "fksell"
+              ? "🧸 Atender: quiere vender un Funko"
+              : (S.staff.cashier ? "Cobrando… " : "💶 Cobrar ") + fmt(f.hold.total);
   } else if (S.phase === "closed") {
     a.disabled = false;
     a.textContent = `Abrir la tienda (día ${S.day})`;

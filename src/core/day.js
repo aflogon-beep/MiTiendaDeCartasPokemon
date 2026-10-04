@@ -21,6 +21,7 @@ import { rollGrade } from "./grading.js";
 import { saveNow } from "./save.js";
 import { tablesReset } from "./tables.js";
 import { step } from "./cards/prices.js";
+import { fkEndDay, fkNewDay } from "./funko/zone.js";
 export function dayT() {
   if (S.phase === "closed") return 0;
   return clamp(S.clock / DAYLEN, 0, 1);
@@ -91,7 +92,10 @@ export function endDay() {
       { d: S.day, inc: Math.round(st.inc * 100) / 100, net: Math.round(netWorth()), cust: st.cust, lost: st.lost },
     ])
     .slice(-60);
+  const fkSum = fkEndDay(); // zona Funko: ventas, alquiler, encargado, mercado, olas, eventos y encargos
   S.day++;
+  const fkChase = fkNewDay(); // llegan los pedidos de Funkos (y, a veces, una Chase)
+  if (fkSum) fkSum.chaseNew = fkChase.map((u) => u.i);
   let grN = 0,
     fkN = 0;
   S.items.forEach((i) => {
@@ -168,6 +172,7 @@ export function endDay() {
     fkN,
     refund,
     refN,
+    fk: fkSum, // zona Funko (ticket)
   };
   S.phase = "closed";
   S.clock = 0;

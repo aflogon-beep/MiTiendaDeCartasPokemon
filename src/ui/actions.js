@@ -33,7 +33,7 @@ import {
 } from "../core/economy.js";
 import { clamp, fmt, r05 } from "../core/util.js";
 import { closeDeal, finishDeal } from "../core/deals.js";
-import { closeM, openM, renderM, zoom } from "./modals.js";
+import { closeM, confetti, openM, renderM, zoom } from "./modals.js";
 import { collGrid } from "./screens/cards.js";
 import { custs, leave, queue, say } from "../core/customers/move.js";
 import { dealHg, finishCK, serveFront, serveOffer } from "./checkout.js";
@@ -44,6 +44,21 @@ import { mkMarketLots } from "../core/market.js";
 import { mkTells, mkWt } from "../core/fakes.js";
 import { openGrades } from "./screens/grading.js";
 import { fkBuyAct, fkNameInput, fkOpenAct, fkSugAct } from "./screens/funko.js";
+import {
+  fkAlbumClaim,
+  fkBase,
+  fkDeliver,
+  fkEventBuy,
+  fkMove,
+  fkOrder,
+  fkProtect,
+  fkRestock,
+  fkSellWholesale,
+  FK_MOB,
+  fkLv,
+} from "../core/funko/zone.js";
+import { FBYID } from "../core/funko/catalog.js";
+import { fkDealEnd } from "./checkout.js";
 import { osum } from "./packOpening.js";
 import { ownFor } from "../core/orders.js";
 import { paintNav } from "./nav.js";
@@ -394,6 +409,92 @@ export const A = {
     S.express = !S.express;
     renderM();
   },
+  // Zona Funko: Stock, ficha, colección y evento (ui/screens/funkoStock.js; lógica en core/funko/zone.js)
+  fkcol: (d) => {
+    G.fkC = d.k;
+    renderM();
+  },
+  fkord: (d) => {
+    const c = fkOrder(d.k, d.n || "");
+    if (!c) return;
+    toast(`🚚 Pedido: ${FBYID[d.k].name} · ${fmt(c)} · llega mañana`);
+    sfx.coin();
+    hud();
+    renderM();
+  },
+  fkpp: (d) => {
+    const cur = S.fk.pp[d.k] != null ? S.fk.pp[d.k] : r05(fkBase(d.k) * 1.05);
+    S.fk.pp[d.k] = Math.max(0.5, r05(cur + +d.n));
+    renderM();
+  },
+  fkrec: (d) => {
+    S.fk.pp[d.k] = r05(fkBase(d.k) * 1.05);
+    renderM();
+  },
+  fkrestock: () => {
+    const n = fkRestock();
+    if (n) track("fkrestock");
+    toast(
+      n ? `🏪 ${n} Funko${n > 1 ? "s" : ""} colocado${n > 1 ? "s" : ""}` : "No cabe nada más (o el almacén está vacío)",
+    );
+    renderM();
+  },
+  fkfig: (d) => {
+    G.FKF = d.k;
+    openM("fkfig");
+  },
+  fkmv: (d) => {
+    if (!fkMove(+d.k, d.n)) toast(d.n === "v" ? "La vitrina está llena" : "No cabe en las estanterías");
+    else if (d.n === "m") (sfx.ach(), toast("❤️ ¡A tu colección! Mira el álbum en Colección"));
+    renderM();
+  },
+  fkprot: (d) => {
+    if (fkProtect(+d.k)) (toast("🛡️ Protector puesto: esta caja ya no se dañará"), hud());
+    renderM();
+  },
+  fkwhole: (d) => {
+    const got = fkSellWholesale(+d.k);
+    if (got) (toast(`💰 Vendido al mayorista: ${fmt(got)}`), sfx.coin(), hud());
+    renderM();
+  },
+  fkalb: (d) => {
+    if (fkAlbumClaim(d.k)) (toast("🎁 ¡Colección completa! Premio cobrado"), sfx.ach(), confetti(2, "#ff4fd8"), hud());
+    renderM();
+  },
+  fkdeliv: (d) => {
+    const got = fkDeliver(d.k);
+    if (got) (toast(`📦 Encargo entregado: +${fmt(got)}`), sfx.coin(), hud());
+    renderM();
+  },
+  fkevbuy: (d) => {
+    if (fkEventBuy(d.k)) (toast("🎪 ¡Exclusiva conseguida! Está en el almacén"), sfx.ach(), hud());
+    renderM();
+  },
+  fkgo: () => {
+    G.pTab = "fk";
+    openM("packs");
+  },
+  fkstf: () => {
+    S.fk.stf = S.fk.stf ? 0 : 1;
+    if (S.fk.stf) (fkRestock(), toast("🧑‍🎤 ¡Encargado contratado! Repone y pide por ti"));
+    renderM();
+  },
+  fkbud: (d) => {
+    S.fk.bud = Math.max(0, Math.min(2000, S.fk.bud + +d.n));
+    renderM();
+  },
+  fkmob: (d) => {
+    const o = FK_MOB.find((x) => x.k === d.k);
+    if (!o || S.fk.mob[o.k] || S.money < o.cost || o.lv > fkLv()) return;
+    S.money -= o.cost;
+    S.fk.mob[o.k] = 1;
+    toast(`${o.ic} ¡${o.n} en la zona Funko!`);
+    sfx.ach();
+    hud();
+    renderM();
+  },
+  fkdealok: () => fkDealEnd(true),
+  fkdealno: () => fkDealEnd(false),
   // Zona Funko (ui/screens/funko.js)
   fkbuy: () => fkBuyAct(),
   fksug: (d) => fkSugAct(d.k),

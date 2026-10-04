@@ -201,6 +201,11 @@ export const MT = [
   { k: "bigsale", n: "Vende en vitrina una carta de {g} € o más", g: [5, 15, 30], r: [25, 50, 90] },
   { k: "sellprod", n: "Vende {g} productos sellados o accesorios", g: [2, 4, 7], r: [25, 45, 80] },
 ];
+/** Misiones del día de la zona Funko (solo salen si tienes la zona: core/missions.js). */
+export const FK_MT = [
+  { k: "sellfk", n: "Vende {g} Funkos", g: [2, 4, 7], r: [25, 45, 80] },
+  { k: "fkrestock", n: "Repón las estanterías de Funkos {g} veces", g: [1, 2, 3], r: [15, 25, 40] },
+];
 export const ACH = [
   { id: "pack1", n: "Primer sobre", d: "Abre tu primer sobre.", st: "packs", g: 1, r: 20 },
   { id: "pack100", n: "Adicto a los sobres", d: "Abre 100 sobres.", st: "packs", g: 100, r: 300 },

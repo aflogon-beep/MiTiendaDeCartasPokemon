@@ -1,5 +1,5 @@
 // Navegación de los clientes: cuadrícula de obstáculos, A* y rutas desde la calle hasta su destino.
-import { AX, FRONT_Y, LAY, LUX, TROPHY, W } from "./layout.js";
+import { AX, FRONT_Y, LAY, LUX, RX, TROPHY } from "./layout.js";
 import { S, slotCount } from "../core/state.js";
 import { caseCap } from "../core/economy.js";
 import { season } from "../core/events.js";
@@ -18,14 +18,40 @@ export function navSig() {
     S.decor.plants,
     season(),
     !!(S.prodSeen || Object.keys(S.prod || {}).some((k) => S.prod[k] > 0)),
+    S.fk
+      ? "F" +
+        Object.keys(S.fk.mob || {})
+          .sort()
+          .join(",")
+      : "", // zona Funko y sus muebles
   ].join("|");
 }
 export function navObstacles() {
   const o = [],
     P = (x0, y0, x1, y1, pad) => o.push([x0, y0, x1, y1, pad == null ? 9 : pad]);
   P(-600, 0, AX() + 8, 620, 0);
-  P(792, 0, 840, 620, 0);
-  P(-600, -40, 840, 54, 0);
+  if (S.fk) {
+    // Zona Funko (docs/funkos): la pared con el paso junto a la caja, el final del local y sus muebles
+    P(792, 0, 812, 478, 0);
+    P(792, 522, 812, 620, 0);
+    P(1078, 0, 1400, 620, 0);
+    P(-600, -40, 1400, 54, 0);
+    P(812, 544, 1400, 584, 0);
+    P(818, 50, 1062, 98);
+    P(880, 212, 990, 282);
+    P(1036, 106, 1078, 404, 4);
+    P(924, 398, 1010, 508, 4);
+    const M = S.fk.mob || {};
+    if (M.vader) P(820, 108, 866, 156, 4);
+    if (M.grails) P(822, 300, 888, 352, 4);
+    if (M.claw) P(820, 412, 872, 470, 4);
+    if (M.arcade) P(880, 422, 922, 470, 4);
+    if (M.iron) P(996, 418, 1040, 462, 4);
+    if (M.pika) P(1034, 462, 1070, 512, 4);
+  } else {
+    P(792, 0, 840, 620, 0);
+    P(-600, -40, 840, 54, 0);
+  }
   P(-600, 544, 322, 584, 0);
   if (S.annex) {
     [
@@ -57,9 +83,9 @@ export function navObstacles() {
   P(642, 98, 772, 128);
   [
     [20, 490],
-    [782, 500],
     [610, 118],
   ]
+    .concat(S.fk ? [] : [[782, 500]]) // con la zona Funko, ahí está el paso
     .concat(
       S.decor.plants
         ? [
@@ -93,6 +119,7 @@ export function navObstacles() {
   return o;
 }
 export function navBuild() {
+  NG.cols = S.fk ? 138 : 108; // con la zona Funko, la cuadrícula llega hasta el final de la librería
   const g = new Uint8Array(NG.cols * NG.rows);
   navObstacles().forEach(([x0, y0, x1, y1, p]) => {
     const c0 = Math.max(0, Math.floor((x0 - p - NG.x0) / NG.cs)),
@@ -252,7 +279,7 @@ export function offerSpot(i) {
   return NQ.osp[i];
 }
 export function routeTo(c, gx, gy) {
-  const inS = (x, y) => x > AX() + 4 && x < W - 4 && y < FRONT_Y - 6,
+  const inS = (x, y) => x > AX() + 4 && x < RX() - 4 && y < FRONT_Y - 6,
     si = inS(c.x, c.y),
     gi = inS(gx, gy),
     pts = [];

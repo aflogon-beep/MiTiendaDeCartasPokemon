@@ -9,6 +9,7 @@ import { cx, packIcon, pokeball, rr, setCx, timg, txt } from "./canvas.js";
 import { front } from "../core/customers/move.js";
 import { level, pInfo, tierOf } from "../core/economy.js";
 import { mkOutfit } from "../core/customers/outfit.js";
+import { FBYID, FKCOL, headCol } from "../core/funko/catalog.js";
 export function drawPed(p) {
   const o = p.out;
   o.skin = p.skin;
@@ -329,6 +330,20 @@ export function drawCust(c) {
     if (c.hold.k === "pack") {
       const sd = SETS.find((z) => z.id === c.hold.s);
       if (sd) packIcon(c.x + 8, c.y - 33, sd, 12, 17);
+    } else if (c.hold.k === "funko") {
+      // Caja de Funko (color de su colección, con ventana)
+      const f = FBYID[c.hold.us[0].f];
+      cx.fillStyle = f ? FKCOL[f.c].col : "#888";
+      rr(c.x + 7, c.y - 36, 13, 18, 2);
+      cx.fill();
+      cx.fillStyle = "#111";
+      cx.fillRect(c.x + 7, c.y - 36, 13, 3);
+      cx.fillStyle = "#f4f6fb";
+      cx.fillRect(c.x + 9, c.y - 32, 9, 11);
+      cx.fillStyle = f ? headCol(f) : "#f2c9a0";
+      cx.beginPath();
+      cx.arc(c.x + 13.5, c.y - 27, 3.4, 0, 7);
+      cx.fill();
     } else if (c.hold.k === "prod") {
       const i = pInfo(c.hold.pid);
       cx.fillStyle = i ? i.col : "#888";
@@ -386,7 +401,9 @@ export function drawCust(c) {
           ? "📦 ¿Un lote?"
           : c.want.k === "trade"
             ? "🔄 ¿Cambiamos?"
-            : "💶";
+            : c.want.k === "fksell"
+              ? "🧸 ¿Me compras un Funko?"
+              : "💶";
   if (b) {
     cx.font = "700 13px system-ui,sans-serif";
     const w = cx.measureText(b).width + 14;

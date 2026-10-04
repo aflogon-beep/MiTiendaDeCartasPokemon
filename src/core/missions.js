@@ -1,13 +1,13 @@
 // Misiones del día y contadores de por vida (track).
 import { ui } from "./bus.js";
-import { LTK, MT } from "./constants.js";
+import { FK_MT, LTK, MT } from "./constants.js";
 import { S, hasState } from "./state.js";
 import { checkAch } from "./achievements.js";
 export function genMissions() {
   const tier = Math.min(2, Math.floor((S.day - 1) / 6));
   S.dm = {
     day: S.day,
-    list: MT.slice()
+    list: MT.concat(S.fk ? FK_MT : []) // con la zona Funko, también sus misiones
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
       .map((m) => ({ k: m.k, t: m.n.replace("{g}", m.g[tier]), g: m.g[tier], p: 0, r: m.r[tier], done: 0, cl: 0 })),

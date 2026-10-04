@@ -733,9 +733,10 @@ export function decorObjs(L) {
     ].forEach(([x, y]) => L.push({ y: y + 16, f: () => plant(x, y) }));
   [
     [20, 490],
-    [782, 500],
     [610, 118],
-  ].forEach(([x, y]) => L.push({ y: y + 16, f: () => plant(x, y) }));
+  ]
+    .concat(S.fk ? [] : [[782, 500]]) // con la zona Funko, ahí está el paso (portal de las estrellas)
+    .forEach(([x, y]) => L.push({ y: y + 16, f: () => plant(x, y) }));
   if (se === "xmas")
     L.push({
       y: 530,

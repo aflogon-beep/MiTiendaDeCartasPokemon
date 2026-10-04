@@ -9,6 +9,7 @@ import { rnd } from "../rng.js";
 import { routeTo, queueSpot, offerSpot } from "../../world/nav.js";
 import { thiefGone } from "../theft.js";
 import { dirtDrop } from "../dirt.js";
+import { fkPutBack } from "../funko/sell.js";
 export const custs = [];
 export const queue = [];
 export const say = (c, t) => {
@@ -35,6 +36,8 @@ export function leave(c, angry) {
       holdNote(h, -1);
       if (h.k === "pack") S.sealed[h.s] += h.qty;
       else if (h.k === "prod") S.prod[h.pid] = pStock(h.pid) + h.qty;
+      else if (h.k === "funko")
+        fkPutBack(h.us); // vuelven a su estantería o a la vitrina
       else h.it.res = false;
     }
     c.hold = null;
@@ -51,7 +54,7 @@ export function leave(c, angry) {
 }
 // Ofertas aparte (con cajero): los que vienen a vender, cambiar o con un lote no se ponen en la fila (el cajero
 // no puede atenderlos y la bloqueaban): esperan junto al mostrador («aside» → «offer») hasta que los atiendes.
-const OFFER_K = ["sell", "lot", "trade"];
+const OFFER_K = ["sell", "lot", "trade", "fksell"];
 export const isOffer = (c) => !!(c.want && OFFER_K.includes(c.want.k));
 export const offers = () => custs.filter((c) => c.st === "aside" || c.st === "offer").sort((a, b) => a.id - b.id);
 function toAside(c) {

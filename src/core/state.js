@@ -9,6 +9,7 @@ import { DEFAULT_SETS } from "./constants.js";
 import { genMissions } from "./missions.js";
 import { genOrder } from "./orders.js";
 import { compactPrice, initPrice } from "./cards/prices.js";
+import { fkEnsure } from "./funko/zone.js";
 import { r05 } from "./util.js";
 import { refreshPacks } from "./packs.js";
 
@@ -92,6 +93,7 @@ export function ensure() {
     if (!S.prices[c.id]) S.prices[c.id] = initPrice(c);
   });
   Object.values(S.prices).forEach(compactPrice); // que la partida quepa al guardar (cards/prices.js)
+  if (S.fk) fkEnsure(); // zona Funko: completa lo que falte (partidas de la F1)
   if (S.orph && S.orph.length) {
     S.items = S.items.concat(S.orph.filter((i) => BYID[i.c]));
     S.orph = S.orph.filter((i) => !BYID[i.c]);

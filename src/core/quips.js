@@ -5,7 +5,9 @@ import { S, hasState } from "./state.js";
 // Cada situación tiene varias frases: [quién, expresión, texto]. La primera vez sale la primera (la del guion);
 // después, otra al azar, sin repetir la última. Expresiones: happy, laugh, wow, angry, sweat, stars.
 const E = (ex, t) => ["emma", ex, t],
-  A = (ex, t) => ["alvaro", ex, t];
+  A = (ex, t) => ["alvaro", ex, t],
+  P = (ex, t) => ["alberto", ex, t], // papá (zona Funko)
+  R = (ex, t) => ["ramon", ex, t]; // Don Ramón, el librero (zona Funko)
 export const QUIPS = {
   // Al abrir muchos sobres el mismo día
   packs: [
@@ -236,6 +238,37 @@ export const QUIPS = {
     E("happy", "Mesa llena, caja contenta."),
     A("stars", "¡Un día organizo un torneo gigante!"),
   ],
+  // Zona Funko (docs/funkos): llega una Chase
+  fkchase: [
+    A("stars", "¡¡UNA CHASE!! ¡A la vitrina, rápido!"),
+    A("stars", "¡Está aterciopelada! ¡Es preciosa!"),
+    E("stars", "Una Chase vale como cinco normales. Yo no la vendería aún."),
+    P("laugh", "Esa Chase es más rara que yo saltándome el gimnasio."),
+    A("wow", "¡Mira qué brillo! ¿Me la puedo quedar? ¿Porfa?"),
+  ],
+  // Se vende un Funko
+  fksale: [
+    A("happy", "¡Otro cabezón que se va a una casa feliz!"),
+    E("happy", "Funko vendido. La calculadora sonríe."),
+    A("stars", "¡Ese era de mi colección favorita!"),
+    P("laugh", "Que la Fuerza acompañe a ese Funko en su nuevo hogar."),
+    E("sweat", "Si se agotan, avisadme… desde el sofá."),
+  ],
+  // Sale una ola nueva (y la vieja pasa a descatalogada)
+  fkwave: [
+    E("happy", "Ola nueva. Los descatalogados suben solos: yo los guardaría."),
+    E("stars", "Comprar barato, esperar, vender caro. Facilísimo."),
+    P("happy", "En mis tiempos guardábamos las cajas como si fueran oro."),
+    A("stars", "¡Figuras nuevas! ¡Quiero todas!"),
+  ],
+  // Visita de Don Ramón, el librero
+  fkramon: [
+    R("happy", "¡Hola, chavales! Vengo a ver cómo va mi antigua librería."),
+    R("laugh", "¡Donde estaban mis novelas ahora hay un Halcón Milenario!"),
+    R("happy", "¿Tenéis algún Funko de Gandalf? Ese sí que leía."),
+    R("wow", "¡Qué cabezones tan simpáticos! A mi nieto le encantarían."),
+    R("laugh", "Cuarenta años vendiendo libros… y lo que se lleva son muñecos."),
+  ],
 };
 
 // Cada cuánto puede repetirse: "day" = una vez por día de juego; número = segundos reales
@@ -265,6 +298,10 @@ const EVERY = {
   loss: "day",
   clean: 180,
   table: 240,
+  fkchase: 30,
+  fksale: 150,
+  fkwave: "day",
+  fkramon: "day",
 };
 export const QUIP_GAP = 12; // segundos reales mínimos entre dos frases cualesquiera
 

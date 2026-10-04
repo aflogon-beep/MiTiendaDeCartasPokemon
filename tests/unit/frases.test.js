@@ -16,7 +16,7 @@ describe("frases recurrentes (core/quips.js)", () => {
     for (const k in QUIPS) {
       expect(QUIPS[k].length, k).toBeGreaterThanOrEqual(2);
       for (const [who, ex, t] of QUIPS[k]) {
-        expect(["emma", "alvaro"], k).toContain(who);
+        expect(["emma", "alvaro", "alberto", "ramon"], k).toContain(who); // papá y Don Ramón, en la zona Funko
         expect(["happy", "laugh", "wow", "angry", "sweat", "stars"], k).toContain(ex);
         expect(t.length, t).toBeLessThanOrEqual(80); // cortas: caben en el bocadillo
       }

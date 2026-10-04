@@ -1,6 +1,6 @@
 # Zona Funko · diseño
 
-**Estado: aprobado por Alberto. F1 hecha** (librería, compra, nombre, zona dibujada y Emma en su sofá). Siguen F2–F5 (apartado 12). Cada fase termina con `npm test` en verde, un commit pequeño en español y capturas.
+**Estado: hecho (F1–F5).** Ver «Cómo ha quedado» al final.
 
 - Mockups: `docs/funkos/mockups.html` (14 pantallas; ábrelo en el navegador a 390 px).
 - `docs/funkos/figuras.js`: generador de figuras de los mockups.
@@ -248,4 +248,14 @@ Todas contestadas por Alberto (ver la tabla del apartado 1): Terror sí; Marvel,
 
 **F1 hecha.** Además, a petición de Alberto: si Emma está dormida en el sofá y la tocas, se despierta con una frase graciosa («Estaba pensando profundamente»…), al rato se tumba a ver la tele y luego se vuelve a dormir.
 
-**Siguiente paso:** F2 · Catálogo y stock, cuando Alberto diga.
+
+
+## 15. Cómo ha quedado (F1–F5)
+
+Todo lo de los apartados 2–11, con estos números y estas diferencias:
+
+- **Precios de compra:** comunes al 50 % del mercado (cajas de 6), raras al 60 %, especiales al 55 % de su valor, Deluxe al 65 %. Alquiler de la zona 40 €/día; encargado 45 €/día.
+- **Huecos:** estanterías 44 (fondo 32 + isla 12); vitrina 8 (+8 con «Vitrinas de cristal con LED»).
+- **Nivel de la zona:** 250 · 700 · 1.400 · 2.400 · 3.800 · 5.600 · 8.000 · 11.000 · 15.000 ⭐ (1 ⭐ por euro de Funkos vendidos; +150 por colección completa; +60 por encargo).
+- **Clientes:** un 32 % de los compradores va a la zona (más con el Halcón y la alfombra, y el día del evento y el siguiente). Entran por el **paso junto a la caja** (la puerta de la calle de la zona es de adorno).
+- **Diferencias con el diseño:** los clientes aún no compran protectores (los pones tú, 2,50 € por caja); los logros y las misiones de Funkos van aparte de las medallas de siempre (en Colección y en Tareas, solo con la zona).

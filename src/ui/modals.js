@@ -12,8 +12,9 @@ import { guideImg } from "./tutorial.js";
 import { hud } from "./hud.js";
 import { mAnnex, mBank, mCafe, mCole, mMarket, mRival } from "./screens/city.js";
 import { mFkLocal, mFkName } from "./screens/funko.js";
+import { mFkChase, mFkColec, mFkEv, mFkFig, mFkLv } from "./screens/funkoStock.js";
 import { mBackup, mDiff, mGift, mMkt, mMore, mNotes, mSets, mTips, mTrophy } from "./screens/more.js";
-import { mCk, mHag, mLot, mSell, mTOffer, mTrade } from "./checkout.js";
+import { mCk, mFkDeal, mHag, mLot, mSell, mTOffer, mTrade } from "./checkout.js";
 import { mColl } from "./screens/cards.js";
 import { mCust } from "./screens/customer.js";
 import { mCustom } from "./customize.js";
@@ -133,6 +134,12 @@ export function renderM() {
     annex: mAnnex,
     fklocal: mFkLocal,
     fkname: mFkName,
+    fkfig: mFkFig,
+    fklv: mFkLv,
+    fkcolec: mFkColec,
+    fkev: mFkEv,
+    fkdeal: mFkDeal,
+    fkchase: mFkChase,
     medals: mMedals,
     gift: mGift,
     custom: mCustom,
@@ -157,6 +164,7 @@ export function renderM() {
     G.M === "sell" ||
     G.M === "insp" ||
     G.M === "trade" ||
+    G.M === "fkdeal" ||
     G.M === "toffer";
   $("#ovh").innerHTML =
     `<div class="ov${isNew ? " in" : ""}"${lock ? "" : ' data-a="close"'}><div class="sheet${G.M === "open" ? " wide" : ""}${isNew ? " in" : ""}"><div class="grab"></div><button class="xbtn" data-a="close" aria-label="Cerrar">✕</button>${body}<button class="b big" data-a="close">${G.M === "ck" ? "Atender luego" : G.M === "insp" ? "Volver" : G.M === "lot" && !(G.LOT && G.LOT.done) ? "Rechazar y cerrar" : "Cerrar"}</button></div></div>`;

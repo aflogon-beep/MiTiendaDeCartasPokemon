@@ -6,6 +6,8 @@ import { accTag } from "../modals.js";
 import { packArt } from "../packart.js";
 import { hero } from "../hero.js";
 import { FK_LV, fkForSale, fkName } from "../../core/funko.js";
+import { mFkStock } from "./funkoStock.js";
+import { FK_MOB, FK_STAFF_SAL, fkLv } from "../../core/funko/zone.js";
 import { delivSummary } from "../../core/delivery.js";
 import { fmt } from "../../core/util.js";
 import { pInfo, pPrice, pStock, packAcc, prodAcc, recPack, recProd } from "../../core/economy.js";
@@ -22,6 +24,7 @@ export function evBreak(sid) {
   return `<details><summary class="mu">Probabilidades y valor esperado</summary><p class="mu">${e.d}</p><table class="tb">${R.map((x) => `<tr><td>${x[0]}</td><td>${fmt(x[1])}</td></tr>`).join("")}<tr><td><b>Total</b></td><td><b>${fmt(R.reduce((a, x) => a + x[1], 0))}</b></td></tr></table></details>`;
 }
 export function mPacks() {
+  if (G.pTab === "fk" && S.fk) return `<h2>📦 Stock</h2>${fkTabs()}${mFkStock()}`; // zona Funko
   if (G.pTab === "sealed")
     return (
       `<h2>📦 Stock</h2>${packTabs()}<p class="mu">Se venden en el mueble central. Si abres uno, sus sobres pasan a tu stock de sobres.</p>` +
@@ -89,6 +92,31 @@ function upCard({ ic, n, d, extra = "", done, doneTxt = "✔ Comprada", cost, ac
 const UPIC = { ads: "📣", case: "🗄️", shelf: "🗃️" },
   UPCOL = { ads: "#e8582c", case: "#3b7fd9", shelf: "#9a6a3a" },
   DECCOL = ["#2fa557", "#8e4cb5", "#c0392b", "#6b4a2b", "#c43c9a", "#d9a21b", "#d6338a", "#2f7d4a", "#3aa0c9"];
+/** Mejoras → Zona Funko: el encargado (con su tope de pedidos) y el mobiliario friki. */
+function fkUp() {
+  const lv = fkLv(),
+    F = S.fk;
+  const stf = upCard({
+    ic: "🧑‍🎤",
+    col: "#ff4fd8",
+    n: "Encargado de la zona Funko",
+    d: `Repone las estanterías, vuelve a pedir lo que se agota (tope: ${fmt(F.bud)} al día) y compra Funkos a los que vienen a vender. Sueldo ${fmt(FK_STAFF_SAL)}/día.`,
+    extra: F.stf
+      ? `<div class="stepf"><span class="mu">Tope de pedidos</span><button class="b" data-a="fkbud" data-n="-50">−</button><b>${fmt(F.bud)}</b><button class="b" data-a="fkbud" data-n="50">+</button></div>`
+      : "",
+    done: !!F.stf,
+    doneTxt: "Contratado",
+    side: '<button class="b mini fire" data-a="fkstf">Despedir</button>',
+    cost: 0,
+    act: "fkstf",
+  }).replace(`>${fmt(0)}</button>`, ">Contratar</button>");
+  const mob = FK_MOB.map((o) =>
+    o.lv > lv
+      ? `<div class="pn upc" data-fase="I"><div class="upc-ic" style="--c:#3a2a58">${o.ic}</div><div class="upc-b"><b>${o.n}</b><div class="mu">${o.d}</div></div><div class="upc-r"><span class="mu">🔒 Zona nv. ${o.lv}</span></div></div>`
+      : upCard({ ic: o.ic, col: "#7b52b8", n: o.n, d: o.d, done: !!F.mob[o.k], cost: o.cost, act: "fkmob", k: o.k }),
+  ).join("");
+  return `<h3>🧸 ${fkName().replace(/</g, "&lt;")}</h3><div data-fase="I">${stf}${mob}</div>`;
+}
 export function mUp() {
   const lvls = (lv, max) =>
     max > 1
@@ -166,7 +194,16 @@ export function mUp() {
         ? "Más <b>publicidad</b> = más clientes. Lo dice mi calculadora."
         : "Cada mejora es dinero que vuelve. Bueno… casi siempre.";
   return `<h2>🛠️ Mejoras</h2><div class="stk-cash">💶 Tienes <b>${fmt(S.money)}</b></div>${hero("emma", "happy", tip, "lila")}
-  <h3>⬆️ Tienda</h3>${ups}<h3>🎨 Decoración</h3>${dec}<h3>🧑‍💼 Personal</h3>${stf}<h3>🔒 Seguridad</h3>${cams}<h3>🏗️ Ampliación</h3>${annex}${fkLib}`;
+  <h3>⬆️ Tienda</h3>${ups}<h3>🎨 Decoración</h3>${dec}<h3>🧑‍💼 Personal</h3>${stf}<h3>🔒 Seguridad</h3>${cams}<h3>🏗️ Ampliación</h3>${annex}${fkLib}${S.fk ? fkUp() : ""}`;
+}
+/** Pestañas de Stock (con la zona Funko, una más: 🧸 Funkos). */
+export function fkTabs() {
+  const T = [
+    ["packs", "🎴 Sobres"],
+    ["sealed", "🗃️ Sellado"],
+    ["acc", "🛡️ Accesorios"],
+  ].concat(S.fk ? [["fk", "🧸 Funkos"]] : []);
+  return `<div class="tabs${S.fk ? " t4" : ""}">${T.map(([k, n]) => `<button class="b ${G.pTab === k ? "on" : ""}" data-a="ptab" data-k="${k}">${n}</button>`).join("")}</div>`;
 }
 export function packTabs() {
   // Dinero disponible, siempre a la vista mientras compras (baja con cada compra)
@@ -179,15 +216,7 @@ export function packTabs() {
   const outBox = out.length
     ? `<div class="pn stk-out" data-fase="I">⚠️ <b>Estantería${out.length > 1 ? "s" : ""} sin sobres:</b> ${out.map((sd) => sd.n).join(", ")}. Compra más para que no se queden vacías.</div>`
     : "";
-  return `${outBox}<div class="stk-cash${down ? " down" : ""}" data-fase="I">💶 Tienes <b>${fmt(S.money)}</b>${down ? `<i>−${fmt(was.m - S.money)}</i>` : ""}</div>${S.deliv && S.deliv.length ? `<div class="pn">🚚 En camino: ${delivSummary()}</div>` : ""}${hero("alvaro", "happy", `<button class="b" data-a="exptog">Cambiar</button>${S.express ? "⚡ Entrega: <b>al momento</b> (+8 %)" : "🚚 Entrega: <b>furgoneta gratis</b><br>llega en unos segundos"}`)}<div class="tabs">${[
-    ["packs", "🎴 Sobres"],
-    ["sealed", "🗃️ Sellado"],
-    ["acc", "🛡️ Accesorios"],
-  ]
-    .map(([k, n]) => `<button class="b ${G.pTab === k ? "on" : ""}" data-a="ptab" data-k="${k}">${n}</button>`)
-    .join(
-      "",
-    )}</div><button class="b pri" data-a="recall" style="width:100%;margin:2px 0 8px">🎯 Poner todo a precio recomendado</button><div class="chips">${[
+  return `${outBox}<div class="stk-cash${down ? " down" : ""}" data-fase="I">💶 Tienes <b>${fmt(S.money)}</b>${down ? `<i>−${fmt(was.m - S.money)}</i>` : ""}</div>${S.deliv && S.deliv.length ? `<div class="pn">🚚 En camino: ${delivSummary()}</div>` : ""}${hero("alvaro", "happy", `<button class="b" data-a="exptog">Cambiar</button>${S.express ? "⚡ Entrega: <b>al momento</b> (+8 %)" : "🚚 Entrega: <b>furgoneta gratis</b><br>llega en unos segundos"}`)}${fkTabs()}<button class="b pri" data-a="recall" style="width:100%;margin:2px 0 8px">🎯 Poner todo a precio recomendado</button><div class="chips">${[
     ["all", "Todos"],
     ["stock", "Con stock"],
   ]
