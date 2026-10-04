@@ -7,10 +7,16 @@ import { canHaggle, pay, payWith } from "../core/customers/checkout.js";
 import { chg, closeM, cls, face, openM } from "./modals.js";
 import { clamp, fmt, pct, r05 } from "../core/util.js";
 import { expCost, lotEst, makeLot } from "../core/lots.js";
-import { front, offers } from "../core/customers/move.js";
+import { front, leave, offers } from "../core/customers/move.js";
 import { itemVal, pInfo, price } from "../core/economy.js";
 import { pick } from "../core/rng.js";
 import { sfx } from "../audio/sfx.js";
+import { FBYID } from "../core/funko/catalog.js";
+import { FK_VNAME, fkPrice } from "../core/funko/zone.js";
+import { fkBuyDeal } from "../core/funko/sell.js";
+import { boxHTML } from "./funko/fig.js";
+import { toast } from "./toast.js";
+import { hud } from "./hud.js";
 export function serveFront() {
   const c = front();
   if (!c || G.M || G.paused) return;
@@ -31,6 +37,11 @@ export function serveOffer(c) {
 }
 /** Vender, lote o cambio: abre su panel. Devuelve false si el cliente viene a comprar. */
 function serveDeal(c) {
+  if (c.want.k === "fksell") {
+    G.FKD = c;
+    openM("fkdeal");
+    return true;
+  }
   if (c.want.k === "sell") {
     G.deal = c.deal;
     G.deal.cust = c;
@@ -67,6 +78,26 @@ export function mSell() {
   <div class="pn"><div class="row"><span>Tu oferta</span><b id="olab">${fmt(d.offer)}</b></div><input type="range" data-i="offer" min="${mn}" max="${mx}" step="0.05" value="${clamp(d.offer, mn, mx)}"><div class="mu">Si compras por debajo de mercado, luego lo vendes con margen.</div>
   <div class="btns"><button class="b pri" data-a="dealoffer">Ofrecer</button><button class="b" data-a="dealask"${S.money < d.ask ? " disabled" : ""}>Pagar lo que pide (${fmt(d.ask)})</button>${d.counter ? `<button class="b pri" data-a="dealcounter"${S.money < d.counter ? " disabled" : ""}>Cerrar por ${fmt(d.counter)}</button>` : ""}<button class="b" data-a="inspd">🔍 Examinar${d.chk ? " ✔" : ""}</button><button class="b" data-a="dealno">Rechazar</button></div></div>`;
 }
+/** Alguien viene a venderte un Funko (zona Funko): comprarlo al precio que pide o decir que no. */
+export function mFkDeal() {
+  const c = G.FKD,
+    D = c && c.fkdeal;
+  if (!D) return "<p>—</p>";
+  const f = FBYID[D.f],
+    r = D.ask / D.val;
+  return `<h2>🧸 Quieren venderte un Funko</h2><div class="fkbig">${boxHTML(f, D.v, "big", D.d)}</div><h3 style="text-align:center;margin:0">${f.name}${D.v ? " · " + FK_VNAME[D.v] : ""}</h3>
+  <div class="pn"><div>Valor de mercado: <b>${fmt(D.val)}</b>${D.d ? ' <span class="down">(caja dañada)</span>' : ""}</div><div>Pide: <b>${fmt(D.ask)}</b> · el ${Math.round(r * 100)} % de lo que vale</div><div class="mu">${r <= 0.75 ? "🟢 Chollo: lo puedes revender con margen" : r <= 0.88 ? "🟡 Precio razonable" : "🔴 Caro para revender"}</div></div>
+  <div class="btns"><button class="b pri" data-a="fkdealok"${S.money < D.ask ? " disabled" : ""}>Comprar por ${fmt(D.ask)}</button><button class="b" data-a="fkdealno">No, gracias</button></div>`;
+}
+export function fkDealEnd(ok) {
+  const c = G.FKD;
+  if (!c) return closeM();
+  if (ok && fkBuyDeal(c.fkdeal)) (sfx.coin(), toast("🧸 Funko comprado: está en el almacén"));
+  G.FKD = null;
+  closeM();
+  leave(c, false);
+  hud();
+}
 export function openCheckout(c) {
   const tc = Math.round(c.hold.total * 100),
     card = Math.random() < (c.type === "whale" ? 0.7 : c.type === "kid" ? 0.12 : c.type === "investor" ? 0.6 : 0.42);
@@ -86,17 +117,23 @@ export function mCk() {
   const k = G.CK,
     c = k.c,
     h = c.hold;
+  const fkItems = (e) =>
+    e.us
+      .map((u) => `🧸 Funko ${FBYID[u.f].name}${u.v ? " (" + FK_VNAME[u.v] + ")" : ""} · ${fmt(fkPrice(u))}`)
+      .join("<br>");
   const items =
-    (h.k === "prod"
-      ? `${pInfo(h.pid).ic} ${pInfo(h.pid).n}`
-      : h.k === "pack"
-        ? `${h.qty} × sobre ${setName(h.s)} · ${fmt(S.shelf[h.s])} c/u`
-        : `${BYID[h.it.c].name}${h.it.gr ? " · PGS " + h.it.gr : ""} · carta suelta`) +
+    (h.k === "funko"
+      ? fkItems(h)
+      : h.k === "prod"
+        ? `${pInfo(h.pid).ic} ${pInfo(h.pid).n}`
+        : h.k === "pack"
+          ? `${h.qty} × sobre ${setName(h.s)} · ${fmt(S.shelf[h.s])} c/u`
+          : `${BYID[h.it.c].name}${h.it.gr ? " · PGS " + h.it.gr : ""} · carta suelta`) +
     // Lo demás de la cesta (core/customers/decide.js, addExtras)
     (h.x || [])
       .map(
         (e) =>
-          `<span data-fase="I"><br>${e.k === "prod" ? `${pInfo(e.pid).ic} ${pInfo(e.pid).n}` : `${e.qty} × sobre ${setName(e.s)} · ${fmt(e.total / e.qty)} c/u`}</span>`,
+          `<span data-fase="I"><br>${e.k === "funko" ? fkItems(e) : e.k === "prod" ? `${pInfo(e.pid).ic} ${pInfo(e.pid).n}` : `${e.qty} × sobre ${setName(e.s)} · ${fmt(e.total / e.qty)} c/u`}</span>`,
       )
       .join("");
   const R = c.reg ? RG(c.reg) : null,

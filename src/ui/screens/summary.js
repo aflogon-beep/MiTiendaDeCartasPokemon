@@ -1,4 +1,5 @@
 // Ticket de cierre del día.
+import { fkName } from "../../core/funko.js";
 import { G, S, shopName } from "../../core/state.js";
 import { TIERS } from "../../core/constants.js";
 import { evLabel } from "../../core/events.js";
@@ -40,7 +41,9 @@ export function recordFx() {
 }
 export function ticketHTML(s) {
   const T = TIERS[tierOf(level())],
-    res = s.inc + (s.tourInc || 0) + (s.tbl || 0) - s.rent - (s.sal || 0) - (s.refund || 0);
+    fk = s.fk, // zona Funko: sus ventas ya están en «Ventas»; su alquiler y su encargado, aparte
+    res =
+      s.inc + (s.tourInc || 0) + (s.tbl || 0) - s.rent - (s.sal || 0) - (s.refund || 0) - (fk ? fk.rent + fk.sal : 0);
   const L = (a, b, c) => `<div class="tl${c ? " " + c : ""}"><span>${a}</span><i></i><span>${b}</span></div>`;
   const hist = (S.hist || []).slice(-7),
     mx = Math.max(1, ...hist.map((h) => h.inc));
@@ -52,15 +55,24 @@ export function ticketHTML(s) {
     .join("");
   return `<div class="ticket"><div class="tc"><b>${shopName().toUpperCase()}</b><br>${T.sub}<br>TICKET DE CIERRE · DÍA ${s.day}</div><div class="tdash"></div>
   ${L("Clientes", s.cust)}${L("Se fueron sin comprar", s.lost)}${lostWhy(s.why)}<div class="tdash"></div>
-  ${L("Ventas", fmt(s.inc), "pos")}${s.tbl ? `<div class="tl pos" data-fase="I"><span>Mesa de juego (${s.tblN} partida${s.tblN === 1 ? "" : "s"})</span><i></i><span>+${fmt(s.tbl)}</span></div>` : ""}${s.tourInc != null ? L("Torneo", (s.tourInc >= 0 ? "+" : "") + fmt(s.tourInc), s.tourInc >= 0 ? "pos" : "neg") : ""}${L("Alquiler", "−" + fmt(s.rent), "neg")}${s.sal ? L("Sueldos", "−" + fmt(s.sal), "neg") : ""}${s.refund ? L("Devoluciones", "−" + fmt(s.refund), "neg") : ""}
+  ${L("Ventas", fmt(s.inc), "pos")}${s.tbl ? `<div class="tl pos" data-fase="I"><span>Mesa de juego (${s.tblN} partida${s.tblN === 1 ? "" : "s"})</span><i></i><span>+${fmt(s.tbl)}</span></div>` : ""}${s.tourInc != null ? L("Torneo", (s.tourInc >= 0 ? "+" : "") + fmt(s.tourInc), s.tourInc >= 0 ? "pos" : "neg") : ""}${L("Alquiler", "−" + fmt(s.rent), "neg")}${s.sal ? L("Sueldos", "−" + fmt(s.sal), "neg") : ""}${s.refund ? L("Devoluciones", "−" + fmt(s.refund), "neg") : ""}${
+    fk
+      ? `<div data-fase="I">${L(`🧸 Funkos (${fk.n}) · ya en ventas`, fmt(fk.inc))}${fk.claw ? L(`🕹️ Máquina de gancho (${fk.clawN})`, fmt(fk.claw)) : ""}${fk.chase.length ? L(`✨ Chase vendida${fk.chase.length > 1 ? "s" : ""}`, fk.chase.length) : ""}${L("Alquiler de la zona Funko", "−" + fmt(fk.rent), "neg")}${fk.sal ? L("Encargado de la zona", "−" + fmt(fk.sal), "neg") : ""}</div>`
+      : ""
+  }
   <div class="tdash"></div>${L("<b>RESULTADO DEL DÍA</b>", `<b>${res >= 0 ? "+" : ""}${fmt(res)}</b>`, res >= 0 ? "pos" : "neg")}${L("Valor de la empresa", fmt(s.net))}${s.rec ? `<div class="tstamp" data-fase="I">¡RÉCORD!<small>de ventas</small></div>` : ""}
   ${hist.length > 1 ? `<div class="tchart">Ventas de los últimos días<svg viewBox="0 0 ${hist.length * 28 + 4} 66" width="100%" height="72">${bars}</svg></div>` : ""}
   <div class="tdash"></div><div class="tc">¡GRACIAS POR SU VISITA!<br>${new Date().toLocaleDateString("es-ES")}</div></div>`;
 }
+/** Zona Funko en el ticket: ⭐ del día, nivel, avisos para mañana y Chase que han llegado. */
+function fkSumHTML(f) {
+  const ch = (f.chaseNew || []).length;
+  return `<div class="pn" data-fase="I"><b>🧸 ${fkName().replace(/</g, "&lt;")}</b><div>⭐ +${f.xp || 0} · nivel ${f.lv}${f.next > 0 ? ` · faltan ${f.next} ⭐ para el ${f.lv + 1}` : ""}</div>${f.staffBuy ? `<div class="mu">🧑‍🎤 El encargado ha pedido ${fmt(f.staffBuy)} en cajas.</div>` : ""}${(f.news || []).map((n) => `<div>${n}</div>`).join("")}${ch ? `<div class="btns"><button class="b fk" data-a="m" data-k="fkchase">✨ ¡Ha llegado ${ch > 1 ? ch + " Chase" : "una Chase"}! Ver</button></div>` : ""}</div>`;
+}
 export function mSum() {
   const s = S.summary;
   return `<h2>Fin del día ${s.day}</h2>${ticketHTML(s)}${s.mkInc ? `<div class="pn">🧺 Mercadillo: vendiste ${s.mkN} carta(s) por ${fmt(s.mkInc)}.</div>` : ""}${s.loanPay ? `<div class="pn">🏦 Cuota del préstamo: −${fmt(s.loanPay)} (quedan ${fmt(S.loan.left)}).</div>` : ""}${s.rivNew ? `<div class="pn down">🏪 ¡Ha abierto una tienda rival enfrente: Cartas El Rayo! Toca su local en la calle para ver sus precios.</div>` : ""}${s.rivMsg ? `<div class="pn up">${s.rivMsg}</div>` : ""}${marketDay() ? `<div class="pn">🧺 ¡Hoy hay mercadillo en la plaza! Aleja la cámara y toca la plaza para montar tu puesto.</div>` : ""}<div class="pn"><b>💡 Consejos de Emma</b>${tipsHTML(S.lastTips || [])}</div>
-  ${s.news ? `<div class="pn">${s.news}</div>` : ""}
+  ${s.news ? `<div class="pn">${s.news}</div>` : ""}${s.fk ? fkSumHTML(s.fk) : ""}
   ${s.grN ? `<div class="pn"><div>📬 Han llegado ${s.grN} carta(s) del gradeo.</div><div class="btns"><button class="b pri" data-a="grades">Ver resultados</button></div></div>` : ""}
   ${s.fkN ? `<div class="pn">🚫 El servicio de gradeo ha detectado ${s.fkN} falsificación(es). Esas cartas ya no valen nada.</div>` : ""}${s.refN ? `<div class="pn down">😡 ${s.refN} cliente(s) descubrieron que les vendiste una carta falsa: devuelves ${fmt(s.refund)} y pierdes reputación.</div>` : ""}
   ${s.newOrd ? `<div class="pn">📋 Hay un encargo nuevo en Tareas.</div>` : ""}${s.exp ? `<div class="pn mu">⌛ ${s.exp} encargo(s) han caducado.</div>` : ""}

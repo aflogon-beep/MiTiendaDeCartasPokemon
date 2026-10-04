@@ -7,6 +7,7 @@ import { FK_COST, FK_LV, FK_NAMES, fkBuy, fkCanBuy, fkName, fkSetName } from "..
 import { fmt } from "../../core/util.js";
 import { level } from "../../core/economy.js";
 import { hero } from "../hero.js";
+import { fkLv } from "../../core/funko/zone.js";
 import { closeM, openM } from "../modals.js";
 import { $ } from "../../render/canvas.js";
 import { camLook } from "../../render/camera.js";
@@ -24,8 +25,8 @@ export function mFkLocal() {
   if (S.fk)
     return `<h2>🧸 ${esc(fkName())}</h2>${hero("ramon", "happy", "¡Cómo ha cambiado mi librería! Donde estaban las novelas ahora hay… ¿cabezones?", "sun")}
   <div class="pn"><b>Nombre de la zona</b><input class="inp" data-i="fknm" maxlength="22" placeholder="${FK_NAMES[0]}" value="${esc(S.fk.name || "")}" style="margin:6px 0 0"><div class="mu">Sale en el neón de la pared y en el escaparate.</div></div>
-  <div class="tip">🛋️ El rincón de Emma: su sofá, con tele y consola</div>
-  <div class="tip">🗄️ Las estanterías esperan sus primeros Funkos</div>`;
+  <div class="btns"><button class="b pri" data-a="fkgo">📦 Stock de Funkos</button><button class="b" data-a="m" data-k="fkcolec">🧸 Colección</button><button class="b" data-a="m" data-k="fklv">⭐ Nivel ${fkLv()}</button><button class="b" data-a="m" data-k="up">🛸 Mejoras</button></div>
+  <div class="tip">🛋️ El rincón de Emma: su sofá, con tele y consola (si está dormida, tócala)</div>`;
   const lv = level() >= FK_LV,
     falta = Math.max(0, FK_COST - S.money);
   return `<h2>📚 Se traspasa: la librería de al lado</h2>${hero("ramon", "happy", "Me jubilo, chavales. Cuarenta años vendiendo libros aquí… Mi local está <b>pegado a vuestra tienda</b>: si lo queréis, es vuestro.", "sun")}

@@ -106,7 +106,8 @@ function frame(now) {
         G.spawnT -= dt;
         if (G.spawnT <= 0) {
           // Menos clientes y cestas más grandes (core/customers/decide.js): con la tienda llena, el que llega no entra
-          if (inShop() >= CUST_MAX) G.spawnT = 1;
+          if (inShop() >= CUST_MAX + (S.fk ? 2 : 0))
+            G.spawnT = 1; // con la zona Funko, 12
           else {
             spawn();
             if (S.burst > 0) {
