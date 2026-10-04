@@ -846,3 +846,84 @@ html.ui-big .mu {
   min-height: 46px;
   margin: 0;
 }
+/* Mejoras: tarjetas con icono, qué hace y precio o estado (rediseño pedido por Alberto) */
+.upc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.upc-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.upc-b {
+  flex: 1;
+  min-width: 0;
+}
+.upc-b > b {
+  display: block;
+  font-family: var(--fd);
+  font-size: 16px;
+}
+.upc-b .mu {
+  font-size: 13px;
+  margin-top: 2px;
+}
+.upc-r {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.upc-r .b {
+  min-width: 96px;
+  min-height: 42px;
+  margin: 0;
+}
+.upc-r .b.mini {
+  min-width: 0;
+  min-height: 30px;
+}
+.upc-short {
+  font-size: 11px;
+  color: var(--down);
+}
+.upc-ok {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #1c7a4533;
+  color: #4cc98a;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.upc.done {
+  opacity: 0.85;
+}
+.upc-lv {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 5px;
+}
+.upc-lv i {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+  background: #ffffff22;
+}
+.upc-lv i.on {
+  background: #4cc98a;
+}
+.upc-lv .mu {
+  margin: 0 0 0 4px !important;
+  font-size: 11px !important;
+}
