@@ -25,6 +25,10 @@ export function mTasks() {
   ]
     .map(([k, n]) => `<button class="b ${G.tTab === k ? "on" : ""}" data-a="ttab" data-k="${k}">${n}</button>`)
     .join("");
+  // Tarjetas de reto (rediseño pedido por Alberto): qué hay que hacer, la recompensa a la vista, la barra de
+  // progreso gruesa con el número dentro y, si está lista, «Cobrar» en verde a todo lo ancho
+  const bar = (v, g) =>
+    `<div class="msn-bar"><i style="width:${Math.min(1, v / g) * 100}%"></i><span>${v} / ${g}</span></div>`;
   let b = "";
   if (G.tTab === "ord")
     b = S.orders.length
@@ -34,7 +38,7 @@ export function mTasks() {
             if (!c) return "";
             const own = ownFor(o),
               dl = o.due - S.day;
-            return `<div class="pn" style="display:flex;gap:10px"><div class="zoomable" style="width:70px;flex:none" data-a="zoom" data-k="${c.id}" data-n="0">${face(c, false)}</div><div style="flex:1;min-width:0"><b>${o.who}</b> busca <b>${c.name}</b><div class="mu">${setName(c.s)} · ${RAR[c.r].n} · mercado ${fmt(price(c.id))}</div><div>Paga <b class="up">${fmt(o.pay)}</b> · ${dl <= 0 ? "último día" : dl === 1 ? "queda 1 día" : "quedan " + dl + " días"}</div><div class="btns">${own ? `<button class="b pri" data-a="deliver" data-n="${o.id}">Entregar</button>` : '<span class="mu">Aún no la tienes: ábrela en sobres o cómprala.</span>'}</div></div></div>`;
+            return `<div class="pn msn ord${own ? " ready" : ""}"><div class="zoomable ord-c" data-a="zoom" data-k="${c.id}" data-n="0">${face(c, false)}</div><div class="ord-b"><div class="msn-top"><b>${o.who} busca ${c.name}</b></div><div class="mu">${setName(c.s)} · ${RAR[c.r].n} · mercado ${fmt(price(c.id))}</div><div class="ord-tags"><span class="msn-rew">🎁 Paga ${fmt(o.pay)}</span><span class="ord-dl${dl <= 0 ? " last" : ""}">⏳ ${dl <= 0 ? "Último día" : dl === 1 ? "Queda 1 día" : "Quedan " + dl + " días"}</span></div>${own ? `<button class="b pri msn-go" data-a="deliver" data-n="${o.id}">📦 Entregar</button>` : '<div class="mu ord-no">Aún no la tienes: búscala en sobres, lotes o clientes que venden.</div>'}</div></div>`;
           })
           .join("")
       : '<p class="mu">No hay encargos ahora. Irán llegando peticiones de clientes.</p>';
@@ -43,7 +47,7 @@ export function mTasks() {
       S.dm.list
         .map(
           (m, i) =>
-            `<div class="pn"><div class="row"><b>${m.t}</b><span class="up">+${fmt(m.r)}</span></div><div class="prog"><i style="width:${(m.p / m.g) * 100}%"></i></div><div class="row"><span class="mu">${Math.floor(m.p)}/${m.g}</span>${m.cl ? '<span class="up">Cobrada ✔</span>' : m.done ? `<button class="b pri" data-a="mclaim" data-n="${i}">Cobrar</button>` : ""}</div></div>`,
+            `<div class="pn msn${m.cl ? " claimed" : m.done ? " ready" : ""}"><div class="msn-top"><b>${m.t}</b><span class="msn-rew">🎁 +${fmt(m.r)}</span></div>${m.cl ? '<div class="msn-ok">✔ Cobrada</div>' : m.done ? `<button class="b pri msn-go" data-a="mclaim" data-n="${i}">🎁 Cobrar ${fmt(m.r)}</button>` : bar(Math.floor(m.p), m.g)}</div>`,
         )
         .join("") + '<p class="mu">Las misiones se renuevan cada día.</p>';
   else if (G.tTab === "reg") b = mRegs();
@@ -51,7 +55,7 @@ export function mTasks() {
     b = ACH.map((a) => {
       const d = S.ach[a.id],
         v = achVal(a);
-      return `<div class="pn" style="${d ? "" : "opacity:.78"}"><div class="row"><b>${d ? "🏆" : "🔒"} ${a.n}</b><span class="up">+${fmt(a.r)}</span></div><div class="mu">${a.d}</div>${d ? "" : `<div class="prog"><i style="width:${Math.min(1, v / a.g) * 100}%"></i></div>`}</div>`;
+      return `<div class="pn msn${d ? " claimed" : " locked"}"><div class="msn-top"><b>${d ? "🏆" : "🔒"} ${a.n}</b><span class="msn-rew">🎁 +${fmt(a.r)}</span></div><div class="mu">${a.d}</div>${d ? '<div class="msn-ok">✔ Conseguido</div>' : bar(Math.min(Math.floor(v), a.g), a.g)}</div>`;
     }).join("");
   return retoTabs("tasks") + `<div class="tabs t4">${tabs}</div>${b}`;
 }

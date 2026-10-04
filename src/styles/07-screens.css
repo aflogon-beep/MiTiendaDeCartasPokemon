@@ -689,32 +689,6 @@ html.ui-big .mu {
     color: #ff8a7a;
   }
 }
-/* Stock: el número de sobres, grande en la esquina del sobre */
-.stk-q {
-  position: relative;
-  width: 0;
-  height: 0;
-  flex: none;
-}
-.stk-q b {
-  position: absolute;
-  left: -20px;
-  top: -38px;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 5px;
-  box-sizing: border-box;
-  border-radius: 12px;
-  background: var(--sign);
-  color: var(--signink);
-  font: 800 15px/24px var(--fd);
-  text-align: center;
-  box-shadow: 0 2px 6px #0008;
-}
-.stk-q b.z {
-  background: #5a6070;
-  color: #fff;
-}
 /* Consejos de Emma: «No más», claro sobre el bocadillo blanco para que se lea (data-mejora: ver test 14) */
 .hint1 .b[data-mejora] {
   background: #f3ecdd;
@@ -727,10 +701,7 @@ html.ui-big .mu {
 .stk-out {
   border-color: #e3350d;
 }
-.stk-q b.out {
-  background: #e3350d;
-  color: #fff;
-}
+
 /* Ticket: por qué se fueron sin comprar */
 .twhy {
   margin: 0 0 2px 14px;
@@ -775,4 +746,362 @@ html.ui-big .mu {
   .tstamp {
     animation: none;
   }
+}
+
+/* Stock · tarjeta de cada sobre (rediseñada): sobre, nombre y estado, cuántos hay, precio y botones */
+.stk .stkh {
+  gap: 12px;
+}
+.stk .mpack {
+  width: 44px;
+  height: 62px;
+  border-radius: 6px;
+}
+.stk-info {
+  flex: 1;
+  min-width: 0;
+}
+.stk-info > b {
+  display: block;
+  font-family: var(--fd);
+  font-size: 17px;
+  line-height: 1.2;
+}
+.stk-st {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--mu);
+}
+.stk-st.on {
+  color: #4cc98a;
+}
+.stk-st.warn {
+  color: #f2c94e;
+}
+.stk-st.out {
+  color: #ff8a7a;
+}
+/* Cuántos sobres hay: un dato grande, plano (no parece un botón) */
+.stk-qty {
+  flex: none;
+  min-width: 64px;
+  padding: 4px 8px 5px;
+  border-radius: 10px;
+  border: 1px solid #ffffff1f;
+  background: #ffffff0d;
+  text-align: center;
+  line-height: 1;
+}
+.stk-qty b {
+  display: block;
+  font: 800 26px/1.05 var(--fd);
+}
+.stk-qty small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stk-qty.out {
+  border-color: #e3350d88;
+  background: #e3350d1f;
+}
+.stk-qty.out b {
+  color: #ff8a7a;
+}
+.stk-qty.off b {
+  color: var(--mu);
+}
+.stk-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #ffffff14;
+}
+.stk-acc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.stk-acc .acc {
+  flex: 1;
+}
+.stk-acc .b.mini {
+  margin-top: 5px;
+}
+/* Comprar y abrir en una fila: comprar, más ancho */
+.stk-btns {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.stk-btns .b {
+  min-height: 46px;
+  margin: 0;
+}
+/* Mejoras: tarjetas con icono, qué hace y precio o estado (rediseño pedido por Alberto) */
+.upc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.upc-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.upc-b {
+  flex: 1;
+  min-width: 0;
+}
+.upc-b > b {
+  display: block;
+  font-family: var(--fd);
+  font-size: 16px;
+}
+.upc-b .mu {
+  font-size: 13px;
+  margin-top: 2px;
+}
+.upc-r {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.upc-r .b {
+  min-width: 96px;
+  min-height: 42px;
+  margin: 0;
+}
+.upc-r .b.mini {
+  min-width: 0;
+  min-height: 30px;
+}
+.upc-short {
+  font-size: 11px;
+  color: var(--down);
+}
+.upc-ok {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #1c7a4533;
+  color: #4cc98a;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.upc.done {
+  opacity: 0.85;
+}
+.upc-lv {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 5px;
+}
+.upc-lv i {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+  background: #ffffff22;
+}
+.upc-lv i.on {
+  background: #4cc98a;
+}
+.upc-lv .mu {
+  margin: 0 0 0 4px !important;
+  font-size: 11px !important;
+}
+/* Stock · sellado y accesorios: la misma tarjeta que los sobres */
+.prod-ic {
+  flex: none;
+  width: 44px;
+  height: 52px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  background: linear-gradient(160deg, #ffffff30, var(--sc) 30%, #0005);
+  box-shadow: 0 3px 6px #0006;
+}
+.stk.prod .stk-btns {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.stk.prod .stk-btns.two {
+  grid-template-columns: 1fr 1fr;
+}
+/* Retos: tarjetas de misión, logro y encargo (rediseño pedido por Alberto) */
+.msn-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.msn-top b {
+  font-family: var(--fd);
+  font-size: 16px;
+  line-height: 1.25;
+}
+.msn-rew {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #f2b70526;
+  color: #f2c94e;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.msn-bar {
+  position: relative;
+  height: 22px;
+  margin-top: 8px;
+  border-radius: 11px;
+  background: #0006;
+  overflow: hidden;
+}
+.msn-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #2fa557, #4cc98a);
+}
+.msn-bar span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 12px var(--fd);
+  color: #fff;
+  text-shadow: 0 1px 2px #000a;
+}
+.msn .msn-go {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 8px;
+}
+.msn-ok {
+  margin-top: 6px;
+  color: #4cc98a;
+  font-weight: 700;
+  font-size: 13px;
+}
+.msn.ready {
+  border-color: #4cc98a;
+  box-shadow: 0 0 0 1px #4cc98a55;
+}
+.msn.claimed,
+.msn.locked {
+  opacity: 0.8;
+}
+.msn.ord {
+  display: flex;
+  gap: 10px;
+}
+.ord-c {
+  width: 72px;
+  flex: none;
+}
+.ord-b {
+  flex: 1;
+  min-width: 0;
+}
+.ord-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ord-dl {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ffffff12;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ord-dl.last {
+  background: #e3350d33;
+  color: #ff8a7a;
+}
+.ord-no {
+  margin-top: 6px;
+  font-size: 12.5px;
+}
+/* Colección: resumen en tres datos y orden en una fila (rediseño pedido por Alberto) */
+.cst {
+  display: grid;
+  grid-template-columns: 0.8fr 1.1fr 1.1fr;
+  gap: 8px;
+  margin: 4px 0;
+}
+.cst > div {
+  padding: 8px 6px;
+  border-radius: 12px;
+  background: var(--panel2);
+  text-align: center;
+}
+.cst b {
+  display: block;
+  font: 700 17px/1.1 var(--fd);
+  white-space: nowrap;
+}
+.cst small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cst .up b {
+  color: var(--up);
+}
+.cst .down b {
+  color: var(--down);
+}
+.csort > .mu {
+  flex: none;
+  align-self: center;
+  font-size: 13px;
+}
+/* Ficha de carta: rareza, colección y estado como etiquetas; lo que ganas si se vende */
+.cmeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.cmeta span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--panel2);
+  color: var(--mu);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.cmeta .rchip {
+  background: color-mix(in srgb, var(--rc) 30%, transparent);
+  color: #fff;
+}
+.cgain {
+  margin-top: 6px;
+  font-size: 13px;
 }

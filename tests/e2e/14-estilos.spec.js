@@ -217,6 +217,16 @@ const SCREENS = {
   tutorial: (P) => (P.setPause(false), (P.S.phase = "closed"), (P.S.tut = { on: true, i: 2 }), P.hud()),
 };
 const ROOTS = ["#game", "#nav", "#ovh", "#tut", "#zv"];
+// Pantallas cuyo contenido se rediseñó a petición de Alberto (ya no se parecen al original)
+const REDISENO = [
+  "Mejoras",
+  "Stock · sellado",
+  "Stock · accesorios",
+  "Tareas",
+  "Cartas",
+  "texto grande",
+  "ficha de carta",
+];
 
 // Recorre los elementos y devuelve, por ruta, un resumen (hash) de todos sus estilos calculados
 const collect = (roots) => {
@@ -325,20 +335,31 @@ for (const [w, h] of [
         await game(page, (P, src) => (0, eval)(`(${src})`)(P), setup.toString());
         await page.waitForTimeout(600);
         // La inclinación de cartas y sobres la anima JavaScript con el tiempo: se congela antes de comparar
-        await game(page, (P) => {
-          // Lo nuevo de la Fase I (no existe en la referencia) se quita antes de comparar
-          document.querySelectorAll("[data-fase]").forEach((e) => e.remove());
-          // Mejoras pedidas en elementos de siempre (data-mejora y el texto de ayuda oculto con la tienda
-          // abierta): se quitan para comparar lo de siempre con la referencia
-          document.querySelectorAll("[data-mejora]").forEach((e) => e.removeAttribute("data-mejora"));
-          document.documentElement.classList.remove("no-hint", "ux");
-          // Textos que la Fase I cambia a propósito (Carla → Emma): el mismo texto en las dos para comparar estilos
-          document.querySelectorAll("#tut .tbub b, #tut .tbub p").forEach((e) => (e.textContent = "Fase I"));
-          P.TILT.el = null;
-          document
-            .querySelectorAll("[style*='--rx'],[style*='--mx']")
-            .forEach((e) => ["--rx", "--ry", "--mx", "--my"].forEach((v) => e.style.removeProperty(v)));
-        });
+        await game(
+          page,
+          (P, skip) => {
+            // Lo nuevo de la Fase I (no existe en la referencia) se quita antes de comparar
+            document.querySelectorAll("[data-fase]").forEach((e) => e.remove());
+            // Stock: la tarjeta de cada sobre se rediseñó a petición de Alberto; no se compara con el original
+            document.querySelectorAll("#ovh .stk").forEach((e) => e.remove());
+            // Pantallas rediseñadas a petición de Alberto: su contenido no se compara (sí la hoja y el resto)
+            if (skip)
+              document
+                .querySelectorAll("#ovh .sheet > *:not(.xbtn):not(.grab):not([data-a=close])")
+                .forEach((e) => e.remove());
+            // Mejoras pedidas en elementos de siempre (data-mejora y el texto de ayuda oculto con la tienda
+            // abierta): se quitan para comparar lo de siempre con la referencia
+            document.querySelectorAll("[data-mejora]").forEach((e) => e.removeAttribute("data-mejora"));
+            document.documentElement.classList.remove("no-hint", "ux");
+            // Textos que la Fase I cambia a propósito (Carla → Emma): el mismo texto en las dos para comparar estilos
+            document.querySelectorAll("#tut .tbub b, #tut .tbub p").forEach((e) => (e.textContent = "Fase I"));
+            P.TILT.el = null;
+            document
+              .querySelectorAll("[style*='--rx'],[style*='--mx']")
+              .forEach((e) => ["--rx", "--ry", "--mx", "--my"].forEach((v) => e.style.removeProperty(v)));
+          },
+          REDISENO.includes(name),
+        );
         await page.waitForTimeout(150); // el tutorial recoloca su bocadillo en el fotograma siguiente
         return page.evaluate(collect, ROOTS);
       };

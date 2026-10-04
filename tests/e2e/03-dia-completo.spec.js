@@ -10,7 +10,10 @@ test("3 · Día completo con cajero: abrir, clientes, cierre y ticket del día",
   await page.locator('#nav [data-k="more"]').click();
   await ovh.locator('[data-a="m"][data-k="up"]').click();
   await ovh.locator('[data-a="staff"][data-k="cashier"]').click();
-  await expect(ovh.locator('[data-a="staff"][data-k="cashier"]')).toContainText("Contratado");
+  // La tarjeta del cajero dice «Contratado» (en Vite, en su etiqueta; en el original, en el botón)
+  await expect(ovh.locator(".pn", { has: page.locator('[data-a="staff"][data-k="cashier"]') })).toContainText(
+    "Contratado",
+  );
   await closeSheet();
 
   // Comprar sobres de los 3 sets (llegan en la furgoneta)

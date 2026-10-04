@@ -45,9 +45,19 @@ export function mPacks() {
         p = S.pack[s],
         q = S.sealed[s],
         on = S.slots.includes(s);
-      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}"><i class="stk-q" data-fase="I"><b class="${q ? "" : on ? "out" : "z"}">${q}</b></i>${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div style="flex:1;min-width:0"><b>${sd.n}</b><div class="mu">${q} en stock${on ? " · en estantería" : q > 0 ? " · ⚠️ sin hueco" : ""}</div></div><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
-    <div>${accTag(packAcc(s))}${Math.abs(S.shelf[s] - recPack(s)) > 0.04 ? ` <button class="b mini" data-a="recp" data-k="${s}">🎯 ${fmt(recPack(s))}</button>` : ""}</div>
-    <div class="btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}>✨ Abrir 1</button></div>
+      // Tarjeta del sobre (rediseñada a petición de Alberto; el test 14 no la compara con el original):
+      // nombre y si está en estantería · cuántos sobres hay, grande · precio · compra y abrir en una fila
+      const stt = !q
+        ? on
+          ? ["out", "❌ Agotado · la estantería está vacía"]
+          : ["off", "Sin sobres"]
+        : on
+          ? ["on", "🏪 En estantería"]
+          : ["warn", "⚠️ Sin hueco en las estanterías"];
+      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}">${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div class="stk-info"><b>${sd.n}</b><div class="stk-st ${stt[0]}">${stt[1]}</div></div><div class="stk-qty ${stt[0]}"><b>${q}</b><small>${q === 1 ? "sobre" : "sobres"}</small></div></div>
+    <div class="stk-price"><span class="mu">Precio por sobre</span><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
+    <div class="stk-acc">${accTag(packAcc(s))}${Math.abs(S.shelf[s] - recPack(s)) > 0.04 ? `<button class="b mini" data-a="recp" data-k="${s}">🎯 ${fmt(recPack(s))}</button>` : ""}</div>
+    <div class="stk-btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}>✨ Abrir 1</button></div>
     <details><summary class="mu">Detalles y más opciones</summary><div class="mu">Mayorista ${fmt(p.w)} por sobre · los clientes pagan ~${fmt(p.ref)} · valor esperado ${fmt(EVC[s] || 0)}</div><div class="btns">${[
       1, 36,
     ]
@@ -62,25 +72,72 @@ export function mPacks() {
     `<p class="mu">Abrir sobres tiene azar: de media sale algo menos de lo que cuestan. Se gana más vendiéndolos cerrados o comprando cartas a buen precio.</p>`
   );
 }
+/**
+ * Tarjeta de mejora (rediseño pedido por Alberto): icono, nombre, qué hace y, a la derecha, el precio (botón
+ * verde) o el estado («✔ Comprada»). Si no llega el dinero, dice cuánto falta.
+ */
+function upCard({ ic, n, d, extra = "", done, doneTxt = "✔ Comprada", cost, act, k, side = "" }) {
+  const short = cost != null && S.money < cost;
+  const right = done
+    ? `<span class="upc-ok">${doneTxt}</span>${side}`
+    : `<button class="b pri" data-a="${act}"${k ? ` data-k="${k}"` : ""}${short ? " disabled" : ""}>${fmt(cost)}</button>${short ? `<small class="upc-short">Faltan ${fmt(cost - S.money)}</small>` : ""}`;
+  return `<div class="pn upc${done ? " done" : ""}"><div class="upc-ic">${ic}</div><div class="upc-b"><b>${n}</b><div class="mu">${d}</div>${extra}</div><div class="upc-r">${right}</div></div>`;
+}
+const UPIC = { ads: "📣", case: "🗄️", shelf: "🗃️" };
 export function mUp() {
-  const dec = DECOR.map(
-    (d) =>
-      `<div class="pn"><div class="row"><b>${d.ic} ${d.n}</b>${S.decor[d.k] ? '<span class="up">Colocado ✔</span>' : `<button class="b pri" data-a="decor" data-k="${d.k}"${S.money < d.cost ? " disabled" : ""}>${fmt(d.cost)}</button>`}</div><div class="mu">${d.d}</div></div>`,
+  const lvls = (lv, max) =>
+    max > 1
+      ? `<div class="upc-lv">${Array.from({ length: max }, (_, i) => `<i class="${i < lv ? "on" : ""}"></i>`).join("")}<span class="mu">Nivel ${lv}/${max}</span></div>`
+      : "";
+  const ups = UPS.map((u) => {
+    const lv = S.up[u.k];
+    return upCard({
+      ic: UPIC[u.k] || "⬆️",
+      n: u.n,
+      d: u.d,
+      extra: lvls(lv, u.max),
+      done: lv >= u.max,
+      cost: u.cost[lv],
+      act: "upg",
+      k: u.k,
+    });
+  }).join("");
+  const dec = DECOR.map((d) =>
+    upCard({ ic: d.ic, n: d.n, d: d.d, done: S.decor[d.k], doneTxt: "✔ Colocado", cost: d.cost, act: "decor", k: d.k }),
   ).join("");
-  const stf = STAFF.map(
-    (x) =>
-      `<div class="pn"><div class="row"><b>${x.ic} ${x.n}</b><button class="b ${S.staff[x.k] ? "on" : "pri"}" data-a="staff" data-k="${x.k}">${S.staff[x.k] ? "Contratado · despedir" : "Contratar"}</button></div><div class="mu">${x.d} Sueldo: ${fmt(x.sal)}/día.</div></div>`,
+  const stf = STAFF.map((x) =>
+    S.staff[x.k]
+      ? upCard({
+          ic: x.ic,
+          n: x.n,
+          d: x.d,
+          extra: `<div class="mu">Sueldo: ${fmt(x.sal)}/día</div>`,
+          done: true,
+          doneTxt: "✔ Contratado",
+          side: `<button class="b mini fire" data-a="staff" data-k="${x.k}">Despedir</button>`,
+        })
+      : `<div class="pn upc"><div class="upc-ic">${x.ic}</div><div class="upc-b"><b>${x.n}</b><div class="mu">${x.d}</div><div class="mu">Sueldo: ${fmt(x.sal)}/día</div></div><div class="upc-r"><button class="b pri" data-a="staff" data-k="${x.k}">Contratar</button></div></div>`,
   ).join("");
-  return (
-    `<h2>Mejoras</h2>` +
-    UPS.map((u) => {
-      const lv = S.up[u.k],
-        done = lv >= u.max,
-        c = u.cost[lv];
-      return `<div class="pn"><div class="row"><b>${u.n}${u.max > 1 ? ` (${lv}/${u.max})` : ""}</b>${done ? '<span class="up">Comprada</span>' : `<button class="b pri" data-a="upg" data-k="${u.k}"${S.money < c ? " disabled" : ""}>${fmt(c)}</button>`}</div><div class="mu">${u.d}</div></div>`;
-    }).join("") +
-    `<h3>Decoración</h3>${dec}<h3>Personal</h3>${stf}<h3>Seguridad</h3><div class="pn row"><span>📹 Cámaras de seguridad<br><span class="mu">Menos robos y el ladrón corre más despacio.</span></span><button class="b pri" data-a="buycams"${S.cams || S.money < 250 ? " disabled" : ""}>${S.cams ? "Instaladas ✔" : "250 €"}</button></div><h3>Ampliación</h3><div class="pn row"><span>🏗️ Comprar el local de al lado (la panadería)</span><button class="b pri" data-a="m" data-k="annex">${S.annex ? "Hecho ✔" : "Ver"}</button></div>`
-  );
+  const cams = upCard({
+    ic: "📹",
+    n: "Cámaras de seguridad",
+    d: "Menos robos y el ladrón corre más despacio.",
+    done: S.cams,
+    doneTxt: "✔ Instaladas",
+    cost: 250,
+    act: "buycams",
+  });
+  const annex = S.annex
+    ? upCard({
+        ic: "🏗️",
+        n: "El local de al lado",
+        d: "Tu tienda ya ocupa la antigua panadería.",
+        done: true,
+        doneTxt: "✔ Hecho",
+      })
+    : `<div class="pn upc"><div class="upc-ic">🏗️</div><div class="upc-b"><b>El local de al lado</b><div class="mu">La panadería vende su local: más estanterías y zona de juego.</div></div><div class="upc-r"><button class="b" data-a="m" data-k="annex">Ver</button></div></div>`;
+  return `<h2>🛠️ Mejoras</h2><div class="stk-cash">💶 Tienes <b>${fmt(S.money)}</b></div>
+  <h3>⬆️ Tienda</h3>${ups}<h3>🎨 Decoración</h3>${dec}<h3>🧑‍💼 Personal</h3>${stf}<h3>🔒 Seguridad</h3>${cams}<h3>🏗️ Ampliación</h3>${annex}`;
 }
 export function packTabs() {
   // Dinero disponible, siempre a la vista mientras compras (baja con cada compra)
@@ -115,6 +172,11 @@ export function prodRow(pid) {
   const q = pStock(pid),
     pr = pPrice(pid),
     st = pr >= 20 ? 1 : pr >= 5 ? 0.5 : 0.25,
-    buys = i.t === "acc" ? [6, 24] : i.t === "box" ? [1, 3] : [1, 4];
-  return `<div class="pn"><div class="row"><b>${i.ic} ${i.n}</b><span class="mu">Stock: <b>${q}</b></span></div><div class="row"><span class="mu">Mayorista ${fmt(i.w)} · clientes ~${fmt(i.ref)}${i.packs ? ` · ${i.packs} sobres` : ""}</span><span class="step"><button class="b" data-a="pp" data-k="${pid}" data-n="-${st}">−</button><b>${fmt(pr)}</b><button class="b" data-a="pp" data-k="${pid}" data-n="${st}">+</button></span></div><div>${accTag(prodAcc(pid))}${Math.abs(pr - recProd(pid)) > 0.04 ? ` <button class="b" style="min-height:30px;padding:4px 10px;font-size:13px" data-a="recq" data-k="${pid}">🎯 ${fmt(recProd(pid))}</button>` : ""}</div><div class="btns">${buys.map((n) => `<button class="b" data-a="buyprod" data-k="${pid}" data-n="${n}"${S.money < i.w * n ? " disabled" : ""}>×${n} · ${fmt(i.w * n)}</button>`).join("")}${i.packs ? `<button class="b pri" data-a="openprod" data-k="${pid}"${q < 1 ? " disabled" : ""}>Abrir → ${i.packs} sobres</button>` : ""}</div></div>`;
+    buys = i.t === "acc" ? [6, 24] : i.t === "box" ? [1, 3] : [1, 4],
+    unit = q === 1 ? "unidad" : "uds.";
+  // Tarjeta de producto (mismo formato que la de sobres, rediseño pedido por Alberto)
+  return `<div class="pn stk prod"><div class="stkh"><div class="prod-ic" style="--sc:${i.col || "#556"}">${i.ic}</div><div class="stk-info"><b>${i.n}</b><div class="stk-st">Mayorista ${fmt(i.w)} · clientes ~${fmt(i.ref)}${i.packs ? ` · ${i.packs} sobres` : ""}</div></div><div class="stk-qty ${q ? "" : "off"}"><b>${q}</b><small>${unit}</small></div></div>
+  <div class="stk-price"><span class="mu">Precio de venta</span><div class="step"><button class="b" data-a="pp" data-k="${pid}" data-n="-${st}">−</button><b>${fmt(pr)}</b><button class="b" data-a="pp" data-k="${pid}" data-n="${st}">+</button></div></div>
+  <div class="stk-acc">${accTag(prodAcc(pid))}${Math.abs(pr - recProd(pid)) > 0.04 ? `<button class="b mini" data-a="recq" data-k="${pid}">🎯 ${fmt(recProd(pid))}</button>` : ""}</div>
+  <div class="stk-btns${i.packs ? "" : " two"}">${buys.map((n) => `<button class="b pri" data-a="buyprod" data-k="${pid}" data-n="${n}"${S.money < i.w * n ? " disabled" : ""}>🛒 ×${n} · ${fmt(i.w * n)}</button>`).join("")}${i.packs ? `<button class="b" data-a="openprod" data-k="${pid}"${q < 1 ? " disabled" : ""}>✨ Abrir</button>` : ""}</div></div>`;
 }
