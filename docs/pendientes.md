@@ -107,3 +107,9 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Qué pasaba.** En el móvil, a veces el suelo, las paredes de la tienda y los edificios de la calle salían en negro (los muebles, la gente y la calle se veían bien). El juego guarda esos fondos ya dibujados en lienzos aparte; en Android, Chrome puede vaciar los lienzos que no están en pantalla (al pasar la app a segundo plano, p. ej. al hacer una captura, o con poca memoria) y el juego seguía usándolos vacíos. En el ordenador no pasa.
 
 **Arreglo:** cada fotograma se comprueba si esos lienzos se han vaciado (`canvasLost`, `render/canvas.js`) y, si es así, se vuelven a dibujar (fondo de la tienda, ciudad y muñecos de Emma y Álvaro). Test 20aa.
+
+## 9. «⚠️ No se pudo guardar» con muchas colecciones · ✅ arreglado (falta que Alberto lo confirme)
+
+**Qué pasaba.** El navegador deja guardar unos 5 MB por web. La partida del día 27 ocupaba 5,4 MB: 4,9 MB eran el historial de precios de sus 5.255 cartas (31 colecciones), con 60 días por carta y cada precio con 17 cifras. Al pasar del límite, la partida dejaba de guardarse (se quedaba la última que cupo).
+
+**Arreglo:** los precios se guardan con 6 cifras y 31 días de historial, que es lo que se usa (la gráfica y «30 d» miran 30 días atrás). Las partidas de antes se recortan al cargar (`compactPrice`, `core/cards/prices.js`); lo que se ve no cambia. Esa partida pasa de 5,4 MB a 2,4 MB. Test 11 (compara los precios ya recortados) y unitario de `compactPrice`.

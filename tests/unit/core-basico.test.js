@@ -16,7 +16,7 @@ import {
   setName,
   mkSetDef,
 } from "../../src/core/cards/sets.js";
-import { initPrice, step, rvr } from "../../src/core/cards/prices.js";
+import { initPrice, step, rvr, compactPrice } from "../../src/core/cards/prices.js";
 import { FIX_CARDS } from "../fixtures/api.js";
 
 describe("util", () => {
@@ -118,11 +118,20 @@ describe("precios", () => {
     expect(p.h).toHaveLength(30);
     expect(p.h[29]).toBe(10);
   });
-  it("step mueve el precio, nunca baja de 0,02 y guarda 60 días de historial", () => {
+  it("step mueve el precio, nunca baja de 0,02 y guarda 31 días de historial (la gráfica y «30 d» usan 30)", () => {
     const p = initPrice({ b: 1, r: "C" });
     for (let i = 0; i < 100; i++) step(p, 1);
     expect(p.p).toBeGreaterThanOrEqual(0.02);
-    expect(p.h).toHaveLength(60);
+    expect(p.h).toHaveLength(31);
+  });
+  it("compactPrice: las partidas de antes se quedan con 31 días y 6 cifras (lo que se ve no cambia)", () => {
+    const h = Array.from({ length: 60 }, (_, i) => 1.2345678912345 + i / 1000);
+    const p = { p: 3.14159265358979, t: 0.0024750620765475947, b: 3, h };
+    compactPrice(p);
+    expect(p.h).toHaveLength(31);
+    expect(p.h[30]).toBe(1.29357);
+    expect(p.p).toBe(3.14159);
+    expect(p.t).toBe(0.002475);
   });
   it("rvr: multiplicador de reverse entre 1,2 y 8 (2,5 por defecto)", () => {
     expect(rvr({ rv: 10, b: 1 })).toBe(8);
