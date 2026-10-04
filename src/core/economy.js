@@ -47,7 +47,7 @@ export const spMul = () =>
   evMul() *
   rivalMul() *
   dirtMul(); // con suciedad en el suelo, entran menos (core/dirt.js)
-export const patMul = () => (1 + dsum("pat")) * DF().pat;
+export const patMul = () => (1 + dsum("pat") + (S.fk && S.fk.mob && S.fk.mob.arcade ? 0.2 : 0)) * DF().pat; // + recreativa de la zona Funko
 export const tolMul = () => (1 + dsum("tol")) * DF().tol;
 export const gk = (it) =>
   it.c +

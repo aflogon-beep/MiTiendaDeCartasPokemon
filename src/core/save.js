@@ -44,6 +44,8 @@ export function releaseHolds() {
     else if (t === "x") S.prod[id] = (S.prod[id] || 0) + H[k];
   }
   S.held = {};
+  // Funkos que llevaban los clientes a la caja: vuelven a la estantería
+  if (S.fk && S.fk.u) S.fk.u.forEach((u) => u.at === "h" && (u.at = "s"));
   const mk = S.market && !S.market.res && S.market.day >= S.day ? S.market.items || [] : [];
   (S.items || []).forEach((it) => {
     if (it.res && !mk.includes(it.i)) it.res = false;

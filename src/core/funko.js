@@ -4,6 +4,7 @@
 //   S.fk = { name, since }   nombre que pone el jugador y día de la compra
 import { S } from "./state.js";
 import { level } from "./economy.js";
+import { fkEnsure } from "./funko/zone.js";
 
 export const FK_COST = 15000;
 export const FK_LV = 5;
@@ -23,6 +24,7 @@ export function fkBuy() {
   if (!fkCanBuy()) return false;
   S.money -= FK_COST;
   S.fk = { name: "", since: S.day };
+  fkEnsure();
   return true;
 }
 /** Pone nombre a la zona (máximo 22 letras, como el de la tienda). */
