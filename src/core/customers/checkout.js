@@ -29,7 +29,7 @@ export function pay(c, got) {
   track("earn", got);
   track("serve");
   if (got >= 50) (ui.shake(3), ui.quip("bigsale"));
-  ui.toast("+ " + fmt(got));
+  ui.toast("+ " + fmt(got), { nolog: 1 }); // las ventas no van a Avisos: tapaban lo importante
   ui.fx(LAY.counter.x + 28, LAY.counter.y + 40, "+" + fmt(got), "#4cc98a");
   ui.coinBurst(c.x, c.y - 30, got);
   c.bought = true;

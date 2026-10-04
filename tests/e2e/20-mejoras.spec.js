@@ -793,3 +793,20 @@ test("20aa · Si Android vacía los fondos guardados (salían en negro), se vuel
   });
   await expect.poll(() => game(page, (P) => P.VIS.bgN || 0)).toBeGreaterThan(n0);
 });
+
+test("20ab · Las ventas no se apuntan en Avisos (salen en pantalla, pero no tapan lo importante)", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  const r = await game(page, (P) => {
+    P.VIS.notes = [];
+    P.VIS.unread = 0;
+    P.pay({ hold: { k: "pack", s: P.SETS[0].id, qty: 1, total: 4.5 }, x: 300, y: 300 });
+    P.toast("📋 Hay un encargo nuevo");
+    return { notes: P.VIS.notes.map((n) => n.t), unread: P.VIS.unread };
+  });
+  expect(r).toEqual({ notes: ["📋 Hay un encargo nuevo"], unread: 1 });
+  await expect(page.locator("#toast")).toContainText("+ 4,50 €");
+});
