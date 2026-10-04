@@ -218,7 +218,15 @@ const SCREENS = {
 };
 const ROOTS = ["#game", "#nav", "#ovh", "#tut", "#zv"];
 // Pantallas cuyo contenido se rediseñó a petición de Alberto (ya no se parecen al original)
-const REDISENO = ["Mejoras", "Stock · sellado", "Stock · accesorios", "Tareas"];
+const REDISENO = [
+  "Mejoras",
+  "Stock · sellado",
+  "Stock · accesorios",
+  "Tareas",
+  "Cartas",
+  "texto grande",
+  "ficha de carta",
+];
 
 // Recorre los elementos y devuelve, por ruta, un resumen (hash) de todos sus estilos calculados
 const collect = (roots) => {

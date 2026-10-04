@@ -55,9 +55,10 @@ export function mColl() {
   return (
     cardTabs("coll") +
     (G.collF === "fav" ? favBanner() : "") +
-    `<div class="row"><span>${S.items.length} cartas · valor <b>${fmt(tv)}</b></span><span class="${cls(tv - tc)}">P/L ${tv >= tc ? "+" : ""}${fmt(tv - tc)}</span></div>
+    // Resumen en tres datos y filtros/orden en filas que se deslizan (rediseño pedido por Alberto)
+    `<div class="cst"><div><b>${S.items.length}</b><small>cartas</small></div><div><b>${fmt(tv)}</b><small>valor</small></div><div class="${cls(tv - tc)}"><b>${tv >= tc ? "+" : ""}${fmt(tv - tc)}</b><small>ganancia</small></div></div>
   <input class="inp" data-i="csearch" placeholder="🔎 Buscar carta o colección…" value="${G.collQ.replace(/"/g, "")}" style="margin:8px 0">
-  <div class="chips">${[
+  <div class="serchips">${[
     ["all", "Todas"],
     ["top", "Valiosas"],
     ["case", `🏷️ Vitrina (${caseItems().length})`],
@@ -65,7 +66,7 @@ export function mColl() {
   ]
     .map(([k, n]) => `<button class="b ${G.collF === k ? "on" : ""}" data-a="filt" data-k="${k}">${n}</button>`)
     .join("")}</div>
-  <div class="chips"><span class="mu" style="align-self:center">Ordenar:</span>${[
+  <div class="serchips csort"><span class="mu">Ordenar</span>${[
     ["val", "💰 Valor"],
     ["rar", "⭐ Rareza"],
     ["new", "🆕 Nuevas"],

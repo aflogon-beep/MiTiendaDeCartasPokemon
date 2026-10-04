@@ -1044,3 +1044,64 @@ html.ui-big .mu {
   margin-top: 6px;
   font-size: 12.5px;
 }
+/* Colección: resumen en tres datos y orden en una fila (rediseño pedido por Alberto) */
+.cst {
+  display: grid;
+  grid-template-columns: 0.8fr 1.1fr 1.1fr;
+  gap: 8px;
+  margin: 4px 0;
+}
+.cst > div {
+  padding: 8px 6px;
+  border-radius: 12px;
+  background: var(--panel2);
+  text-align: center;
+}
+.cst b {
+  display: block;
+  font: 700 17px/1.1 var(--fd);
+  white-space: nowrap;
+}
+.cst small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cst .up b {
+  color: var(--up);
+}
+.cst .down b {
+  color: var(--down);
+}
+.csort > .mu {
+  flex: none;
+  align-self: center;
+  font-size: 13px;
+}
+/* Ficha de carta: rareza, colección y estado como etiquetas; lo que ganas si se vende */
+.cmeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.cmeta span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--panel2);
+  color: var(--mu);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.cmeta .rchip {
+  background: color-mix(in srgb, var(--rc) 30%, transparent);
+  color: #fff;
+}
+.cgain {
+  margin-top: 6px;
+  font-size: 13px;
+}
