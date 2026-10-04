@@ -45,9 +45,19 @@ export function mPacks() {
         p = S.pack[s],
         q = S.sealed[s],
         on = S.slots.includes(s);
-      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}"><i class="stk-q" data-fase="I"><b class="${q ? "" : on ? "out" : "z"}">${q}</b></i>${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div style="flex:1;min-width:0"><b>${sd.n}</b><div class="mu">${q} en stock${on ? " · en estantería" : q > 0 ? " · ⚠️ sin hueco" : ""}</div></div><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
-    <div>${accTag(packAcc(s))}${Math.abs(S.shelf[s] - recPack(s)) > 0.04 ? ` <button class="b mini" data-a="recp" data-k="${s}">🎯 ${fmt(recPack(s))}</button>` : ""}</div>
-    <div class="btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}>✨ Abrir 1</button></div>
+      // Tarjeta del sobre (rediseñada a petición de Alberto; el test 14 no la compara con el original):
+      // nombre y si está en estantería · cuántos sobres hay, grande · precio · compra y abrir en una fila
+      const stt = !q
+        ? on
+          ? ["out", "❌ Agotado · la estantería está vacía"]
+          : ["off", "Sin sobres"]
+        : on
+          ? ["on", "🏪 En estantería"]
+          : ["warn", "⚠️ Sin hueco en las estanterías"];
+      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}">${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div class="stk-info"><b>${sd.n}</b><div class="stk-st ${stt[0]}">${stt[1]}</div></div><div class="stk-qty ${stt[0]}"><b>${q}</b><small>${q === 1 ? "sobre" : "sobres"}</small></div></div>
+    <div class="stk-price"><span class="mu">Precio por sobre</span><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
+    <div class="stk-acc">${accTag(packAcc(s))}${Math.abs(S.shelf[s] - recPack(s)) > 0.04 ? `<button class="b mini" data-a="recp" data-k="${s}">🎯 ${fmt(recPack(s))}</button>` : ""}</div>
+    <div class="stk-btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}>✨ Abrir 1</button></div>
     <details><summary class="mu">Detalles y más opciones</summary><div class="mu">Mayorista ${fmt(p.w)} por sobre · los clientes pagan ~${fmt(p.ref)} · valor esperado ${fmt(EVC[s] || 0)}</div><div class="btns">${[
       1, 36,
     ]

@@ -328,6 +328,8 @@ for (const [w, h] of [
         await game(page, (P) => {
           // Lo nuevo de la Fase I (no existe en la referencia) se quita antes de comparar
           document.querySelectorAll("[data-fase]").forEach((e) => e.remove());
+          // Stock: la tarjeta de cada sobre se rediseñó a petición de Alberto; no se compara con el original
+          document.querySelectorAll("#ovh .stk").forEach((e) => e.remove());
           // Mejoras pedidas en elementos de siempre (data-mejora y el texto de ayuda oculto con la tienda
           // abierta): se quitan para comparar lo de siempre con la referencia
           document.querySelectorAll("[data-mejora]").forEach((e) => e.removeAttribute("data-mejora"));

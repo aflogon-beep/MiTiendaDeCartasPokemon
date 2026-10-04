@@ -384,7 +384,7 @@ test("20m · Stock: el dinero disponible a la vista (baja al comprar) y el núme
   const cash = page.locator("#ovh .stk-cash b");
   const m0 = await game(page, (P) => P.fmt(P.S.money));
   await expect(cash).toHaveText(m0);
-  const q0 = await page.locator("#ovh .stk-q b").first().textContent();
+  const q0 = await page.locator("#ovh .stk-qty b").first().textContent();
   expect(await game(page, (P) => String(P.S.sealed[P.SETS[0].id]))).toBe(q0);
   await game(page, (P) => (P.S.express = true));
   await page.locator('#ovh [data-a="buyp"][data-n="6"]').first().click();
@@ -392,7 +392,7 @@ test("20m · Stock: el dinero disponible a la vista (baja al comprar) y el núme
   expect(m1).not.toBe(m0);
   await expect(cash).toHaveText(m1);
   await expect(page.locator("#ovh .stk-cash.down i")).toContainText("−");
-  await expect(page.locator("#ovh .stk-q b").first()).toHaveText(String(+q0 + 6));
+  await expect(page.locator("#ovh .stk-qty b").first()).toHaveText(String(+q0 + 6));
 });
 
 test("20n · Los avisos de la partida no salen encima del título: se enseñan al entrar (§4)", async ({
@@ -467,7 +467,7 @@ test("20o · Velocidad 1×, 1,25×, 1,5×, 2× y 4×; Retos y Stock dicen qué c
     P.openM("packs");
   });
   await expect(page.locator("#ovh .stk-out")).toContainText("sin sobres");
-  await expect(page.locator("#ovh .stk-q b.out").first()).toHaveText("0");
+  await expect(page.locator("#ovh .stk-qty.out b").first()).toHaveText("0");
 });
 
 test("20p · Alertas: Emma avisa si una carta tuya sube mucho; flecha en la colección; recordatorio de copia", async ({

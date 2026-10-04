@@ -689,32 +689,6 @@ html.ui-big .mu {
     color: #ff8a7a;
   }
 }
-/* Stock: el número de sobres, grande en la esquina del sobre */
-.stk-q {
-  position: relative;
-  width: 0;
-  height: 0;
-  flex: none;
-}
-.stk-q b {
-  position: absolute;
-  left: -20px;
-  top: -38px;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 5px;
-  box-sizing: border-box;
-  border-radius: 12px;
-  background: var(--sign);
-  color: var(--signink);
-  font: 800 15px/24px var(--fd);
-  text-align: center;
-  box-shadow: 0 2px 6px #0008;
-}
-.stk-q b.z {
-  background: #5a6070;
-  color: #fff;
-}
 /* Consejos de Emma: «No más», claro sobre el bocadillo blanco para que se lea (data-mejora: ver test 14) */
 .hint1 .b[data-mejora] {
   background: #f3ecdd;
@@ -727,10 +701,7 @@ html.ui-big .mu {
 .stk-out {
   border-color: #e3350d;
 }
-.stk-q b.out {
-  background: #e3350d;
-  color: #fff;
-}
+
 /* Ticket: por qué se fueron sin comprar */
 .twhy {
   margin: 0 0 2px 14px;
@@ -775,4 +746,103 @@ html.ui-big .mu {
   .tstamp {
     animation: none;
   }
+}
+
+/* Stock · tarjeta de cada sobre (rediseñada): sobre, nombre y estado, cuántos hay, precio y botones */
+.stk .stkh {
+  gap: 12px;
+}
+.stk .mpack {
+  width: 44px;
+  height: 62px;
+  border-radius: 6px;
+}
+.stk-info {
+  flex: 1;
+  min-width: 0;
+}
+.stk-info > b {
+  display: block;
+  font-family: var(--fd);
+  font-size: 17px;
+  line-height: 1.2;
+}
+.stk-st {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--mu);
+}
+.stk-st.on {
+  color: #4cc98a;
+}
+.stk-st.warn {
+  color: #f2c94e;
+}
+.stk-st.out {
+  color: #ff8a7a;
+}
+/* Cuántos sobres hay: un dato grande, plano (no parece un botón) */
+.stk-qty {
+  flex: none;
+  min-width: 64px;
+  padding: 4px 8px 5px;
+  border-radius: 10px;
+  border: 1px solid #ffffff1f;
+  background: #ffffff0d;
+  text-align: center;
+  line-height: 1;
+}
+.stk-qty b {
+  display: block;
+  font: 800 26px/1.05 var(--fd);
+}
+.stk-qty small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stk-qty.out {
+  border-color: #e3350d88;
+  background: #e3350d1f;
+}
+.stk-qty.out b {
+  color: #ff8a7a;
+}
+.stk-qty.off b {
+  color: var(--mu);
+}
+.stk-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #ffffff14;
+}
+.stk-acc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.stk-acc .acc {
+  flex: 1;
+}
+.stk-acc .b.mini {
+  margin-top: 5px;
+}
+/* Comprar y abrir en una fila: comprar, más ancho */
+.stk-btns {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.stk-btns .b {
+  min-height: 46px;
+  margin: 0;
 }
