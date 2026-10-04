@@ -1,12 +1,25 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const BUILD = new Date().toISOString();
+import { execSync } from "node:child_process";
+
+// Versión = fecha del último cambio (commit), no la hora de compilar: el mismo código da siempre la misma
+// versión, y publicar dos veces lo mismo no hace saltar el aviso «Actualizar» (ui/update.js).
+function buildDate() {
+  try {
+    const d = execSync("git log -1 --format=%cI", { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+    if (d) return new Date(d).toISOString();
+  } catch (e) {}
+  return new Date().toISOString();
+}
+const BUILD = buildDate();
 
 // BASE_PATH lo pone el workflow de GitHub Pages (p. ej. /MiTiendaDeCartasPokemon/)
 export default defineConfig({
   base: process.env.BASE_PATH || "/",
-  // Versión = fecha y hora de la publicación (ui/version.js): se ve en Más → Ajustes y en el aviso
+  // Versión = fecha del último cambio (ui/version.js): se ve en Más → Ajustes y en el aviso
   // «Actualizar», y va en el registro de cierres (ui/diag.js)
   define: { __BUILD__: JSON.stringify(BUILD) },
   plugins: [

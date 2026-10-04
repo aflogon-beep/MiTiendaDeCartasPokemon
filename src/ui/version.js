@@ -1,4 +1,5 @@
-// Versión del juego: la fecha y hora en que se publicó (BUILD, la pone vite.config.js). Se ve en
+// Versión del juego: la fecha y hora del último cambio publicado (BUILD, la pone vite.config.js con la fecha del
+// commit: el mismo código da siempre la misma versión). Se ve en
 // Más → Ajustes y en el aviso «Actualizar» («Versión nueva: … · tienes: …»).
 export const BUILD = typeof __BUILD__ !== "undefined" ? __BUILD__ : "";
 
