@@ -182,3 +182,71 @@ html.ux .b.fire {
   color: #fff;
   box-shadow: 0 3px 0 #7a2018;
 }
+/* Banners con los personajes (ui/hero.js) */
+.hero {
+  position: relative;
+  min-height: 78px;
+  margin: 0 0 10px;
+  padding: 10px 10px 10px 92px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border: 2px solid #ffffff30;
+  background: linear-gradient(#7cc8ff, #bfe6ff 72%, #9fd17a 72%);
+}
+.hero.sun {
+  background: linear-gradient(#ffcf6b, #ffe9b0 72%, #e0b46a 72%);
+}
+.hero.lila {
+  background: linear-gradient(#b99cff, #e6dcff 72%, #9a7fd6 72%);
+}
+.hero.rosa {
+  background: linear-gradient(#ff9ec4, #ffd9e8 72%, #e27aa6 72%);
+}
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  height: 12px;
+  border-radius: 10px;
+  background: #fff;
+  opacity: 0.85;
+}
+.hero::before {
+  left: 46%;
+  top: 8px;
+  width: 46px;
+}
+.hero::after {
+  right: 12px;
+  top: 14px;
+  width: 34px;
+}
+.hero img {
+  position: absolute;
+  left: 4px;
+  bottom: -8px;
+  height: 92px;
+  filter: drop-shadow(0 3px 4px #0006);
+}
+.hero-t {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #0d2236e6;
+  color: #fff;
+  font: 600 13.5px/1.35 var(--fd);
+}
+.hero-t b {
+  color: #ffd54a;
+}
+.hero-t .b {
+  float: right;
+  min-height: 30px;
+  padding: 4px 10px;
+  margin: -2px 0 0 8px;
+  font-size: 12px;
+}

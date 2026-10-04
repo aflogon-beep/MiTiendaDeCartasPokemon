@@ -21,6 +21,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Más frases de Emma, Álvaro y papá (varias por situación y situaciones nuevas) | ✅ |
 | Mejoras · El nivel nunca baja; botón «atrás»; con cajero, las ofertas esperan aparte («📥 N ofertas esperando») | ✅ |
 | Mejoras · Botones verde/gris/rojo; rediseño de Stock, Mejoras, Retos, colección y ficha de carta | ✅ |
+| Mejoras · Sobre imitado (logo e ilustración reales), tarjetas con el color de la colección y banners con Emma, Álvaro y papá | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -78,6 +79,8 @@ src/
     quips.js             bocadillos de frases y visita de papá
     slab.js              funda de plástico de las cartas gradeadas
     update.js            aviso «Actualizar», con la versión nueva y la que tienes (version.json)
+    packart.js           sobre imitado: bordes dentados, brillo, logo oficial (sd.logo) e ilustración de la carta estrella
+    hero.js              banners con Emma, Álvaro o papá en Stock, Mejoras, Retos y Cartas (data-fase)
     version.js           versión del juego = fecha del último commit (__BUILD__; mismo código, misma versión); se ve en Más → Ajustes
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
@@ -122,7 +125,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 - **API simulada** (`tests/fixtures/api.js`): sets y cartas inventados; imágenes con un PNG genérico.
 - **Los tests saltan el título y la historia**: `openGame` pone `window.__pcsSkipTitle` y el juego entra directo en la última partida, como antes de la Fase I. Para probar el título: `openGame(page, gamePath, { title: true })`.
 - **Service worker bloqueado** en todos los tests salvo el 15 (`serviceWorkers: "block"`).
-- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual. Si una mejora pedida cambia el estilo de un elemento de siempre, márcalo con **`data-mejora`** (el test quita el atributo antes de comparar). En la versión de Vite, el test 14 también pone `G.noLocks` (colecciones sin candado, como en el original). Las mejoras generales de estilo van bajo **`html.ux`** (p. ej. los botones de los paneles en cuadrícula); el test quita la clase antes de comparar. Con la tienda abierta ya no hay texto de ayuda (`html.no-hint`) y la tienda es 58 px más alta (test 6). La tarjeta de cada sobre en Stock (`.stk`) y las pantallas de `REDISENO` (Mejoras, Stock · sellado y accesorios, Tareas, Cartas, ficha de carta) se rediseñaron a petición de Alberto: el test 14 no compara su contenido.
+- **Test 14 (estilos)**: compara los estilos calculados de 44 pantallas con el HTML original. Lo nuevo que aparece dentro de pantallas de siempre lleva **`data-fase="I"`** y se quita antes de comparar; así lo de siempre se sigue comparando. Si añades algo visible a una pantalla existente, márcalo igual. Si una mejora pedida cambia el estilo de un elemento de siempre, márcalo con **`data-mejora`** (el test quita el atributo antes de comparar). En la versión de Vite, el test 14 también pone `G.noLocks` (colecciones sin candado, como en el original). Las mejoras generales de estilo van bajo **`html.ux`** (p. ej. los botones de los paneles en cuadrícula); el test quita la clase antes de comparar. Con la tienda abierta ya no hay texto de ayuda (`html.no-hint`) y la tienda es 58 px más alta (test 6). La tarjeta de cada sobre en Stock (`.stk`) y las pantallas de `REDISENO` (Stock, Mejoras, Stock · sellado y accesorios, Tareas, Cartas, ficha de carta) se rediseñaron a petición de Alberto: el test 14 no compara su contenido.
 - Test 5: en Vite pasa y es estricto (`docs/pendientes.md` §1 arreglado; con colas largas, los que no caben esperan cerca del final de la fila: `queueSpot` en `world/nav.js`). En la referencia, `test.fail()`. Test 4: 2 reintentos (partida con azar).
 
 ## Forma de trabajar

@@ -730,3 +730,126 @@ body:has(#px) #toast {
     transform: scale(0.2) rotate(-120deg);
   }
 }
+/* Sobre imitado (ui/packart.js): plástico sellado con bordes dentados, brillo, logo e ilustración reales */
+.bpack {
+  --w: 70px;
+  position: relative;
+  flex: none;
+  width: var(--w);
+  aspect-ratio: 63 / 100;
+  border-radius: calc(var(--w) * 0.05);
+  overflow: hidden;
+  background: linear-gradient(
+    170deg,
+    color-mix(in srgb, var(--sc) 65%, #fff),
+    var(--sc) 30%,
+    color-mix(in srgb, var(--sc) 55%, #000)
+  );
+  box-shadow:
+    0 6px 14px #0009,
+    inset 0 0 0 1px #ffffff40;
+}
+.bp-cr {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6.5%;
+  background: repeating-linear-gradient(90deg, #e2e2e2 0 3px, #9a9a9a 3px 6px);
+}
+.bp-cr.bp-top {
+  top: 0;
+  box-shadow: 0 1px 2px #0006;
+}
+.bp-cr.bp-bot {
+  bottom: 0;
+  box-shadow: 0 -1px 2px #0006;
+}
+.bp-brand {
+  position: absolute;
+  top: 8.5%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font:
+    900 calc(var(--w) * 0.075) / 1 system-ui,
+    sans-serif;
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+.bp-logo {
+  position: absolute;
+  top: 14%;
+  left: 6%;
+  right: 6%;
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bp-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px #0008);
+}
+.bp-logo b {
+  font: 900 calc(var(--w) * 0.15) / 1 var(--fd);
+  color: #ffd54a;
+  text-align: center;
+  -webkit-text-stroke: 1px #1d3b8a;
+  text-shadow: 0 2px 0 #1d3b8a;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+/* La ilustración de la carta estrella: se recorta la parte del dibujo de la carta */
+.bp-art {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 37%;
+  bottom: 12%;
+  border-radius: calc(var(--w) * 0.05);
+  background:
+    radial-gradient(circle at 50% 45%, #fff6 0 16%, transparent 17%),
+    radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--sc) 40%, #fff), var(--sc) 60%, #0006);
+  background-size: 135% auto;
+  background-position: 50% 16%;
+  box-shadow:
+    inset 0 0 0 2px #ffffff55,
+    0 2px 6px #0007;
+}
+.bp-foil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, #ffffff50 45%, #fff0 55%, transparent 70%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+/* Al abrir: el sobre con el logo oficial y la ilustración de la carta estrella (sustituyen al nombre y a la
+   Poké Ball cuando están) */
+.plogo {
+  width: 78%;
+  max-height: 22%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px #0009);
+}
+.plogo ~ .pname {
+  display: none;
+}
+.part {
+  width: 86%;
+  aspect-ratio: 4 / 3;
+  margin: 5% auto;
+  border-radius: 10px;
+  background-size: 135% auto;
+  background-position: 50% 16%;
+  box-shadow:
+    inset 0 0 0 3px #ffffff66,
+    0 6px 16px #0009;
+}
+.part ~ .pball {
+  display: none;
+}

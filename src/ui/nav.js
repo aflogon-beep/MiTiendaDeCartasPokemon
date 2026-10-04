@@ -6,6 +6,10 @@ import { albPct } from "../core/achievements.js";
 import { ownFor } from "../core/orders.js";
 import { setName } from "../core/cards/sets.js";
 import { updBadges } from "./hud.js";
+import { hero } from "./hero.js";
+import { PAPA } from "../core/quips.js";
+import { fmt } from "../core/util.js";
+import { invValue } from "../core/economy.js";
 export const ICON = {
   packs: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
   coll: '<rect x="3" y="5" width="11" height="15" rx="2"/><path d="M10 4.5l7.5-1.3a2 2 0 012.3 1.6l2 11.6a2 2 0 01-1.6 2.3L14 19.8"/>',
@@ -70,7 +74,7 @@ export function navAct() {
 export const cardTabs = (k) => {
   VIS.lastCards = k;
   if (k === "coll" && G.collF === "fav") k = "fav";
-  return `<h2>🃏 Cartas</h2><div class="tabs t4">${[
+  return `<h2>🃏 Cartas</h2>${hero("alvaro", "stars", S.items.length ? `¡Nuestra colección ya vale <b>${fmt(invValue())}</b>! Y sigue creciendo.` : "¡Abre sobres y empieza <b>nuestra colección</b>!", "rosa")}<div class="tabs t4">${[
     ["coll", "Colección"],
     ["fav", "❤️ Favoritas"],
     ["album", "📒 Álbum"],
@@ -110,7 +114,8 @@ export function claimBox() {
 }
 export const retoTabs = (k) => {
   VIS.lastReto = k;
-  return `<h2>🏆 Retos</h2>${claimBox()}<div class="tabs t4">${[
+  const cb = claimBox();
+  return `<h2>🏆 Retos</h2>${hero("alberto", "laugh", cb ? "¡Tienes <b>premios por cobrar</b>, padawans! Corred a por ellos." : PAPA.tips[S.day % PAPA.tips.length], "sun")}${cb}<div class="tabs t4">${[
     ["tasks", "📋 Tareas"],
     ["medals", "🏅 Medallas"],
     ["story", "📖 Historia"],

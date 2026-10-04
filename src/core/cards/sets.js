@@ -38,6 +38,7 @@ export function mkSetDef(x) {
     year,
     total: x.total || x.printedTotal || 0,
     sym: x.images && x.images.symbol,
+    logo: x.images && x.images.logo, // logo oficial de la colección (sobre imitado, ui/packart.js)
     date: x.releaseDate,
     col: (ex && ex.fc) || `hsl(${hue(id)} 55% 48%)`,
   });
