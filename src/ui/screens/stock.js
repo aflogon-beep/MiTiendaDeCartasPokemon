@@ -172,6 +172,11 @@ export function prodRow(pid) {
   const q = pStock(pid),
     pr = pPrice(pid),
     st = pr >= 20 ? 1 : pr >= 5 ? 0.5 : 0.25,
-    buys = i.t === "acc" ? [6, 24] : i.t === "box" ? [1, 3] : [1, 4];
-  return `<div class="pn"><div class="row"><b>${i.ic} ${i.n}</b><span class="mu">Stock: <b>${q}</b></span></div><div class="row"><span class="mu">Mayorista ${fmt(i.w)} · clientes ~${fmt(i.ref)}${i.packs ? ` · ${i.packs} sobres` : ""}</span><span class="step"><button class="b" data-a="pp" data-k="${pid}" data-n="-${st}">−</button><b>${fmt(pr)}</b><button class="b" data-a="pp" data-k="${pid}" data-n="${st}">+</button></span></div><div>${accTag(prodAcc(pid))}${Math.abs(pr - recProd(pid)) > 0.04 ? ` <button class="b" style="min-height:30px;padding:4px 10px;font-size:13px" data-a="recq" data-k="${pid}">🎯 ${fmt(recProd(pid))}</button>` : ""}</div><div class="btns">${buys.map((n) => `<button class="b" data-a="buyprod" data-k="${pid}" data-n="${n}"${S.money < i.w * n ? " disabled" : ""}>×${n} · ${fmt(i.w * n)}</button>`).join("")}${i.packs ? `<button class="b pri" data-a="openprod" data-k="${pid}"${q < 1 ? " disabled" : ""}>Abrir → ${i.packs} sobres</button>` : ""}</div></div>`;
+    buys = i.t === "acc" ? [6, 24] : i.t === "box" ? [1, 3] : [1, 4],
+    unit = q === 1 ? "unidad" : "uds.";
+  // Tarjeta de producto (mismo formato que la de sobres, rediseño pedido por Alberto)
+  return `<div class="pn stk prod"><div class="stkh"><div class="prod-ic" style="--sc:${i.col || "#556"}">${i.ic}</div><div class="stk-info"><b>${i.n}</b><div class="stk-st">Mayorista ${fmt(i.w)} · clientes ~${fmt(i.ref)}${i.packs ? ` · ${i.packs} sobres` : ""}</div></div><div class="stk-qty ${q ? "" : "off"}"><b>${q}</b><small>${unit}</small></div></div>
+  <div class="stk-price"><span class="mu">Precio de venta</span><div class="step"><button class="b" data-a="pp" data-k="${pid}" data-n="-${st}">−</button><b>${fmt(pr)}</b><button class="b" data-a="pp" data-k="${pid}" data-n="${st}">+</button></div></div>
+  <div class="stk-acc">${accTag(prodAcc(pid))}${Math.abs(pr - recProd(pid)) > 0.04 ? `<button class="b mini" data-a="recq" data-k="${pid}">🎯 ${fmt(recProd(pid))}</button>` : ""}</div>
+  <div class="stk-btns${i.packs ? "" : " two"}">${buys.map((n) => `<button class="b pri" data-a="buyprod" data-k="${pid}" data-n="${n}"${S.money < i.w * n ? " disabled" : ""}>🛒 ×${n} · ${fmt(i.w * n)}</button>`).join("")}${i.packs ? `<button class="b" data-a="openprod" data-k="${pid}"${q < 1 ? " disabled" : ""}>✨ Abrir</button>` : ""}</div></div>`;
 }

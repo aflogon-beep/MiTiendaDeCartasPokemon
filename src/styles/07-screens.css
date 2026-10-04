@@ -927,3 +927,22 @@ html.ui-big .mu {
   margin: 0 0 0 4px !important;
   font-size: 11px !important;
 }
+/* Stock · sellado y accesorios: la misma tarjeta que los sobres */
+.prod-ic {
+  flex: none;
+  width: 44px;
+  height: 52px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  background: linear-gradient(160deg, #ffffff30, var(--sc) 30%, #0005);
+  box-shadow: 0 3px 6px #0006;
+}
+.stk.prod .stk-btns {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.stk.prod .stk-btns.two {
+  grid-template-columns: 1fr 1fr;
+}
