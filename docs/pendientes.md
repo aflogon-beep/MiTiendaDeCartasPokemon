@@ -99,3 +99,11 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Arreglo:** al cargar o importar una partida se sueltan las cartas apartadas (`releaseHolds`, `core/save.js`), salvo las del mercadillo pendiente. La partida de Alberto (día 19) se arregla sola al abrirla.
 
 **Relacionado, sin tocar (pregunta para Alberto):** con los sobres y productos pasa algo parecido: el cliente los quita del stock al cogerlos; si la app se cierra antes de pagar, esos sobres no vuelven (se pierden unos pocos).
+
+---
+
+## 8. Tienda y ciudad en negro al empezar otro día · ✅ arreglado (falta que Alberto lo confirme)
+
+**Qué pasaba.** En el móvil, a veces el suelo, las paredes de la tienda y los edificios de la calle salían en negro (los muebles, la gente y la calle se veían bien). El juego guarda esos fondos ya dibujados en lienzos aparte; en Android, Chrome puede vaciar los lienzos que no están en pantalla (al pasar la app a segundo plano, p. ej. al hacer una captura, o con poca memoria) y el juego seguía usándolos vacíos. En el ordenador no pasa.
+
+**Arreglo:** cada fotograma se comprueba si esos lienzos se han vaciado (`canvasLost`, `render/canvas.js`) y, si es así, se vuelven a dibujar (fondo de la tienda, ciudad y muñecos de Emma y Álvaro). Test 20aa.

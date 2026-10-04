@@ -83,6 +83,14 @@ export function plant(x, y) {
   cx.arc(x, y - 8, 6, 0, 7);
   cx.fill();
 }
+/**
+ * ¿Ha perdido el navegador el dibujo de este lienzo guardado? En Android, Chrome puede vaciar los lienzos que
+ * no están en pantalla (al pasar la app a segundo plano o con poca memoria): se quedan en negro.
+ */
+export const canvasLost = (c) => {
+  const g = c && c.getContext && c.getContext("2d");
+  return !!(g && g.isContextLost && g.isContextLost());
+};
 export const VIS = { shut: 1, endAt: 0, lastRep: null, ped: [], pedT: 1, lt: 0 };
 export function box3d(x, y, w, d, h, top, front, edge) {
   {

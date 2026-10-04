@@ -3,7 +3,7 @@
 // estanterías, mesa de juego). Emma trabaja junto al ordenador de las cuentas, con su calculadora; si no hay
 // clientes y tienes el sofá, se va al sofá, y vuelve cuando entra alguien. En el título y la historia, la
 // tienda como antes.
-import { VIS, cx, rr, txt } from "./canvas.js";
+import { VIS, canvasLost, cx, rr, txt } from "./canvas.js";
 import { CHARS, drawMini } from "./characters.js";
 import { G, S, meSetOf } from "../core/state.js";
 import { custs } from "../core/customers/move.js";
@@ -19,7 +19,7 @@ const R = 5, // píxeles por unidad del mundo
   OY = 92; // los pies, dentro del dibujo
 const SPR = {};
 function sprite(key, paint) {
-  if (!SPR[key]) {
+  if (!SPR[key] || canvasLost(SPR[key])) {
     // Al probar colores en Personalizar se crean varios: se guardan como mucho 6
     const ks = Object.keys(SPR);
     if (ks.length >= 6) delete SPR[ks.find((k) => k !== "emma")];
