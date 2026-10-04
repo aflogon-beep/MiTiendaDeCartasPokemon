@@ -19,7 +19,7 @@ function F(o) {
   if (o.hair === "link") hair = `<path d="M8 32 Q10 4 50 4 Q90 4 92 32 Q70 20 50 22 Q30 20 8 32Z" fill="#e7c25a"/><path d="M50 4 Q84 0 104 40 L86 30 Q72 8 50 8Z" fill="#3c9a4a"/>`;
   // ojos
   const eyeN = `<ellipse cx="33" cy="44" rx="6.5" ry="8" fill="#111"/><ellipse cx="67" cy="44" rx="6.5" ry="8" fill="#111"/><circle cx="35" cy="41" r="2" fill="#fff"/><circle cx="69" cy="41" r="2" fill="#fff"/>`;
-  eyes = eyeN;
+  eyes = o.lens === "none" ? "" : eyeN;
   if (o.lens === "spidey") eyes = `<path d="M22 34 Q34 30 42 46 Q30 52 22 34Z M78 34 Q66 30 58 46 Q70 52 78 34Z" fill="#fff" stroke="#111" stroke-width="2.5"/>`;
   if (o.lens === "iron") eyes = `<rect x="24" y="38" width="18" height="6" rx="2" fill="#bff3ff"/><rect x="58" y="38" width="18" height="6" rx="2" fill="#bff3ff"/>`;
   if (o.lens === "bat") eyes = `<path d="M24 40 L42 42 L40 47 L26 45Z M76 40 L58 42 L60 47 L74 45Z" fill="#fff"/>`;
@@ -32,6 +32,9 @@ function F(o) {
   if (o.glasses) over += `<circle cx="33" cy="44" r="11" fill="none" stroke="#222" stroke-width="3"/><circle cx="67" cy="44" r="11" fill="none" stroke="#222" stroke-width="3"/><path d="M44 44 L56 44" stroke="#222" stroke-width="3"/><path d="M52 18 L46 26 L54 26 L48 34" stroke="#b5121b" stroke-width="2.5" fill="none"/>`;
   if (o.moustache) over += `<path d="M30 60 Q40 54 50 60 Q60 54 70 60 Q60 66 50 62 Q40 66 30 60Z" fill="#3b2414"/><ellipse cx="50" cy="54" rx="7" ry="6" fill="#f0a882"/>`;
   if (o.cheeks) over += `<circle cx="22" cy="58" r="7" fill="#e8483a"/><circle cx="78" cy="58" r="7" fill="#e8483a"/>`;
+  if (o.buzz) hair = `<path d="M10 30 Q10 8 50 8 Q90 8 90 30 Q70 22 50 22 Q30 22 10 30Z" fill="${hc}" opacity=".85"/>`;
+  if (o.nose) over += `<path d="M47 52 L46 62 M53 52 L54 60" stroke="#c0201a" stroke-width="2.2" stroke-linecap="round"/>`;
+  if (o.petals) over += `<g fill="#7a3a3a" stroke="#4a1f1f" stroke-width="1.5">${[0, 72, 144, 216, 288].map((a) => `<path transform="rotate(${a} 50 38)" d="M50 38 Q36 6 50 -12 Q64 6 50 38Z"/>`).join("")}</g><circle cx="50" cy="38" r="12" fill="#2a0e0e"/>${[0, 60, 120, 180, 240, 300].map((a) => `<path transform="rotate(${a} 50 38)" d="M50 27 L48 31 L52 31Z" fill="#f4efe0"/>`).join("")}`;
   if (o.pika) over += `<path d="M24 22 L10 -16 L36 14Z M76 22 L90 -16 L64 14Z" fill="${head}"/><path d="M10 -16 L15 -2 L19 -9Z M90 -16 L85 -2 L81 -9Z" fill="#222"/>`;
   // accesorios en la mano
   if (o.saber) acc = `<rect x="84" y="20" width="5" height="64" rx="2.5" fill="${o.saber}" filter="url(#g${id})"/><rect x="82" y="80" width="9" height="16" rx="2" fill="#999"/>`;
@@ -69,6 +72,8 @@ const FIG = [
   ["Link", "Zelda", { hair: "link", body: "#3c9a4a", leg: "#e9dcc0", ears: "", emblem: '<rect x="28" y="96" width="44" height="5" fill="#6b4426"/>', saber: "#cfd6df" }],
   ["Pikachu", "Pokémon", { skin: "#f7d02c", body: "#f7d02c", pika: 1, cheeks: 1 }],
   ["Ghostface", "Terror", { mask: "#f4f4f4", body: "#1a1a1e", cape: "#1a1a1e", lens: "ghost", knife: 1 }],
+  ["Eleven", "Stranger Things", { buzz: 1, hairc: "#6b4426", nose: 1, body: "#f2a7c3", arm: "#2a5bd0", leg: "#f2a7c3" }],
+  ["Demogorgon", "Stranger Things", { skin: "#8a6a5e", mask: "#8a6a5e", body: "#6e554b", petals: 1, lens: "none" }],
   ["Mickey", "Disney", { skin: "#f6dcc4", mask: "#1a1a1a", mouthArea: 1, body: "#d0202a", leg: "#d0202a", arm: "#1a1a1a", ears: "", emblem: '<circle cx="42" cy="84" r="3" fill="#fff"/><circle cx="58" cy="84" r="3" fill="#fff"/>' }],
 ];
 

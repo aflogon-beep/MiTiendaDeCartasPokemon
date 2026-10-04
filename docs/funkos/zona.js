@@ -89,6 +89,13 @@ ${n(1074, 466, 11)}
 <path d="M804 446 A10 36 0 0 1 804 522" fill="none" stroke="#7a8aa8" stroke-width="7"/>
 ${[0, 1, 2, 3, 4].map((k) => `<circle cx="${811 - Math.abs(2 - k) * 3}" cy="${456 + k * 15}" r="2.6" fill="#ff8a3a" filter="url(#neon)"/>`).join("")}
 ${n(822, 498, 12)}
+<!-- el rincón de Emma: sofá gamer, tele y consola (ella es vaga, pero muy lista) -->
+<rect x="938" y="404" width="56" height="8" rx="2" fill="#111"/><rect x="941" y="405" width="50" height="5" rx="1" fill="#7af7ff" filter="url(#neon)"/><rect x="962" y="412" width="8" height="6" fill="#333"/>
+<rect x="932" y="474" width="68" height="26" rx="9" fill="#6b3fa0"/><rect x="932" y="474" width="68" height="9" rx="5" fill="#8a56c9"/><rect x="928" y="478" width="9" height="22" rx="4" fill="#5a3388"/><rect x="995" y="478" width="9" height="22" rx="4" fill="#5a3388"/>
+<rect x="944" y="483" width="40" height="11" rx="5" fill="#3c9a4a"/><circle cx="986" cy="486" r="7" fill="#f2c9a0"/><path d="M979 484 Q986 474 993 484 L993 492 Q990 486 986 486 Q982 486 979 492Z" fill="#7a4a24"/>
+<rect x="956" y="478" width="12" height="6" rx="3" fill="#222"/><circle cx="959" cy="481" r="1.2" fill="#ff2a2a"/><circle cx="965" cy="481" r="1.2" fill="#2a5bd0"/>
+<text x="966" y="468" font-size="8" font-weight="900" text-anchor="middle" fill="#ffd1ff">Zzz… ¡pausa!</text>
+${n(1006, 466, 13)}
 <!-- clientes -->
 ${person(960, 300, "#2a5bd0")}${person(900, 400, "#3c9a4a", "#7a4a24")}${person(1000, 250, "#ff4fd8", "#111")}${person(870, 200, "#f07a1e", "#f2c21a")}
 <!-- escaparate y fachada -->
@@ -112,4 +119,5 @@ const ZONA_LEYENDA = [
   "Máquina recreativa",
   "Pikachu gigante de 1 metro en la entrada",
   "Paso desde la tienda: portal de las estrellas",
+  "El rincón de Emma: sofá gamer, tele y consola",
 ];

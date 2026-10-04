@@ -23,11 +23,15 @@ Decisiones de Alberto:
 | Cómo se juega | Ampliación de la tienda: zona dedicada a Funkos, gestionada por la tienda normal |
 | Dónde | Justo al lado: el local de la librería, a la derecha de la caja |
 | Nombre | Lo pone el jugador al comprar el local |
-| Emma | Se va a la zona Funko, pero sigue con el mismo papel en todo el juego |
+| Emma | Se va a la zona Funko, a **su sofá con tele y mando** (es vaga, pero muy lista); sigue con el mismo papel en todo el juego |
 | Encargado | Hay encargado de la zona (cobra más que el cajero): repone, pide stock y atiende |
 | Personajes | Nombres reales (dibujo nuestro, sin logos oficiales) |
 | Desbloqueo | Nivel 5 · 15.000 € |
 | Figuras | Más de 150; las mejores se desbloquean con el nivel de la zona |
+| Colecciones | Sí o sí: Marvel, Star Wars, Pokémon y Stranger Things (y el resto de la lista). **Terror, sí** |
+| Eventos con exclusivas | **Más a menudo**: uno cada semana |
+| Clientes dentro | 12 con la zona |
+| Don Ramón y precio | Sí: Don Ramón el librero; local a 15.000 € y nivel 5 |
 
 ## 2. Desbloqueo y compra del local (mockups 1 y 2)
 
@@ -37,7 +41,7 @@ Decisiones de Alberto:
 - Al comprarlo:
   - **Don Ramón**, el librero (personaje nuevo, con retrato como Emma, Álvaro y papá), entrega las llaves.
   - El jugador **escribe el nombre de la zona**, con sugerencias: Zona Funko, Pop Galaxy, Cabezones, El Rincón Friki.
-  - Emma dice que se encarga de la zona y Álvaro alucina.
+  - Emma se pide el sofá de la zona y Álvaro alucina.
 - La zona se abre con lo básico: el paso («portal de las estrellas»), estanterías vacías y su puerta a la calle. El resto del mobiliario se compra en Mejoras.
 
 ## 3. La zona en la tienda (mockups 3 y 4)
@@ -60,8 +64,9 @@ Decisiones de Alberto:
   9. máquina de gancho;
   10. recreativa;
   11. Pikachu gigante;
-  12. portal.
-- **Emma** pasa a estar en la zona Funko: se mueve entre las estanterías y la máquina de gancho. Sigue igual que siempre en todo lo demás: sus frases, sus consejos, el tutorial y las cuentas. Álvaro sigue en la caja (o paseando si hay cajero).
+  12. portal;
+  13. el rincón de Emma: sofá gamer, tele y consola.
+- **Emma** pasa a estar en la zona Funko, en **su rincón: un sofá gamer con tele y un mando** (13 en el mockup 4). Es vaga, pero muy lista: se pasa el día jugando y, de vez en cuando, se levanta a dar un consejo («Ese Vader descatalogado ya vale el triple: yo lo subiría») y vuelve al sofá. Sigue igual que siempre en todo lo demás: sus frases, sus consejos, el tutorial y las cuentas. Álvaro sigue en la caja (o paseando si hay cajero).
 - **Clientes:** el máximo de gente dentro sube de 10 a **12** con la zona, porque la tienda es más grande.
 - La panadería sigue siendo la ampliación de la izquierda; las dos se pueden tener a la vez.
 
@@ -79,7 +84,7 @@ Decisiones de Alberto:
 
 ## 5. El catálogo (mockup 13)
 
-**Unas 200 figuras normales en 10 colecciones**, y además sus variantes (Chase, brillan en la oscuridad, metálicas, flocked, Diamond), con lo que pasan de 300 piezas. Todas inventadas por nosotros: nombres reales de personajes, dibujo propio y solo personajes de ficción (nada de personas reales).
+**Unas 200 figuras normales en 11 colecciones**, y además sus variantes (Chase, brillan en la oscuridad, metálicas, flocked, Diamond), con lo que pasan de 300 piezas. Todas inventadas por nosotros: nombres reales de personajes, dibujo propio y solo personajes de ficción (nada de personas reales).
 
 | Colección | Ejemplos |
 |---|---|
@@ -91,8 +96,9 @@ Decisiones de Alberto:
 | Harry Potter | Harry, Hermione, Ron, Dumbledore, Snape, Hagrid, Voldemort, Dobby, Luna… |
 | DC | Batman, Superman, Wonder Woman, Joker, Harley Quinn, Flash… |
 | Anime | Goku, Vegeta, Naruto, Sasuke, Luffy, Zoro, Tanjiro, Nezuko, Totoro… |
-| Series y películas | Eleven, Miércoles, Homer, Bart, Bob Esponja, E.T.… |
-| Terror | Ghostface, Freddy, Jason, Pennywise, Chucky… (ver preguntas abiertas) |
+| Stranger Things | Eleven, Mike, Dustin, Lucas, Will, Max, Steve, Hopper, Eddie, Demogorgon, Vecna… |
+| Series y películas | Miércoles, Homer, Bart, Bob Esponja, E.T.… |
+| Terror | Ghostface, Freddy, Jason, Pennywise, Chucky… |
 
 **Dibujo:**
 - Todas comparten el mismo cuerpo de vinilo (cabezón, ojos negros). Cada figura es una lista de piezas: piel, cabeza, pelo, máscara o casco, lentes, capa, emblema y accesorio.
@@ -106,10 +112,10 @@ La zona tiene **su propio nivel (1–10)**, aparte del nivel de la tienda (que n
 | Nivel | Desbloquea |
 |---|---|
 | 1 | Pokémon, Videojuegos, Disney (comunes) |
-| 2 | Marvel, Star Wars (comunes y raras) |
+| 2 | Marvel, Star Wars, Stranger Things (comunes y raras) |
 | 3 | Harry Potter, DC, Anime · brillan en la oscuridad |
 | 4 | Series y películas, Terror · metálicas y flocked |
-| 5 | Convención: exclusivas (una por temporada) |
+| 5 | Eventos con exclusivas (uno cada semana) |
 | 6 | Deluxe: escenas y figuras de 25 cm (el Halcón con Han, el Trono de Hierro…) |
 | 7 | Chase más a menudo (1 de cada 4 cajas) |
 | 8 | Diamond Collection (purpurina, muy buscadas) |
@@ -132,6 +138,7 @@ Se compra en **Mejoras → Zona Funko**. Cada mueble se ve en la zona y tiene un
 | Máquina de gancho con Funkos | Los niños juegan: 1 € la partida (a veces se llevan un Funko) | 700 € | — |
 | Máquina recreativa | +20 % de paciencia en la cola | 650 € | — |
 | Pikachu gigante de 1 metro | +10 % clientes niños | 800 € | — |
+| Sofá gamer con tele y consola (el de Emma) | Emma da un consejo al día | Viene con el local | — |
 | Estandartes de Hogwarts | Los fans de Harry Potter compran un 15 % más | 500 € | Nivel 3 |
 | Armadura de Iron Man en su cápsula | Los fans de Marvel aceptan precios un 6 % más altos | 1.500 € | Nivel 4 |
 | Cámara de los grails | Las piezas de vitrina valen un 10 % más | 2.500 € | Nivel 5 |
@@ -155,7 +162,7 @@ Se compra en **Mejoras → Zona Funko**. Cada mueble se ve en la zona y tiene un
 | Coleccionista | Mira la vitrina: Chase y descatalogadas. Paga más y regatea. | 40–150 € |
 | Niño | Una común (a veces dos) y quizá una partida a la máquina de gancho. | 15–30 € |
 | Regalo | Busca un regalo: 2–3 de lo que sea, sin mirar mucho el precio. | 30–50 € |
-| Revendedor | Solo tras la convención: quiere exclusivas para revenderlas. | 30–60 € |
+| Revendedor | Solo tras un evento: quiere exclusivas para revenderlas. | 30–60 € |
 
 - Algunos clientes de cartas compran también un Funko y al revés: se suma a la misma cesta (como los extras de ahora).
 - Si hay protectores de caja en stock, un 30 % se lleva también uno.
@@ -168,8 +175,8 @@ Se compra en **Mejoras → Zona Funko**. Cada mueble se ve en la zona y tiene un
 - **Olas y descatalogados:**
   - cada colección saca una ola nueva cada 7–10 días (3–5 figuras); se avisa en el ticket del día anterior;
   - la ola más antigua pasa a **descatalogada**: ya no se puede pedir y su precio sube poco a poco (hasta unas ×3 en varias semanas).
-- **Convención (desde el nivel 5 de la zona):**
-  - una por temporada, un **Salón del Cómic** que se anuncia en el ticket;
+- **Eventos con exclusivas (desde el nivel 5 de la zona):**
+  - **uno cada semana**, rotando: Salón del Cómic, Salón del Manga, Día de Star Wars, Noche de Terror, Festival Pokémon, Noche de Stranger Things… Se anuncian en el ticket y se ve la lista de los próximos;
   - ese día se compran exclusivas limitadas (1–3 por figura) a unos 30 €; en una semana valen ×2–3;
   - al día siguiente vienen fans y revendedores buscándolas, con cola en la puerta, como en los lanzamientos.
 - **Estado de la caja:**
@@ -204,10 +211,10 @@ Se compra en **Mejoras → Zona Funko**. Cada mueble se ve en la zona y tiene un
 
 | Fase | Qué se puede hacer al terminarla |
 |---|---|
-| **F1 · El local** | Librería «SE TRASPASA», comprarla, Don Ramón, poner nombre, paso en la pared, zona dibujada con lo básico (suelo, pared, neón, estanterías vacías, escaparate). Emma se pasa a la zona. |
+| **F1 · El local** | Librería «SE TRASPASA», comprarla, Don Ramón, poner nombre, paso en la pared, zona dibujada con lo básico (suelo, pared, neón, estanterías vacías, escaparate). Emma se pasa a su sofá de la zona. |
 | **F2 · Catálogo y stock** | Generador de figuras y cajas, 200 figuras en 10 colecciones, precios de mercado, Stock → Funkos, pedir cajas, almacén y reponer estanterías. |
 | **F3 · Vender y nivel** | Clientes de la zona y cestas, venta en la misma caja, encargado de la zona, nivel de la zona y desbloqueos, mobiliario friki en Mejoras. |
-| **F4 · Lo pro** | Chase, olas y descatalogados, convención con exclusivas, estado de la caja y protectores, máquina de gancho. |
+| **F4 · Lo pro** | Chase, olas y descatalogados, eventos semanales con exclusivas, estado de la caja y protectores, máquina de gancho. |
 | **F5 · Colección** | Mis Funkos, álbum, encargos, logros, misiones y frases de Emma, Álvaro, papá y Don Ramón. |
 
 Cada fase se une a `main` cuando Alberto lo pida.
@@ -235,12 +242,8 @@ Cada fase se une a `main` cuando Alberto lo pida.
   - en el navegador: comprar el local, nombre, reponer, vender un Funko en la caja y ticket.
   - El test 14 no cambia: sin la zona, la tienda se ve igual.
 
-## 14. Preguntas abiertas (para Alberto)
+## 14. Preguntas resueltas
 
-1. **Colección «Terror»** (Chucky, Pennywise…): ¿la ponemos o la quitamos por los peques?
-2. **¿Qué colecciones o personajes quieres sí o sí?** ¿Sobra alguna de la lista?
-3. **Convención:** ¿una por temporada o más a menudo?
-4. **Emma en la zona:** ¿se pasea por ella (propuesta) o tiene un mostrador propio de Funkos?
-5. **Máximo de clientes con la zona:** ¿12 te parece bien, o los dejamos en 10?
-6. **Don Ramón, el librero:** ¿te gusta como personaje nuevo?
-7. **Precio del local:** 15.000 € a nivel 5 (la panadería cuesta 4.000 € a nivel 3). ¿Te cuadra?
+Todas contestadas por Alberto (ver la tabla del apartado 1): Terror sí; Marvel, Star Wars, Pokémon y Stranger Things sí o sí; eventos cada semana; Emma en su sofá con tele y mando; 12 clientes; Don Ramón sí; 15.000 € a nivel 5.
+
+**Siguiente paso:** cuando Alberto diga, se empieza por la **F1 · El local**.

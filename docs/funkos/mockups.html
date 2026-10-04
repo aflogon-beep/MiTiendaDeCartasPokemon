@@ -145,7 +145,7 @@ scr(2, "Al comprarlo: le pones nombre", `<div class="hero sun"><div class="av">�
 <div class="inp">Zona Funko</div>
 <div class="sug"><span>Zona Funko</span><span>Pop Galaxy</span><span>Cabezones</span><span>El Rincón Friki</span><span>✏️ Escribe el tuyo</span></div>
 <div class="hero" style="margin-top:14px"><div class="av">🤩</div><div><b>Álvaro:</b> ¡¡Una zona entera de Funkos!! ¿Ponemos un Vader de verdad en la puerta?</div></div>
-<div class="hero sky" style="margin-top:8px"><div class="av">🤓</div><div><b>Emma:</b> Yo me encargo de la zona Funko. Pero las cuentas de toda la tienda las sigo llevando yo, ¿eh?</div></div>
+<div class="hero sky" style="margin-top:8px"><div class="av">😎</div><div><b>Emma:</b> Yo me pido el sofá de la zona Funko. Desde ahí, con el mando, lo controlo todo… y las cuentas de la tienda las sigo llevando yo.</div></div>
 <span class="b pri" style="margin-top:12px">¡Abrimos! 🎉</span>`);
 
 // 3 · La tienda ampliada (captura real del juego + zona dibujada encima)
@@ -165,6 +165,7 @@ const MOB = [
   ["🌑", "Alfombra de la Estrella de la Muerte", "+6 % clientes en la zona", "400 €", 1],
   ["🏰", "Estandartes de Hogwarts", "Los fans de Harry Potter compran un 15 % más", "500 €", 3],
   ["⚡", "Pikachu gigante de 1 metro", "+10 % clientes niños", "800 €", 2],
+  ["🛋️", "Sofá gamer con tele y consola (el de Emma)", "Viene con el local · Emma da un consejo al día", "incluido", 1],
   ["🔭", "Vitrinas de cristal con LED", "+8 huecos de exposición", "1.100 €", 1],
   ["💎", "Cámara de los grails", "Las piezas de vitrina valen un 10 % más", "2.500 €", 5],
   ["🌀", "Portal de las estrellas (el paso)", "Viene con el local", "incluido", 1],
@@ -175,10 +176,10 @@ ${MOB.map(([ic, n, d, c, lv]) => `<div class="pn row" style="margin:8px 0"><div 
 // 6 · Nivel de la zona Funko
 const NIV = [
   [1, "Pokémon · Videojuegos · Disney", "comunes", 1],
-  [2, "Marvel · Star Wars", "comunes y raras", 1],
+  [2, "Marvel · Star Wars · Stranger Things", "comunes y raras", 1],
   [3, "Harry Potter · DC · Anime", "+ brillan en la oscuridad", 1],
   [4, "Series y películas · Terror", "+ metálicas y flocked", 0],
-  [5, "Convención: exclusivas", "1 por temporada", 0],
+  [5, "Eventos con exclusivas", "uno cada semana", 0],
   [6, "Deluxe: escenas y figuras de 25 cm", "Halcón con Han, Trono de Hierro…", 0],
   [7, "Chase más a menudo", "1 de cada 4 cajas", 0],
   [8, "Diamond Collection", "purpurina, muy buscadas", 0],
@@ -222,7 +223,7 @@ scr(10, "Llega una caja con Chase", `<div class="reveal"><h4>✨ ¡HA SALIDO UNA
 <div class="btns"><span class="b fk">🏆 A la vitrina</span><span class="b">❤️ Me la quedo</span></div>`);
 
 // 9 · Convención
-scr(11, "Evento: convención con exclusivas", `<div class="conv"><div class="mu" style="color:#cdd6ff">📢 Este sábado · Salón del Cómic</div><h3>🎪 Exclusivas de convención</h3><div class="timer">⏳ 02:48</div><div class="mu" style="color:#cdd6ff">Solo hoy · unidades limitadas</div></div>
+scr(11, "Eventos con exclusivas (cada semana)", `<div class="conv"><div class="mu" style="color:#cdd6ff">📢 Hoy · Salón del Cómic</div><h3>🎪 Exclusivas del evento</h3><div class="timer">⏳ 02:48</div><div class="mu" style="color:#cdd6ff">Solo hoy · unidades limitadas</div><div class="mu" style="color:#cdd6ff;margin-top:6px">Próximos: Salón del Manga (día 41) · Día de Star Wars (día 48) · Noche de Terror (día 55)</div></div>
 <div class="pn fkc" style="--fc:#d0202a">${box("Iron Man", 1031, "#b5121b", "ex")}
 <div><b class="n">Iron Man dorado</b><div class="chips"><span class="chip ex">Exclusiva · 3 000 unidades</span></div><div class="mu">Precio de convención <b style="color:#fff">29,90 €</b><br>En una semana: unos <b class="up">60–90 €</b></div><div class="btns" style="grid-template-columns:1fr"><span class="b pri">Comprar (quedan 2)</span></div></div></div>
 <div class="pn"><b>🧍 Cola en la puerta de tu tienda</b><div class="queue">🧑🧔👧🧑‍🎤👩🧓🧑‍🦱</div><div class="mu">Si las tienes, al día siguiente viene gente a tu tienda a por ellas. Véndelas rápido… o guárdalas y espera a que suban.</div></div>`);
@@ -238,7 +239,7 @@ scr(12, "Colección y álbum", `<h2>🧸 Colección</h2><div class="tabs"><b cla
 
 // 11 · Catálogo del generador
 scr(13, "Figuras del generador (muestra)", `<div class="grid">${FIG.map(([n, col, o]) => `<div class="fg">${F(o)}${n}<i>${col}</i></div>`).join("")}</div>
-<p class="mu">Todas con el mismo cuerpo de vinilo y piezas que se combinan: cabeza, pelo, máscara o casco, capa, emblema y accesorio. Unas 150 figuras en 10 colecciones.</p>`);
+<p class="mu">Todas con el mismo cuerpo de vinilo y piezas que se combinan: cabeza, pelo, máscara o casco, capa, emblema y accesorio. Más de 200 figuras en 11 colecciones (más sus variantes).</p>`);
 
 // 12 · Ticket
 scr(14, "Ticket del día", `<div class="ticket"><h4>DÍA 34 · POKÉ CARDS</h4>
@@ -250,7 +251,7 @@ scr(14, "Ticket del día", `<div class="ticket"><h4>DÍA 34 · POKÉ CARDS</h4>
 <div class="tl"><span>Sueldos (cajero y encargado Funko)</span><span>−65,00 €</span></div>
 <div class="tl"><span>Alquiler</span><span>−55,00 €</span></div>
 <div class="tl t"><span>TOTAL</span><span>1.287,40 €</span></div></div>
-<div class="pn"><b>⭐ Zona Funko: +180 ⭐</b><div class="mu">Te faltan 580 para el nivel 4 (Series y Terror, metálicas y flocked).</div></div>
+<div class="pn"><b>⭐ Zona Funko: +180 ⭐</b><div class="mu">Te faltan 580 para el nivel 4 (Series, Terror, metálicas y flocked).</div></div>
 <div class="pn"><b>📢 Mañana sale la ola 3 de Star Wars</b><div class="mu">La ola 1 pasa a <b>descatalogada</b>: ya no se puede pedir y su precio sube.</div></div>`);
 // La zona sobre la captura (misma cámara que la captura: escala 0,719, desplazamiento -402,8 / 21,6; recortada 8 px por la izquierda)
 {
