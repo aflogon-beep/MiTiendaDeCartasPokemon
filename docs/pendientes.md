@@ -89,3 +89,13 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Arreglo (`ui/back.js`, solo en la app instalada):** «atrás» cierra lo que esté abierto (como la ✕); en pantallas completas (sobres, gradeo, celebraciones, historia) no hace nada; sin nada abierto avisa «Vuelve atrás otra vez para salir» y solo sale si se repite en 2,5 s. Cada «atrás» queda apuntado en el registro, y salir así no cuenta como cierre. Test 20x. Pendiente de que Alberto confirme que ya no se cierra.
 
 **Registro:** hay un registro (`ui/diag.js`, clave `pcs-diag-v1`): cada 2 s, con el juego en pantalla, apunta qué pasa (día, % del día, panel abierto, velocidad, clientes, jugadores, FPS, memoria, elementos y lienzos) y los últimos errores. Si la app se cierra sola estando en pantalla, al volver a abrirla sale un aviso con esos datos y el botón «📋 Copiar» para mandárselos a Claude.
+
+---
+
+## 7. Cartas de la vitrina que no se venden ni se pueden quitar · ✅ arreglado
+
+**Qué pasaba.** Cuando un cliente elige una carta de la vitrina, la carta queda apartada (`res`) mientras la lleva a la caja. Si la app se cerraba a mitad del día (o se volvía al título), la partida se guardaba con la carta apartada y, al volver, seguía apartada para un cliente que ya no existía: los clientes decían «Vitrina vacía» y no se podía quitar. Pasaba igual en la versión original.
+
+**Arreglo:** al cargar o importar una partida se sueltan las cartas apartadas (`releaseHolds`, `core/save.js`), salvo las del mercadillo pendiente. La partida de Alberto (día 19) se arregla sola al abrirla.
+
+**Relacionado, sin tocar (pregunta para Alberto):** con los sobres y productos pasa algo parecido: el cliente los quita del stock al cogerlos; si la app se cierra antes de pagar, esos sobres no vuelven (se pierden unos pocos).

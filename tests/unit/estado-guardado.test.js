@@ -97,3 +97,18 @@ describe("guardado", () => {
     expect(o.S.money).toBe(10);
   });
 });
+
+describe("cartas apartadas al cargar (pendientes §7)", () => {
+  it("al cargar se sueltan las cartas apartadas para clientes que ya no están; las del mercadillo, no", async () => {
+    const { releaseHolds } = await import("../../src/core/save.js");
+    const { S } = await import("../../src/core/state.js");
+    S.items = [
+      { i: 1, c: "x", case: 1.02, res: true },
+      { i: 2, c: "y", case: 1.02, res: true },
+      { i: 3, c: "z", case: null, res: true },
+    ];
+    S.market = { day: S.day, items: [3], mk: 1.1 };
+    releaseHolds();
+    expect(S.items.map((i) => i.res)).toEqual([false, false, true]);
+  });
+});

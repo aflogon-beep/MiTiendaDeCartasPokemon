@@ -12,7 +12,7 @@ import { custs, queue } from "../../core/customers/move.js";
 import { fmt, pct } from "../../core/util.js";
 import { gk, itemVal, price, repv } from "../../core/economy.js";
 import { hud, updBadges } from "../hud.js";
-import { saveNow } from "../../core/save.js";
+import { releaseHolds, saveNow } from "../../core/save.js";
 import { tipsList } from "../../core/tips.js";
 import { toast } from "../toast.js";
 import { trophies, trophyRep } from "../../core/trophies.js";
@@ -106,6 +106,7 @@ export function importData(txt) {
     custs.length = 0;
     queue.length = 0;
     ensure();
+    releaseHolds();
     saveNow();
     closeM();
     hud();
