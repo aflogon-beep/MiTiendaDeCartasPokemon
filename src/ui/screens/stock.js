@@ -79,7 +79,7 @@ export function mUp() {
   ).join("");
   const stf = STAFF.map(
     (x) =>
-      `<div class="pn"><div class="row"><b>${x.ic} ${x.n}</b><button class="b ${S.staff[x.k] ? "on" : "pri"}" data-a="staff" data-k="${x.k}">${S.staff[x.k] ? "Contratado · despedir" : "Contratar"}</button></div><div class="mu">${x.d} Sueldo: ${fmt(x.sal)}/día.</div></div>`,
+      `<div class="pn"><div class="row"><b>${x.ic} ${x.n}</b><button class="b ${S.staff[x.k] ? "on fire" : "pri"}" data-a="staff" data-k="${x.k}">${S.staff[x.k] ? "Contratado · despedir" : "Contratar"}</button></div><div class="mu">${x.d} Sueldo: ${fmt(x.sal)}/día.</div></div>`,
   ).join("");
   return (
     `<h2>Mejoras</h2>` +

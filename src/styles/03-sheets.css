@@ -149,3 +149,36 @@ html.ux #ovh .btns:not(:has(> .mini)) > .b.pri {
 .claimbox {
   border-color: var(--sign);
 }
+/* Colores de los botones (decisión de Alberto): verde = acción (comprar, vender, aceptar, abrir la
+   tienda…); gris con borde = cerrar o secundario; rojo = peligro. El color de la categoría queda para la
+   cabecera y lo seleccionado (pestañas y filtros). */
+html.ux .b.pri {
+  background: linear-gradient(#3fcf7c, #1f9d57);
+  color: #fff;
+  text-shadow: 0 1px 0 #0003;
+  box-shadow:
+    0 3px 0 #0f6a37,
+    inset 0 1px 0 #ffffff55;
+}
+html.ux .b.pri:disabled {
+  background: var(--panel2);
+  color: var(--mu);
+  text-shadow: none;
+  box-shadow: none;
+}
+html.ux #act:not(:disabled) {
+  background: linear-gradient(#3fcf7c, #1f9d57);
+  color: #fff;
+  text-shadow: 0 1px 0 #0003;
+}
+html.ux #ovh .sheet > .b[data-a="close"]:not(.xbtn) {
+  background: transparent;
+  color: var(--mu);
+  box-shadow: none;
+  border: 1px solid var(--line);
+}
+html.ux .b.fire {
+  background: linear-gradient(#ef5b4c, #c0392b);
+  color: #fff;
+  box-shadow: 0 3px 0 #7a2018;
+}
