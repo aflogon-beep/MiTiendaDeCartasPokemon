@@ -1,8 +1,9 @@
 // Emma y Álvaro en la tienda. Álvaro, con lo que elijas en Personalizar (si no, su ropa de siempre), atiende
 // la caja; si contratas al cajero, el cajero se pone en la caja y Álvaro pasea por la tienda (vitrina,
 // estanterías, mesa de juego). Emma trabaja junto al ordenador de las cuentas, con su calculadora; si no hay
-// clientes y tienes el sofá, se va al sofá, y vuelve cuando entra alguien. En el título y la historia, la
-// tienda como antes.
+// clientes y tienes el sofá, se va al sofá, y vuelve cuando entra alguien. Con la zona Funko, vive en su sofá
+// gamer de la zona (jugando → tele tumbada → dormida; si la tocas dormida, se despierta). En el título y la
+// historia, la tienda como antes.
 import { VIS, canvasLost, cx, rr, txt } from "./canvas.js";
 import { CHARS, drawMini } from "./characters.js";
 import { G, S, meSetOf } from "../core/state.js";
@@ -10,6 +11,7 @@ import { custs } from "../core/customers/move.js";
 import { NG, navBuild, navCell, navFree, navLOS, navPath, navSig } from "../world/nav.js";
 import { LAY } from "../world/layout.js";
 import { drawPersonAt } from "./people.js";
+import { FKEMMA, FK_SOFA } from "./funkoZone.js";
 
 /* ---------- Muñecos ya dibujados (se pintan una vez y se copian en cada fotograma) ---------- */
 const R = 5, // píxeles por unidad del mundo
@@ -116,8 +118,75 @@ const DESK = { x: 664, y: 152 },
   SPEED = 45;
 export const EMMA = { x: DESK.x, y: DESK.y, at: "desk", goal: "desk", path: [], empty: 0, ph: 0 };
 
+/* ---------- Emma en su sofá de la zona Funko (render/funkoZone.js): jugando → tele tumbada → dormida ---------- */
+const FKT = () => 25 + Math.random() * 20; // segundos jugando o viendo la tele
+function fkEmmaTick(dt) {
+  const F = FKEMMA;
+  EMMA.x = FK_SOFA.x;
+  EMMA.y = FK_SOFA.y;
+  EMMA.at = "fk";
+  if (F.st === "sleep") return; // hasta que la despiertes con el dedo
+  F.t -= dt;
+  if (F.t > 0) return;
+  if (F.st === "play" || F.st === "wake") ((F.st = "tv"), (F.t = FKT()));
+  else if (F.st === "tv") F.st = "sleep";
+}
+/** Toque en el sofá: si duerme, se despierta («wake»); si está despierta, «awake»; fuera del sofá, null. */
+export function emmaSofaTap(x, y) {
+  if (!S.fk || G.STORY || G.TITLE) return null;
+  if (Math.hypot(x - FK_SOFA.x, y - (FK_SOFA.y - 6)) > 38) return null;
+  if (FKEMMA.st !== "sleep") return "awake";
+  FKEMMA.st = "wake";
+  FKEMMA.t = 7; // se queda sentada un rato y luego se tumba a ver la tele
+  return "wake";
+}
+function drawFkEmma(s) {
+  const F = FKEMMA,
+    x = FK_SOFA.x,
+    y = FK_SOFA.y,
+    t = performance.now() / 1000;
+  if (F.st === "play" || F.st === "wake") {
+    // Sentada: lo que queda por debajo del asiento no se ve; con el mando en las manos
+    const sy = y + 11;
+    cx.save();
+    cx.beginPath();
+    cx.rect(x - OX, sy - OY, SW, OY - 12);
+    cx.clip();
+    blit(s, x, sy);
+    cx.restore();
+    if (F.st === "play") {
+      const b = Math.sin(t * 9) > 0.6 ? -1 : 0; // aporrea los botones
+      cx.fillStyle = "#222";
+      rr(x - 6, sy - 31 + b, 12, 6, 2.5);
+      cx.fill();
+      cx.fillStyle = "#ff4d4d";
+      cx.fillRect(x + 2, sy - 29 + b, 2, 2);
+      cx.fillStyle = "#4dd2ff";
+      cx.fillRect(x - 4, sy - 29 + b, 2, 2);
+    } else txt("❗", x + 16, sy - 76, 13, "#ffd54a", "center");
+    talkBubble("emma", x, sy - 80);
+    return;
+  }
+  // Tumbada a lo largo del sofá, con la cabeza en el cojín (a la izquierda)
+  cx.save();
+  cx.translate(x + 30, y - 1);
+  cx.rotate(-Math.PI / 2);
+  cx.scale(0.8, 0.8);
+  blit(s, 0, 8);
+  cx.restore();
+  if (F.st === "sleep")
+    for (let i = 0; i < 3; i++) {
+      const k = (t * 0.6 + i / 3) % 1;
+      cx.globalAlpha = 1 - k;
+      txt("z", x - 34 + k * 14 + i * 4, y - 16 - k * 26, 9 + i * 3, "#d9c8ff", "center");
+      cx.globalAlpha = 1;
+    }
+  talkBubble("emma", x - 30, y - 40);
+}
+
 function emmaTick(dt) {
   const E = EMMA;
+  if (S.fk) return fkEmmaTick(dt); // con la zona Funko, Emma vive en su sofá
   E.empty = custs.length ? 0 : E.empty + dt;
   const goal = S.decor && S.decor.sofa && E.empty > 4 ? "sofa" : "desk";
   if (goal !== E.goal) {
@@ -201,6 +270,7 @@ export function familyTick(dt) {
 function drawEmma() {
   const E = EMMA,
     s = emmaSprite();
+  if (S.fk) return drawFkEmma(s);
   if (E.at === "sofa") {
     // Sentada: lo que queda por debajo del asiento no se ve
     cx.save();
@@ -275,6 +345,6 @@ export function familyLayers(L) {
           "cashier",
         ),
     });
-  L.push({ y: EMMA.at === "sofa" ? 519 : EMMA.y, f: drawEmma });
+  L.push({ y: S.fk ? FK_SOFA.y + 16 : EMMA.at === "sofa" ? 519 : EMMA.y, f: drawEmma });
   return true;
 }

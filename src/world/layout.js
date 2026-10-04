@@ -33,6 +33,8 @@ export const LUX = [
   [572, 452],
 ];
 export const AX = () => (hasState() && S.annex ? -276 : 0);
+/** Borde derecho de la tienda: con la zona Funko, llega hasta el final de la librería (docs/funkos). */
+export const RX = () => (hasState() && S.fk ? 1084 : W);
 export const XS0 = 1090;
 export const XS1 = 1160;
 export const TROPHY = { x: 36, y: 316, w: 104, d: 28 };

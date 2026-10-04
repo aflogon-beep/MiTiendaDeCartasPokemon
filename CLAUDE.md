@@ -23,10 +23,12 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Botones verde/gris/rojo; rediseño de Stock, Mejoras, Retos, colección y ficha de carta | ✅ |
 | Mejoras · Sobre imitado (logo e ilustración reales), tarjetas con el color de la colección y banners con Emma, Álvaro y papá | ✅ |
 | Mejoras · Menos clientes y cestas más grandes (≥ 20 €): reputación con techo ×2, máx. 10 dentro, extras en la cesta | ✅ |
+| Zona Funko · F1: la librería se traspasa (nivel 5, 15.000 €), Don Ramón, nombre, zona dibujada y Emma en su sofá (`docs/funkos/`) | ✅ |
+| Zona Funko · F2–F5: catálogo y stock, vender, lo pro, colección | ⏳ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia.
+Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. En marcha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`): F1 hecha; siguen F2–F5.
 
 ## Reglas
 
@@ -41,6 +43,7 @@ Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa 
 - El juego es el código de `src/`. `reference/pokemon-card-shop-v22.html` es la versión original (antes del refactor): sirve para los tests que comparan con ella (`npm run test:ref` y el test 14 de estilos).
 - `docs/intro/` (INTRO.md, HISTORIA.md, personajes.html): especificación de la Fase I, el guion y los personajes.
 - `docs/app.md`: instalar la app, funcionamiento sin red y actualizaciones.
+- `docs/funkos/` (DISENO.md, mockups.html, figuras.js, zona.js): diseño aprobado de la zona Funko (ampliación de la tienda), por fases F1–F5.
 
 ## Stack
 
@@ -69,11 +72,14 @@ src/
     unlocks.js           desbloqueos por nivel: colecciones por época (1 · 3 · 5) y aviso «🔓 ¡Nivel N!» (S.lvSeen)
     dirt.js              suciedad en el suelo (S.dirt): se recoge tocándola; −3 % clientes por cosa (máx. −24 %)
     tables.js            mesa de juego: grupos de 2 o 4 juegan y pagan 2 € por jugador y partida; a veces compran (players, no se guardan)
+    funko.js             zona Funko (S.fk): la librería se traspasa a nivel 5 (FK_LV) por 15.000 € (FK_COST), nombre, frases de Emma al despertarla
     …                    economía, sobres, tratos, lotes, gradeo, misiones, rival, ladrón, día…
   world/                 layout.js (LAY…), nav.js (A*)
   render/                canvas, cámara, tienda, ciudad, gente, coches, luz, efectos
     characters.js        Emma, Álvaro y papá (drawPortrait, drawMini, charFace)
-    family.js            Álvaro (caja; con cajero contratado, pasea; ojos de estrella con una carta rara) y Emma (mesa del ordenador ↔ sofá)
+    family.js            Álvaro (caja; con cajero contratado, pasea; ojos de estrella con una carta rara) y Emma (mesa del ordenador ↔ sofá;
+                         con la zona Funko, en su sofá gamer: jugando → tele tumbada → dormida; tocarla dormida la despierta)
+    funkoZone.js         zona Funko en el local de la librería (x 808–1084): caché + neón, tele y portal; escaparate (drawFkFront); FKEMMA
     tables.js            jugadores de la mesa de juego y las cartas que juegan
   story/script.js        guion de la historia de inicio, como datos
   ui/
@@ -84,6 +90,7 @@ src/
     update.js            aviso «Actualizar», con la versión nueva y la que tienes (version.json)
     packart.js           sobre imitado: bordes dentados, brillo, logo oficial (sd.logo) e ilustración de la carta estrella
     hero.js              banners con Emma, Álvaro o papá en Stock, Mejoras, Retos y Cartas (data-fase)
+    screens/funko.js     zona Funko: ficha de la librería (fklocal) y poner nombre (fkname), con Don Ramón
     version.js           versión del juego = fecha del último commit (__BUILD__; mismo código, misma versión); se ve en Más → Ajustes
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
@@ -93,11 +100,11 @@ src/
   styles/                01-base … 08-tutorial (juego) · 09-title · 10-story (Fase I)
 public/icons/            iconos de la app (se generan con docs/icono/iconos.py)
 tests/
-  e2e/                   Playwright: 01–13 (tabla original), 14 estilos, 15 PWA, 16–19 Fase I, 20 mejoras
+  e2e/                   Playwright: 01–13 (tabla original), 14 estilos, 15 PWA, 16–19 Fase I, 20 mejoras, 21 zona Funko
   unit/                  Vitest
   fixtures/              API simulada de pokemontcg.io y partida exportada de la v22
 reference/pokemon-card-shop-v22.html
-docs/                    pendientes.md, app.md, intro/, icono/
+docs/                    pendientes.md, app.md, intro/, icono/, funkos/
 ```
 
 **Dependencias permitidas:** `core` → solo `core` y `world`. `render` → `core`, `world`. `ui` → todo. Nunca `core` → `ui`/`render`: si `core` necesita avisar (un toast, un sonido, una frase), emite un evento por `bus.js` (`ui.toast(…)`, `ui.quip("thief")`).
@@ -108,6 +115,7 @@ docs/                    pendientes.md, app.md, intro/, icono/
 - `S.held`: sobres y productos que llevan los clientes a la caja (`holdNote`); al cargar vuelven al stock (`releaseHolds`, junto con las cartas de vitrina apartadas).
 - `S.recInc`: récord de ventas de un día (sello «¡RÉCORD!» en el ticket; el primer día no cuenta).
 - `S.wish`: ids de las cartas de la lista de deseos (se crea al añadir la primera).
+- `S.fk`: zona Funko (`{ name, since }`); no existe hasta comprar el local. Con ella, la tienda llega hasta x 1084 (`RX()` en `world/layout.js`: luz de noche, lluvia/hojas y persiana) y la librería desaparece de la calle.
 - `S.meSet`: lo elegido en Personalizar para Álvaro (solo lo que se ha tocado; `""` = lo suyo). Las partidas de antes solo tienen `S.me`: `meSetOf()` lo deduce.
 - `S`: objeto con identidad estable. Para cargar una partida, `replaceState(obj)`. Nada de `S = …`.
 - `custs`, `queue`: arrays que se mutan en sitio.

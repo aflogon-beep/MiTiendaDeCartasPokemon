@@ -43,6 +43,7 @@ import { importData, setRows, canShareFiles } from "./screens/more.js";
 import { mkMarketLots } from "../core/market.js";
 import { mkTells, mkWt } from "../core/fakes.js";
 import { openGrades } from "./screens/grading.js";
+import { fkBuyAct, fkNameInput, fkOpenAct, fkSugAct } from "./screens/funko.js";
 import { osum } from "./packOpening.js";
 import { ownFor } from "../core/orders.js";
 import { paintNav } from "./nav.js";
@@ -393,6 +394,10 @@ export const A = {
     S.express = !S.express;
     renderM();
   },
+  // Zona Funko (ui/screens/funko.js)
+  fkbuy: () => fkBuyAct(),
+  fksug: (d) => fkSugAct(d.k),
+  fkopen: () => fkOpenAct(),
   annexbuy: () => {
     if (S.annex || S.money < 4000 || level() < 3) return;
     S.money -= 4000;
@@ -1399,6 +1404,7 @@ export const I = {
     const e = $("#cgrid");
     if (e) e.innerHTML = collGrid();
   },
+  fknm: (el) => fkNameInput(el),
   shopn: (el) => {
     S.shopName = el.value.slice(0, 22);
     hud();

@@ -20,6 +20,8 @@ import {
   launchQ,
 } from "./shop.js";
 import { CAT, drawPet } from "./pets.js";
+import { fkForSale } from "../core/funko.js";
+import { drawFkFront, drawFkZone } from "./funkoZone.js";
 import {
   LAMPS,
   buildCity,
@@ -80,7 +82,7 @@ export function draw() {
   if (canvasLost(CITY)) G.CITYk = null;
   if (canvasLost(BG)) G.BGk = null;
   {
-    const ck = se + (S.annex ? "A" : "");
+    const ck = se + (S.annex ? "A" : "") + (S.fk ? "F" : fkForSale() ? "T" : ""); // zona Funko: librería tuya o «SE TRASPASA»
     if (G.CITYk !== ck) {
       CITY = buildCity(se);
       G.CITYk = ck;
@@ -102,6 +104,7 @@ export function draw() {
     cx.drawImage(BG, 40, 0, 552, FRONT_Y * 2, -276, 0, 276, FRONT_Y);
     drawAnnex();
   }
+  drawFkZone(); // zona Funko, en el local de la librería (render/funkoZone.js)
   drawWall();
   drawCams();
   drawDecorFloor();
@@ -198,6 +201,7 @@ export function draw() {
     if (c.run && !c.caught) L.push({ y: c.y + 0.5, f: () => drawThiefFx(c) });
   });
   L.push({ y: FRONT_Y + 1, f: drawFrontWall });
+  L.push({ y: FRONT_Y + 1.5, f: drawFkFront });
   L.push({ y: FRONT_Y + 2, f: drawShutter });
   VIS.ped.forEach((p) => L.push({ y: p.y, f: () => drawPed(p) }));
   (VIS.cars || []).forEach((c) => L.push({ y: c.y, f: () => drawCar(c) }));

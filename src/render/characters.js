@@ -1,4 +1,4 @@
-// Personajes de la historia (Emma, Álvaro y papá Alberto), dibujados por código.
+// Personajes de la historia (Emma, Álvaro y papá Alberto) y Don Ramón (zona Funko), dibujados por código.
 // Portado tal cual de docs/intro/personajes.html: CHARS, EXPR, drawPortrait (retrato 240×300 escalado
 // a W de ancho) y drawMini (muñeco pequeño para la tienda). Expresiones: happy, laugh, wow, angry,
 // sweat y stars.
@@ -79,6 +79,29 @@ export const CHARS = {
       "Camiseta negra que pone «Bunbury» en dorado",
     ],
   },
+};
+// Don Ramón, el librero de al lado (zona Funko, docs/funkos/DISENO.md): pelo blanco con entradas, gafas
+// redondas, barba blanca y rebeca marrón sobre camisa.
+CHARS.ramon = {
+  n: "Don Ramón",
+  role: "El librero de al lado: se jubila y os traspasa su local",
+  skin: "#efc6a4",
+  skinS: "#d8a984",
+  hair: "#ece8e1",
+  hairH: "#ffffff",
+  hairS: "#c9c3ba",
+  style: "receding",
+  brow: "#bdb6ac",
+  browW: 7,
+  eye: "#3a2416",
+  glasses: "#6b4b2a",
+  beard: "#f1ede6",
+  beardS: "#cfc8bd",
+  shirt: "#efe6d2",
+  shirtS: "#d9cfba",
+  vest: "#8a5a35",
+  kid: false,
+  traits: ["Pelo blanco con entradas", "Gafas redondas de pasta", "Barba blanca", "Rebeca marrón de librero"],
 };
 export const EXPR = [
   ["happy", "Feliz"],

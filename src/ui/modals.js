@@ -11,6 +11,7 @@ import { clamp, fmt } from "../core/util.js";
 import { guideImg } from "./tutorial.js";
 import { hud } from "./hud.js";
 import { mAnnex, mBank, mCafe, mCole, mMarket, mRival } from "./screens/city.js";
+import { mFkLocal, mFkName } from "./screens/funko.js";
 import { mBackup, mDiff, mGift, mMkt, mMore, mNotes, mSets, mTips, mTrophy } from "./screens/more.js";
 import { mCk, mHag, mLot, mSell, mTOffer, mTrade } from "./checkout.js";
 import { mColl } from "./screens/cards.js";
@@ -130,6 +131,8 @@ export function renderM() {
     rival: mRival,
     market: mMarket,
     annex: mAnnex,
+    fklocal: mFkLocal,
+    fkname: mFkName,
     medals: mMedals,
     gift: mGift,
     custom: mCustom,

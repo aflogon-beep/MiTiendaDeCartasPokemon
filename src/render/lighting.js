@@ -1,5 +1,5 @@
 // Luz: sol y sombras, noche y ambiente según la hora.
-import { AX, CX0, CX1, CY0, CY1, FRONT_Y, W } from "../world/layout.js";
+import { AX, CX0, CX1, CY0, CY1, FRONT_Y, RX, W } from "../world/layout.js";
 import { CITYWIN, LAMPS } from "./city.js";
 import { LITE, VIS, cx } from "./canvas.js";
 import { S } from "../core/state.js";
@@ -26,11 +26,12 @@ export function lighting() {
     // Con la tienda abierta (o cerrando), las luces de dentro están encendidas: menos oscuro y más luz
     const on = S.phase !== "closed" || !!VIS.endAt;
     cx.fillStyle = `rgba(12,18,52,${(on ? 0.3 : 0.62) * n})`;
-    cx.fillRect(AX(), 0, W - AX(), FRONT_Y);
+    const R = RX(); // con la zona Funko, la tienda llega hasta el final de la librería
+    cx.fillRect(AX(), 0, R - AX(), FRONT_Y);
     cx.fillStyle = `rgba(8,12,40,${0.66 * n})`;
     cx.fillRect(A, B, Wd, -B);
     cx.fillRect(A, 0, AX() - A, FRONT_Y);
-    cx.fillRect(W, 0, CX1 - W, FRONT_Y);
+    cx.fillRect(R, 0, CX1 - R, FRONT_Y);
     cx.fillRect(A, FRONT_Y, Wd, CY1 - FRONT_Y);
     cx.save();
     cx.globalCompositeOperation = "lighter";
@@ -49,6 +50,7 @@ export function lighting() {
       [700, 300],
     ].forEach(([x, y]) => pool(x, y, on ? 175 : 150, (on ? 0.17 : 0.075) * n, "255,236,190"));
     if (on && S.annex) pool(-140, 330, 170, 0.15 * n, "255,236,190");
+    if (S.fk) pool(946, 300, 190, (on ? 0.16 : 0.1) * n, "255,120,230"); // luz morada de la zona Funko
     pool(195, 430, 140, (S.decor.lights ? 0.2 : 0.08) * n, "190,235,255");
     LAMPS.forEach(([x, y, s]) => pool(x + (s > 0 ? 12 : -12), y - 30, 85, 0.3 * n, "255,230,160"));
     CITYWIN.forEach(([x, y, w, h], i) => {

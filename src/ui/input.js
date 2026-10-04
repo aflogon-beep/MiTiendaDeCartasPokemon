@@ -17,7 +17,9 @@ import { serveFront } from "./checkout.js";
 import { toast } from "./toast.js";
 import { track } from "../core/missions.js";
 import { trophyOn } from "../core/trophies.js";
-import { quip } from "./quips.js";
+import { quip, sayBubble } from "./quips.js";
+import { emmaSofaTap } from "../render/family.js";
+import { fkForSale, fkWakeLine } from "../core/funko.js";
 (function () {
   const PT = new Map();
   let pinch = null,
@@ -104,6 +106,16 @@ export function tapWorld(x, y) {
     serveFront();
     return;
   }
+  {
+    // Emma en su sofá de la zona Funko: si duerme, se despierta con una frase
+    const e = emmaSofaTap(x, y);
+    if (e === "wake") {
+      sayBubble("emma", "sweat", fkWakeLine());
+      sfx.swish();
+      return;
+    }
+    if (e) return;
+  }
   if (huntTap(x, y)) return;
   {
     const d = dirtClean(x, y); // recoger lo que haya en el suelo (core/dirt.js)
@@ -165,6 +177,8 @@ export function tapBuilding(x, y) {
     return;
   }
   if (!S.annex && H(-282, -8, 500, 575)) k = "annex";
+  else if (H(808, 1084, 0, 575) && (S.fk || fkForSale()))
+    k = "fklocal"; // la librería: zona Funko
   else if (H(CX0, -290, 500, 612)) k = "cafe";
   else if (H(-106, 118, 738, 806)) k = "bank";
   else if (H(380, 808, 738, CY1)) k = "market";
