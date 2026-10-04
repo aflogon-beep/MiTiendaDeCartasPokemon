@@ -227,6 +227,30 @@ export function navPath(sx, sy, gx, gy) {
     out.pop();
   return out;
 }
+// Ofertas aparte (con cajero): los que vienen a vender, cambiar o con un lote esperan junto al mostrador,
+// fuera de la fila, en sitios libres cerca de OFFER_AT, separados entre sí y de los huecos de la fila.
+export const OFFER_AT = { x: 560, y: 236 };
+export function offerSpot(i) {
+  queueSpot(0); // celdas alcanzables y fila, al día con los muebles
+  while (NQ.osp.length <= i) {
+    const C = NG.cols,
+      line = Array.from({ length: Math.max(1, NQ.line) }, (_, n) => ({ x: LAY.qx, y: LAY.qy + n * LAY.qs }));
+    let best = null,
+      bd = 1e9;
+    for (let k = 0; k < NQ.reach.length; k++) {
+      if (!NQ.reach[k]) continue;
+      const x = NG.x0 + ((k % C) + 0.5) * NG.cs,
+        y = NG.y0 + (Math.floor(k / C) + 0.5) * NG.cs;
+      if (y > FRONT_Y - 20 || x > LAY.qx - 20) continue;
+      if (NQ.osp.some((p) => Math.hypot(p.x - x, p.y - y) < 26)) continue;
+      if (line.some((p) => Math.hypot(p.x - x, p.y - y) < 26)) continue;
+      const d = Math.hypot(x - OFFER_AT.x, y - OFFER_AT.y);
+      if (d < bd) ((bd = d), (best = { x, y }));
+    }
+    NQ.osp.push(best || { ...OFFER_AT });
+  }
+  return NQ.osp[i];
+}
 export function routeTo(c, gx, gy) {
   const inS = (x, y) => x > AX() + 4 && x < W - 4 && y < FRONT_Y - 6,
     si = inS(c.x, c.y),
@@ -283,7 +307,7 @@ export function queueSpot(i) {
       if (line > 40 || !navOk(c, r) || !reach[r * C + c]) break;
       line++;
     }
-    Object.assign(NQ, { sig: NG.sig, reach, line, sp: [] });
+    Object.assign(NQ, { sig: NG.sig, reach, line, sp: [], osp: [] });
   }
   while (NQ.sp.length <= i) {
     const n = NQ.sp.length;

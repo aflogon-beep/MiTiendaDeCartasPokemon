@@ -7,7 +7,7 @@ import { G, S, SETS, hasState } from "../core/state.js";
 import { LAY, W } from "../world/layout.js";
 import { caseCap, caseItems, level, netWorth, packAcc, repv, sealedCount, tierOf } from "../core/economy.js";
 import { claimables } from "../core/achievements.js";
-import { custs, front, queue } from "../core/customers/move.js";
+import { custs, front, offers, queue } from "../core/customers/move.js";
 import { evLabel } from "../core/events.js";
 import { fmt } from "../core/util.js";
 import { openM } from "./modals.js";
@@ -58,6 +58,7 @@ export function hud() {
   }
   $("#lv").textContent = `Nivel ${level()} · Día ${S.day} · ⭐ ${repv()}`;
   updBadges();
+  offerBtn();
   checklist();
   applyUI();
   $("#clk").style.width = (S.phase === "closed" ? 0 : Math.min(100, (S.clock / DAYLEN) * 100)) + "%";
@@ -103,6 +104,21 @@ export function hud() {
     h +
     (S.phase === "closed" ? " Pellizca la tienda para hacer zoom." : "") +
     (G.NOTE ? "  ·  " + G.NOTE : "");
+}
+/** Ofertas aparte (con cajero): botón «📥 N ofertas esperando» en la tienda. Al tocarlo, atiendes la primera. */
+function offerBtn() {
+  let b = $("#offb");
+  const n = offers().filter((o) => o.st === "offer").length;
+  if (!b) {
+    if (!n) return;
+    b = document.createElement("button");
+    b.id = "offb";
+    b.dataset.a = "offer";
+    b.dataset.fase = "I";
+    $("#cvw").appendChild(b);
+  }
+  b.style.display = n && !G.TITLE && !G.STORY ? "" : "none";
+  b.textContent = `📥 ${n} ${n === 1 ? "oferta esperando" : "ofertas esperando"}`;
 }
 $("#act").addEventListener("click", () => {
   if (G.M) return;

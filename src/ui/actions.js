@@ -36,7 +36,7 @@ import { closeDeal, finishDeal } from "../core/deals.js";
 import { closeM, openM, renderM, zoom } from "./modals.js";
 import { collGrid } from "./screens/cards.js";
 import { custs, leave, queue, say } from "../core/customers/move.js";
-import { dealHg, finishCK, serveFront } from "./checkout.js";
+import { dealHg, finishCK, serveFront, serveOffer } from "./checkout.js";
 import { endLot, expCost, lotBuy, lotReview } from "../core/lots.js";
 import { exportStr, save, saveNow } from "../core/save.js";
 import { importData, setRows, canShareFiles } from "./screens/more.js";
@@ -1079,6 +1079,12 @@ export const A = {
   custserve: () => {
     closeM();
     serveFront();
+  },
+  // Ofertas aparte (con cajero): atender la primera que espera, o la del cliente tocado
+  offer: () => serveOffer(),
+  offerserve: (d) => {
+    closeM();
+    serveOffer(custs.find((c) => String(c.id) === d.n));
   },
   luxadd: () => {
     if (luxItems().length >= 3) return;

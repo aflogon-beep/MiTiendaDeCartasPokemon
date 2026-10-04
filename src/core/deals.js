@@ -81,7 +81,8 @@ export function finishDeal(p) {
   const c = d.cust;
   c.hold = null;
   say(c, "❤️");
-  queue.splice(queue.indexOf(c), 1);
+  const qi = queue.indexOf(c); // con cajero, los que venden esperan fuera de la fila
+  if (qi >= 0) queue.splice(qi, 1);
   c.st = "leave";
   S.sales++;
   G.deal = null;

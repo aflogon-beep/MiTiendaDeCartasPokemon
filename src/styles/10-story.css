@@ -583,3 +583,14 @@ html.ui-calm #story .st-close {
   word-break: break-all;
   user-select: text;
 }
+/* Versión del juego (Más → Ajustes) y en el aviso «Actualizar» */
+.ver {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 12px;
+}
+#upd span small {
+  display: block;
+  font-size: 11px;
+  opacity: 0.75;
+}

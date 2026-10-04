@@ -718,3 +718,61 @@ test("20x · Botón «atrás» de Android: cierra el panel abierto y, sin nada a
   const notes = await page.evaluate(() => JSON.parse(localStorage.getItem("pcs-diag-v1")).errs.map((e) => e.m));
   expect(notes).toEqual(["atrás: cerrar more", "atrás: salir?", "atrás: cerrar coll"]);
 });
+
+test("20y · Con cajero, los que vienen a vender esperan aparte y la fila sigue; «📥 ofertas esperando» los atiende", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => {
+    P.S.staff.cashier = true;
+  });
+  await page.locator("#act").click();
+  await expect.poll(() => game(page, (P) => P.S.phase)).toBe("open");
+  // Un cliente que viene a vender una carta
+  const id = await game(page, (P) => {
+    P.G.spawnT = 999; // sin más clientes
+    P.spawn();
+    const c = P.custs[P.custs.length - 1];
+    c.want = { k: "sell" };
+    c.deal = P.makeDeal(null);
+    c.st = "toq";
+    c.wps = [];
+    c.pat = 999;
+    return c.id;
+  });
+  await expect
+    .poll(() => game(page, (P, id) => P.custs.find((c) => c.id === id).st, id), { timeout: 15000 })
+    .toBe("offer");
+  expect(await game(page, (P, id) => P.queue.some((c) => c.id === id), id)).toBe(false);
+  await expect(page.locator("#offb")).toHaveText("📥 1 oferta esperando");
+  await page.locator("#offb").click({ force: true }); // late (animación)
+  await expect.poll(() => game(page, (P) => P.G.M)).toBe("sell");
+  await game(page, (P) => P.A.dealno());
+  await expect
+    .poll(() => game(page, (P, id) => P.custs.find((c) => c.id === id)?.st || "fuera", id))
+    .toMatch(/leave|fuera/);
+  await expect(page.locator("#offb")).toBeHidden();
+});
+
+test("20z · Versión del juego en Más → Ajustes; el aviso «Actualizar» dice a qué versión se actualiza", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => P.openM("more"));
+  const mine = await game(page, (P) => P.verLabel(P.BUILD));
+  expect(mine).toMatch(/^\d{1,2} \S+ \d{4} · \d\d:\d\d$/);
+  await expect(page.locator("#ovh .ver")).toHaveText(`📦 Versión del juego: ${mine}`);
+  await game(page, (P) => P.closeM());
+  // Hay una versión publicada más nueva
+  await page.route("**/version.json*", (r) =>
+    r.fulfill({ contentType: "application/json", body: JSON.stringify({ build: "2030-01-02T09:05:00.000Z" }) }),
+  );
+  await game(page, (P) => P.showUpdate(() => {}));
+  const nueva = await game(page, (P) => P.verLabel("2030-01-02T09:05:00.000Z"));
+  await expect(page.locator("#upd span")).toContainText(`Versión nueva: ${nueva}`);
+  await expect(page.locator("#upd span small")).toHaveText(`Tienes: ${mine}`);
+});

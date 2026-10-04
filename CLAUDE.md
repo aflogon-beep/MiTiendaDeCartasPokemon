@@ -19,6 +19,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Ticket con motivos de los que se van, desbloqueos por nivel (colecciones por época) y limpieza | ✅ |
 | Mejoras · Sello de récord en el ticket, Álvaro con ojos de estrella y mesa de juego con jugadores | ✅ |
 | Mejoras · Más frases de Emma, Álvaro y papá (varias por situación y situaciones nuevas) | ✅ |
+| Mejoras · El nivel nunca baja; botón «atrás»; con cajero, las ofertas esperan aparte («📥 N ofertas esperando») | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -56,7 +57,7 @@ src/
     state.js             S, G (variables que se reasignan), partida nueva, ensure()
     save.js slots.js     guardado por ranuras (3), exportar/importar
     bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
-    cards/ customers/    API y caché de cartas; clientes
+    cards/ customers/    API y caché de cartas; clientes (con cajero, los que venden, cambian o traen lote esperan aparte: «aside»/«offer», `offers()`)
     quips.js             frases de Emma y Álvaro y visitas de papá: varias por situación (la 1.ª, la del guion; luego al azar sin repetir, S.quipV)
     wish.js              lista de deseos (S.wish): avisos si un cliente o un lote trae una carta
     alerts.js            alertas de precio (S.palert) y recordatorio de copia (S.bkpAt, 7 días reales)
@@ -75,7 +76,8 @@ src/
     story.js             reproductor de la historia (escenas, bocadillo, nombre de la tienda)
     quips.js             bocadillos de frases y visita de papá
     slab.js              funda de plástico de las cartas gradeadas
-    update.js            aviso «Hay una versión nueva · Actualizar»
+    update.js            aviso «Actualizar», con la versión nueva y la que tienes (version.json)
+    version.js           versión del juego = fecha de publicación (__BUILD__); se ve en Más → Ajustes
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
