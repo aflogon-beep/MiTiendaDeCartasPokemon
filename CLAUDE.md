@@ -77,7 +77,7 @@ src/
     quips.js             bocadillos de frases y visita de papá
     slab.js              funda de plástico de las cartas gradeadas
     update.js            aviso «Actualizar», con la versión nueva y la que tienes (version.json)
-    version.js           versión del juego = fecha de publicación (__BUILD__); se ve en Más → Ajustes
+    version.js           versión del juego = fecha del último commit (__BUILD__; mismo código, misma versión); se ve en Más → Ajustes
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
