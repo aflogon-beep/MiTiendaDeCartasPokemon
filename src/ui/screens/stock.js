@@ -3,6 +3,8 @@ import { ACC, DECOR, PTYPES, RAR, STAFF, UPS } from "../../core/constants.js";
 import { EVC, avgL, eraCfg, poolR, rvAvg } from "../../core/packs.js";
 import { G, S, SETS } from "../../core/state.js";
 import { accTag } from "../modals.js";
+import { packArt } from "../packart.js";
+import { hero } from "../hero.js";
 import { delivSummary } from "../../core/delivery.js";
 import { fmt } from "../../core/util.js";
 import { pInfo, pPrice, pStock, packAcc, prodAcc, recPack, recProd } from "../../core/economy.js";
@@ -54,10 +56,10 @@ export function mPacks() {
         : on
           ? ["on", "🏪 En estantería"]
           : ["warn", "⚠️ Sin hueco en las estanterías"];
-      return `<div class="pn stk"><div class="stkh"><div class="mpack" style="--sc:${sd.col}">${sd.sym ? `<img src="${sd.sym}" alt="" onerror="this.remove()">` : ""}</div><div class="stk-info"><b>${sd.n}</b><div class="stk-st ${stt[0]}">${stt[1]}</div></div><div class="stk-qty ${stt[0]}"><b>${q}</b><small>${q === 1 ? "sobre" : "sobres"}</small></div></div>
+      return `<div class="pn stk tint" style="--sc:${sd.col}"><div class="stkh"><div class="stk-pk">${packArt(sd)}${stt[0] === "on" ? '<span class="stk-rib">🏪 En estantería</span>' : ""}</div><div class="stk-info"><b>${sd.n}</b>${stt[0] === "on" ? `<div class="stk-st">${[sd.series, sd.year].filter(Boolean).join(" · ")}</div>` : `<div class="stk-st ${stt[0]}">${stt[1]}</div>`}</div><div class="stk-qty ${stt[0]}"><b>${q}</b><small>${q === 1 ? "sobre" : "sobres"}</small></div></div>
     <div class="stk-price"><span class="mu">Precio por sobre</span><div class="step"><button class="b" data-a="shelf" data-k="${s}" data-n="-.25">−</button><b>${fmt(S.shelf[s])}</b><button class="b" data-a="shelf" data-k="${s}" data-n=".25">+</button></div></div>
     <div class="stk-acc">${accTag(packAcc(s))}${Math.abs(S.shelf[s] - recPack(s)) > 0.04 ? `<button class="b mini" data-a="recp" data-k="${s}">🎯 ${fmt(recPack(s))}</button>` : ""}</div>
-    <div class="stk-btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}>✨ Abrir 1</button></div>
+    <div class="stk-btns"><button class="b pri" data-a="buyp" data-k="${s}" data-n="6"${S.money < p.w * 6 ? " disabled" : ""}>🛒 Comprar 6 · ${fmt(p.w * 6)}</button><button class="b" data-a="open" data-k="${s}" data-n="1"${q < 1 ? " disabled" : ""}><i class="pbi"></i> Abrir 1</button></div>
     <details><summary class="mu">Detalles y más opciones</summary><div class="mu">Mayorista ${fmt(p.w)} por sobre · los clientes pagan ~${fmt(p.ref)} · valor esperado ${fmt(EVC[s] || 0)}</div><div class="btns">${[
       1, 36,
     ]
@@ -76,14 +78,16 @@ export function mPacks() {
  * Tarjeta de mejora (rediseño pedido por Alberto): icono, nombre, qué hace y, a la derecha, el precio (botón
  * verde) o el estado («✔ Comprada»). Si no llega el dinero, dice cuánto falta.
  */
-function upCard({ ic, n, d, extra = "", done, doneTxt = "✔ Comprada", cost, act, k, side = "" }) {
+function upCard({ ic, n, d, extra = "", done, doneTxt = "✔ Comprada", cost, act, k, side = "", col = "#3b7fd9" }) {
   const short = cost != null && S.money < cost;
   const right = done
     ? `<span class="upc-ok">${doneTxt}</span>${side}`
     : `<button class="b pri" data-a="${act}"${k ? ` data-k="${k}"` : ""}${short ? " disabled" : ""}>${fmt(cost)}</button>${short ? `<small class="upc-short">Faltan ${fmt(cost - S.money)}</small>` : ""}`;
-  return `<div class="pn upc${done ? " done" : ""}"><div class="upc-ic">${ic}</div><div class="upc-b"><b>${n}</b><div class="mu">${d}</div>${extra}</div><div class="upc-r">${right}</div></div>`;
+  return `<div class="pn upc${done ? " done" : ""}"><div class="upc-ic" style="--c:${col}">${ic}</div><div class="upc-b"><b>${n}</b><div class="mu">${d}</div>${extra}</div><div class="upc-r">${right}</div></div>`;
 }
-const UPIC = { ads: "📣", case: "🗄️", shelf: "🗃️" };
+const UPIC = { ads: "📣", case: "🗄️", shelf: "🗃️" },
+  UPCOL = { ads: "#e8582c", case: "#3b7fd9", shelf: "#9a6a3a" },
+  DECCOL = ["#2fa557", "#8e4cb5", "#c0392b", "#6b4a2b", "#c43c9a", "#d9a21b", "#d6338a", "#2f7d4a", "#3aa0c9"];
 export function mUp() {
   const lvls = (lv, max) =>
     max > 1
@@ -93,6 +97,7 @@ export function mUp() {
     const lv = S.up[u.k];
     return upCard({
       ic: UPIC[u.k] || "⬆️",
+      col: UPCOL[u.k],
       n: u.n,
       d: u.d,
       extra: lvls(lv, u.max),
@@ -102,8 +107,18 @@ export function mUp() {
       k: u.k,
     });
   }).join("");
-  const dec = DECOR.map((d) =>
-    upCard({ ic: d.ic, n: d.n, d: d.d, done: S.decor[d.k], doneTxt: "✔ Colocado", cost: d.cost, act: "decor", k: d.k }),
+  const dec = DECOR.map((d, i) =>
+    upCard({
+      ic: d.ic,
+      n: d.n,
+      d: d.d,
+      done: S.decor[d.k],
+      doneTxt: "✔ Colocado",
+      cost: d.cost,
+      act: "decor",
+      k: d.k,
+      col: DECCOL[i % DECCOL.length],
+    }),
   ).join("");
   const stf = STAFF.map((x) =>
     S.staff[x.k]
@@ -114,9 +129,10 @@ export function mUp() {
           extra: `<div class="mu">Sueldo: ${fmt(x.sal)}/día</div>`,
           done: true,
           doneTxt: "✔ Contratado",
+          col: "#2fa557",
           side: `<button class="b mini fire" data-a="staff" data-k="${x.k}">Despedir</button>`,
         })
-      : `<div class="pn upc"><div class="upc-ic">${x.ic}</div><div class="upc-b"><b>${x.n}</b><div class="mu">${x.d}</div><div class="mu">Sueldo: ${fmt(x.sal)}/día</div></div><div class="upc-r"><button class="b pri" data-a="staff" data-k="${x.k}">Contratar</button></div></div>`,
+      : `<div class="pn upc"><div class="upc-ic" style="--c:#2fa557">${x.ic}</div><div class="upc-b"><b>${x.n}</b><div class="mu">${x.d}</div><div class="mu">Sueldo: ${fmt(x.sal)}/día</div></div><div class="upc-r"><button class="b pri" data-a="staff" data-k="${x.k}">Contratar</button></div></div>`,
   ).join("");
   const cams = upCard({
     ic: "📹",
@@ -124,6 +140,7 @@ export function mUp() {
     d: "Menos robos y el ladrón corre más despacio.",
     done: S.cams,
     doneTxt: "✔ Instaladas",
+    col: "#555d70",
     cost: 250,
     act: "buycams",
   });
@@ -136,7 +153,14 @@ export function mUp() {
         doneTxt: "✔ Hecho",
       })
     : `<div class="pn upc"><div class="upc-ic">🏗️</div><div class="upc-b"><b>El local de al lado</b><div class="mu">La panadería vende su local: más estanterías y zona de juego.</div></div><div class="upc-r"><button class="b" data-a="m" data-k="annex">Ver</button></div></div>`;
-  return `<h2>🛠️ Mejoras</h2><div class="stk-cash">💶 Tienes <b>${fmt(S.money)}</b></div>
+  const tip = !S.staff.cashier
+    ? "Con un <b>cajero</b>, la cola va solita. Y yo, al sofá."
+    : !S.decor.sofa
+      ? "Un <b>sofá</b> para los que esperan… y para mí, claro."
+      : S.up.ads < 3
+        ? "Más <b>publicidad</b> = más clientes. Lo dice mi calculadora."
+        : "Cada mejora es dinero que vuelve. Bueno… casi siempre.";
+  return `<h2>🛠️ Mejoras</h2><div class="stk-cash">💶 Tienes <b>${fmt(S.money)}</b></div>${hero("emma", "happy", tip, "lila")}
   <h3>⬆️ Tienda</h3>${ups}<h3>🎨 Decoración</h3>${dec}<h3>🧑‍💼 Personal</h3>${stf}<h3>🔒 Seguridad</h3>${cams}<h3>🏗️ Ampliación</h3>${annex}`;
 }
 export function packTabs() {
@@ -150,7 +174,7 @@ export function packTabs() {
   const outBox = out.length
     ? `<div class="pn stk-out" data-fase="I">⚠️ <b>Estantería${out.length > 1 ? "s" : ""} sin sobres:</b> ${out.map((sd) => sd.n).join(", ")}. Compra más para que no se queden vacías.</div>`
     : "";
-  return `${outBox}<div class="stk-cash${down ? " down" : ""}" data-fase="I">💶 Tienes <b>${fmt(S.money)}</b>${down ? `<i>−${fmt(was.m - S.money)}</i>` : ""}</div>${S.deliv && S.deliv.length ? `<div class="pn">🚚 En camino: ${delivSummary()}</div>` : ""}<div class="row" style="margin-bottom:8px"><span class="mu">Entrega: ${S.express ? "⚡ al momento (+8 %)" : "🚚 furgoneta gratis (tarda unos segundos)"}</span><button class="b" data-a="exptog">Cambiar</button></div><div class="tabs">${[
+  return `${outBox}<div class="stk-cash${down ? " down" : ""}" data-fase="I">💶 Tienes <b>${fmt(S.money)}</b>${down ? `<i>−${fmt(was.m - S.money)}</i>` : ""}</div>${S.deliv && S.deliv.length ? `<div class="pn">🚚 En camino: ${delivSummary()}</div>` : ""}${hero("alvaro", "happy", `<button class="b" data-a="exptog">Cambiar</button>${S.express ? "⚡ Entrega: <b>al momento</b> (+8 %)" : "🚚 Entrega: <b>furgoneta gratis</b><br>llega en unos segundos"}`)}<div class="tabs">${[
     ["packs", "🎴 Sobres"],
     ["sealed", "🗃️ Sellado"],
     ["acc", "🛡️ Accesorios"],

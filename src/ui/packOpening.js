@@ -23,6 +23,7 @@ import { ac, sfx, vibe } from "../audio/sfx.js";
 import { clamp, fmt } from "../core/util.js";
 import { price } from "../core/economy.js";
 import { rvr } from "../core/cards/prices.js";
+import { starCard } from "./packart.js";
 export function mOpen() {
   const o = G.openState;
   if (o.mode === "seq") {
@@ -164,11 +165,12 @@ export function markDot(i, col) {
 }
 export function buildPack() {
   const o = G.openState,
-    sd = SETDEF.find((d) => d.id === o.s) || {};
+    sd = SETDEF.find((d) => d.id === o.s) || {},
+    star = starCard(o.s); // sobre imitado: logo e ilustración de la carta estrella (ui/packart.js)
   $("#pxst").insertAdjacentHTML(
     "beforeend",
     `<div class="packwrap" id="pxpw"><div class="bobw"><div class="pack" id="pxpack">
-    <div class="pbody"><div class="pcnt">${sd.sym ? `<img class="psym" src="${sd.sym}" alt="" onerror="this.remove()">` : ""}<div class="pball"></div><div class="pname">${sd.n || setName(o.s)}</div><div class="psub">Sobre de ampliación · ${o.cards.length} cartas</div></div><div class="holo" style="--ho:.3"></div><div class="sweep"></div><div class="glare"></div></div>
+    <div class="pbody"><div class="pcnt">${sd.logo ? `<img class="plogo" data-fase="I" src="${sd.logo}" alt="" onerror="this.remove()">` : ""}${sd.sym ? `<img class="psym" src="${sd.sym}" alt="" onerror="this.remove()">` : ""}${star && star.img ? `<div class="part" data-fase="I" style="background-image:url('${star.img}')"></div>` : ""}<div class="pball"></div><div class="pname">${sd.n || setName(o.s)}</div><div class="psub">Sobre de ampliación · ${o.cards.length} cartas</div></div><div class="holo" style="--ho:.3"></div><div class="sweep"></div><div class="glare"></div></div>
     <div class="ptop">POKÉ CARDS</div><div class="tear"></div></div></div></div>`,
   );
   TILT.el = $("#pxpack");

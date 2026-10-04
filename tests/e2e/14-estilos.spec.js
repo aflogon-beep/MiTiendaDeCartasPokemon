@@ -219,6 +219,7 @@ const SCREENS = {
 const ROOTS = ["#game", "#nav", "#ovh", "#tut", "#zv"];
 // Pantallas cuyo contenido se rediseñó a petición de Alberto (ya no se parecen al original)
 const REDISENO = [
+  "Stock",
   "Mejoras",
   "Stock · sellado",
   "Stock · accesorios",
