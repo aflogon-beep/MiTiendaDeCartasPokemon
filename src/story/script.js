@@ -15,7 +15,13 @@
 //   ask     "name": pedir el nombre de la tienda (no se pide al repetir la historia)
 // Expresiones (personajes.html): happy, laugh, wow, angry, sweat, stars.
 
-export const NAMES = { alvaro: "Álvaro", emma: "Emma", alberto: "Papá", "emma+alvaro": "Emma y Álvaro" };
+export const NAMES = {
+  alvaro: "Álvaro",
+  emma: "Emma",
+  alberto: "Papá",
+  ramon: "Don Ramón",
+  "emma+alvaro": "Emma y Álvaro",
+};
 export const NAME_SUGGESTIONS = ["Gengar Cards", "Aitana Cards", "Poké Cards"];
 
 // Mascota elegida: sustituye al gato de la escena 3 (sin mascota, ese chiste no sale)

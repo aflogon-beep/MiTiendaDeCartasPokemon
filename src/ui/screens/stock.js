@@ -5,6 +5,7 @@ import { G, S, SETS } from "../../core/state.js";
 import { accTag } from "../modals.js";
 import { packArt } from "../packart.js";
 import { hero } from "../hero.js";
+import { FK_LV, fkForSale, fkName } from "../../core/funko.js";
 import { delivSummary } from "../../core/delivery.js";
 import { fmt } from "../../core/util.js";
 import { pInfo, pPrice, pStock, packAcc, prodAcc, recPack, recProd } from "../../core/economy.js";
@@ -153,6 +154,10 @@ export function mUp() {
         doneTxt: "✔ Hecho",
       })
     : `<div class="pn upc"><div class="upc-ic">🏗️</div><div class="upc-b"><b>El local de al lado</b><div class="mu">La panadería vende su local: más estanterías y zona de juego.</div></div><div class="upc-r"><button class="b" data-a="m" data-k="annex">Ver</button></div></div>`;
+  // Zona Funko (docs/funkos): la librería de al lado, desde el nivel 5 (data-fase: no está en el original)
+  const fkLib = S.fk
+    ? `<div class="pn upc" data-fase="I"><div class="upc-ic">🧸</div><div class="upc-b"><b>La librería de al lado</b><div class="mu">Tu zona Funko: «${fkName().replace(/</g, "&lt;")}».</div></div><div class="upc-r"><button class="b" data-a="m" data-k="fklocal">Ver</button></div></div>`
+    : `<div class="pn upc" data-fase="I"><div class="upc-ic">📚</div><div class="upc-b"><b>La librería de al lado</b><div class="mu">${fkForSale() ? "Don Ramón se jubila y traspasa su local: una zona solo de Funkos." : `Se traspasa a nivel ${FK_LV}: una zona solo de Funkos.`}</div></div><div class="upc-r">${fkForSale() ? '<button class="b" data-a="m" data-k="fklocal">Ver</button>' : `<span class="mu">🔒 Nivel ${FK_LV}</span>`}</div></div>`;
   const tip = !S.staff.cashier
     ? "Con un <b>cajero</b>, la cola va solita. Y yo, al sofá."
     : !S.decor.sofa
@@ -161,7 +166,7 @@ export function mUp() {
         ? "Más <b>publicidad</b> = más clientes. Lo dice mi calculadora."
         : "Cada mejora es dinero que vuelve. Bueno… casi siempre.";
   return `<h2>🛠️ Mejoras</h2><div class="stk-cash">💶 Tienes <b>${fmt(S.money)}</b></div>${hero("emma", "happy", tip, "lila")}
-  <h3>⬆️ Tienda</h3>${ups}<h3>🎨 Decoración</h3>${dec}<h3>🧑‍💼 Personal</h3>${stf}<h3>🔒 Seguridad</h3>${cams}<h3>🏗️ Ampliación</h3>${annex}`;
+  <h3>⬆️ Tienda</h3>${ups}<h3>🎨 Decoración</h3>${dec}<h3>🧑‍💼 Personal</h3>${stf}<h3>🔒 Seguridad</h3>${cams}<h3>🏗️ Ampliación</h3>${annex}${fkLib}`;
 }
 export function packTabs() {
   // Dinero disponible, siempre a la vista mientras compras (baja con cada compra)

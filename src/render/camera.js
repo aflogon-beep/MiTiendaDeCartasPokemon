@@ -82,6 +82,17 @@ export function camFollow(dt) {
   clampView();
 }
 
+/** Lleva la cámara a un punto del mundo (p. ej. la zona Funko recién abierta), como si lo hubiera movido el jugador. */
+export function camLook(wx, wy) {
+  const V = VIEW;
+  V.s = clamp(Math.max(V.s, V.cover), V.min, V.max);
+  V.ox = V.cw / 2 - wx * V.s;
+  V.oy = V.ch / 2 - wy * V.s;
+  V.user = performance.now();
+  V.mode = "manual";
+  clampView();
+}
+
 /** Título: la cámara recorre despacio la tienda y la calle, como un tráiler (quieta con «menos animaciones»). */
 export function titleCam(now, still) {
   const V = VIEW,

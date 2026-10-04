@@ -20,7 +20,11 @@ export function unlocksAt(lv) {
       "🏗️ Ampliar la tienda con el local de al lado",
       "🏦 Préstamo de 4.000 € en el banco",
     );
-  if (lv === 5) l.push("🗂️ Colecciones clásicas de 1999 a 2003, como Base Set (Más → Colecciones)");
+  if (lv === 5)
+    l.push(
+      "🗂️ Colecciones clásicas de 1999 a 2003, como Base Set (Más → Colecciones)",
+      "📚 Se traspasa la librería de al lado: ¡una zona solo de Funkos!",
+    );
   const t = tierOf(lv);
   if (t > tierOf(lv - 1)) l.push(`⭐ Tu tienda pasa a ser «${TIERS[t].sub}»`);
   return l;

@@ -17,8 +17,8 @@ function fakeCtx() {
 }
 
 describe("personajes", () => {
-  it("están Emma, Álvaro y papá Alberto, con las 6 expresiones del guion", () => {
-    expect(Object.keys(CHARS)).toEqual(["alvaro", "emma", "alberto"]);
+  it("están Emma, Álvaro, papá Alberto y Don Ramón (zona Funko), con las 6 expresiones del guion", () => {
+    expect(Object.keys(CHARS)).toEqual(["alvaro", "emma", "alberto", "ramon"]);
     expect(EXPR.map((e) => e[0])).toEqual(["happy", "laugh", "wow", "angry", "sweat", "stars"]);
   });
 

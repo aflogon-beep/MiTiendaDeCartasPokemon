@@ -16,7 +16,26 @@ import { regS } from "../core/regulars.js";
 import { season } from "../core/events.js";
 import { setName } from "../core/cards/sets.js";
 import { tlT } from "./cars.js";
+import { fkForSale } from "../core/funko.js";
 export let CITYWIN = [];
+/** Cartel «SE TRASPASA» de la librería (zona Funko, desde el nivel 5). */
+function traspasa(g, x, y) {
+  g.save();
+  g.translate(x, y);
+  g.rotate(-0.1);
+  g.fillStyle = "rgba(0,0,0,.25)";
+  g.fillRect(-58, -12, 120, 34);
+  g.fillStyle = "#fff";
+  g.fillRect(-62, -17, 124, 34);
+  g.strokeStyle = "#c0392b";
+  g.lineWidth = 3;
+  g.strokeRect(-59, -14, 118, 28);
+  g.fillStyle = "#c0392b";
+  g.font = "900 15px 'Fredoka',system-ui,sans-serif";
+  g.textAlign = "center";
+  g.fillText("SE TRASPASA", 0, 6);
+  g.restore();
+}
 export function roofDraw(g, x, y, w, h, R, se) {
   const cols = ["#8a8f96", "#9a7b5f", "#7d8a7a", "#a86b5a", "#868c9c"];
   g.fillStyle = cols[Math.floor(R() * cols.length)];
@@ -528,14 +547,15 @@ export function buildCity(se) {
   }
   const near = [
     [CX0, -290, "CAFÉ", "#7b4a2b"],
-    [808, XS0 - 6, "LIBRERÍA", "#2f5fa8"],
     [XS1 + 6, CX1, "FLORISTERÍA", "#2fa557"],
   ];
+  if (!S.fk) near.splice(1, 0, [808, XS0 - 6, "LIBRERÍA", "#2f5fa8"]); // con la zona Funko, la librería es tuya
   if (!S.annex) near.push([-282, -8, "PANADERÍA", "#c47a2c"]);
   near.forEach(([a, b, n, col]) => {
     roofDraw(g, a + 4, 0, b - a - 8, 516, R, se);
     facadeDraw(g, a + 4, 516, b - a - 8, n, col, R);
   });
+  if (fkForSale()) traspasa(g, (808 + XS0 - 6) / 2, 470);
   parkDraw(g, CX0 + 4, 742, -124 - CX0, CY1 - 746, se, R);
   facadeDraw(g, -106, 738, 224, "BANCO", "#1f4e8c", R);
   roofDraw(g, -106, 792, 224, CY1 - 792, R, se);

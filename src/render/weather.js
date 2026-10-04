@@ -1,5 +1,5 @@
 // Lluvia, nieve, hojas y pétalos según el evento y la temporada.
-import { AX, FRONT_Y, W } from "../world/layout.js";
+import { AX, FRONT_Y, RX } from "../world/layout.js";
 import { LITE, cx } from "./canvas.js";
 import { S } from "../core/state.js";
 import { VIEW } from "./camera.js";
@@ -12,7 +12,7 @@ export function streetFx() {
     vy0 = -V.oy / V.s,
     vw = V.cw / V.s,
     vh = V.ch / V.s;
-  const inShop = (x, y) => x > AX() && x < W && y > 0 && y < FRONT_Y;
+  const inShop = (x, y) => x > AX() && x < RX() && y > 0 && y < FRONT_Y;
   if (S.ev && S.ev.t === "rain") {
     cx.strokeStyle = "rgba(170,200,255,.6)";
     cx.lineWidth = 1.2;

@@ -1,6 +1,6 @@
 // Tienda: suelo, paredes, estanterías, vitrina, caja, muebles, decoración, peanas, trofeos, ampliación, persiana.
 import { seatTaken } from "../core/tables.js";
-import { AX, FLOOR_T, FRONT_Y, LAY, LUX, TROPHY, W } from "../world/layout.js";
+import { AX, FLOOR_T, FRONT_Y, LAY, LUX, RX, TROPHY, W } from "../world/layout.js";
 import { BYID } from "../core/cards/sets.js";
 import { EMIS } from "./bloom.js";
 import { RAR, STYLES, TIERS } from "../core/constants.js";
@@ -910,7 +910,7 @@ export function drawShutter() {
   const tgt = S.phase === "closed" || VIS.endAt ? 1 : 0;
   VIS.shut += clamp(tgt - VIS.shut, -dt * 1.4, dt * 1.4);
   const a = AX(),
-    ww = W - a;
+    ww = RX() - a; // con la zona Funko, la persiana baja también en su escaparate
   cx.fillStyle = "#3b4049";
   cx.fillRect(a, 506, ww, 9);
   cx.fillStyle = "rgba(255,255,255,.12)";

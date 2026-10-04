@@ -1,6 +1,6 @@
 # Zona Funko · diseño
 
-**Estado: diseño y mockups. No está implementado.** Alberto lo aprueba antes de empezar. Cuando esté aprobado se hace por fases (apartado 12). Cada fase termina con `npm test` en verde, un commit pequeño en español y capturas.
+**Estado: aprobado por Alberto. F1 hecha** (librería, compra, nombre, zona dibujada y Emma en su sofá). Siguen F2–F5 (apartado 12). Cada fase termina con `npm test` en verde, un commit pequeño en español y capturas.
 
 - Mockups: `docs/funkos/mockups.html` (14 pantallas; ábrelo en el navegador a 390 px).
 - `docs/funkos/figuras.js`: generador de figuras de los mockups.
@@ -246,4 +246,6 @@ Cada fase se une a `main` cuando Alberto lo pida.
 
 Todas contestadas por Alberto (ver la tabla del apartado 1): Terror sí; Marvel, Star Wars, Pokémon y Stranger Things sí o sí; eventos cada semana; Emma en su sofá con tele y mando; 12 clientes; Don Ramón sí; 15.000 € a nivel 5.
 
-**Siguiente paso:** cuando Alberto diga, se empieza por la **F1 · El local**.
+**F1 hecha.** Además, a petición de Alberto: si Emma está dormida en el sofá y la tocas, se despierta con una frase graciosa («Estaba pensando profundamente»…), al rato se tumba a ver la tele y luego se vuelve a dormir.
+
+**Siguiente paso:** F2 · Catálogo y stock, cuando Alberto diga.
