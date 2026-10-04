@@ -13,7 +13,7 @@
 // Desde el juego: Más → Título (guarda antes de salir).
 import { $, VIS } from "../render/canvas.js";
 import { G, S, hasState, newState, replaceState, ensure } from "../core/state.js";
-import { loadOrNew, saveNow } from "../core/save.js";
+import { loadOrNew, releaseHolds, saveNow } from "../core/save.js";
 import { listSlots, slotInfo, slotKey, lastSlot, useSlot, deleteSlot, hasAnySlot } from "../core/slots.js";
 import { loadSetsFor, FAILED } from "../core/cards/api.js";
 import { custs, queue } from "../core/customers/move.js";
@@ -331,6 +331,7 @@ Object.assign(A, {
       S.phase = "closed";
       S.clock = 0;
       ensure();
+      releaseHolds();
       startGame();
       toast("✅ Partida cargada");
     });

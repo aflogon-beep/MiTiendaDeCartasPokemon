@@ -38,7 +38,7 @@ import {
   drawTree,
   streetLamp,
 } from "./city.js";
-import { CV, LITE, VIS, cx, txt } from "./canvas.js";
+import { CV, LITE, VIS, canvasLost, cx, txt } from "./canvas.js";
 import { CX0, CX1, CY0, CY1, FRONT_Y, LAY, LUX, TROPHY, W } from "../world/layout.js";
 import { FX, drawAlarm, drawEvBanner, drawPfx, drawThiefFx } from "./effects.js";
 import { G, S, meCfg, slotCount } from "../core/state.js";
@@ -76,6 +76,9 @@ export function draw() {
   cx.beginPath();
   cx.rect(CX0, CY0, CX1 - CX0, CY1 - CY0);
   cx.clip();
+  // Fondos guardados que Android ha vaciado (salían en negro): se vuelven a dibujar (docs/pendientes.md §8)
+  if (canvasLost(CITY)) G.CITYk = null;
+  if (canvasLost(BG)) G.BGk = null;
   {
     const ck = se + (S.annex ? "A" : "");
     if (G.CITYk !== ck) {
@@ -88,6 +91,7 @@ export function draw() {
     if (G.BGk !== bk) {
       BG = buildBG(t);
       G.BGk = bk;
+      VIS.bgN = (VIS.bgN || 0) + 1; // veces que se ha dibujado el fondo (para los tests)
     }
   }
   cx.drawImage(CITY, CX0, CY0);

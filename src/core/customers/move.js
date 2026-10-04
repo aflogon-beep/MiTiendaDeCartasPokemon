@@ -15,8 +15,21 @@ export const say = (c, t) => {
   c.bub = t;
   c.bt = 2.2;
 };
+/**
+ * Sobres y productos que llevan los clientes a la caja (ya fuera del stock), apuntados en la partida (S.held:
+ * «p:set» / «x:producto» → cantidad). Si la app se cierra antes de pagar, al cargar vuelven al stock
+ * (releaseHolds, core/save.js). sign: +1 al cogerlos, −1 al pagar o devolverlos.
+ */
+export function holdNote(h, sign) {
+  if (!h || (h.k !== "pack" && h.k !== "prod")) return;
+  const H = S.held || (S.held = {}),
+    k = h.k === "pack" ? "p:" + h.s : "x:" + h.pid;
+  H[k] = (H[k] || 0) + sign * h.qty;
+  if (H[k] <= 0) delete H[k];
+}
 export function leave(c, angry) {
   if (c.hold) {
+    holdNote(c.hold, -1);
     if (c.hold.k === "pack") S.sealed[c.hold.s] += c.hold.qty;
     else if (c.hold.k === "prod") S.prod[c.hold.pid] = pStock(c.hold.pid) + c.hold.qty;
     else c.hold.it.res = false;

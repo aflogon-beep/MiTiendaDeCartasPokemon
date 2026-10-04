@@ -97,3 +97,45 @@ describe("guardado", () => {
     expect(o.S.money).toBe(10);
   });
 });
+
+describe("cartas apartadas al cargar (pendientes §7)", () => {
+  it("al cargar se sueltan las cartas apartadas para clientes que ya no están; las del mercadillo, no", async () => {
+    const { releaseHolds } = await import("../../src/core/save.js");
+    const { S } = await import("../../src/core/state.js");
+    S.items = [
+      { i: 1, c: "x", case: 1.02, res: true },
+      { i: 2, c: "y", case: 1.02, res: true },
+      { i: 3, c: "z", case: null, res: true },
+    ];
+    S.market = { day: S.day, items: [3], mk: 1.1 };
+    releaseHolds();
+    expect(S.items.map((i) => i.res)).toEqual([false, false, true]);
+  });
+});
+
+describe("sobres que llevaban los clientes al cerrarse la app (pendientes §7)", () => {
+  it("se apuntan al cogerlos, se borran al pagar o devolverlos y, al cargar, vuelven al stock", async () => {
+    const { releaseHolds } = await import("../../src/core/save.js");
+    const { holdNote } = await import("../../src/core/customers/move.js");
+    const { S } = await import("../../src/core/state.js");
+    S.sealed = { a: 10 };
+    S.prod = { "acc:sleeves": 2 };
+    S.held = {};
+    S.items = [];
+    // Un cliente coge 3 sobres y otro unas fundas (salen del stock)
+    S.sealed.a -= 3;
+    holdNote({ k: "pack", s: "a", qty: 3 }, 1);
+    S.prod["acc:sleeves"] -= 1;
+    holdNote({ k: "prod", pid: "acc:sleeves", qty: 1 }, 1);
+    // Otro coge 2 y paga
+    S.sealed.a -= 2;
+    holdNote({ k: "pack", s: "a", qty: 2 }, 1);
+    holdNote({ k: "pack", s: "a", qty: 2 }, -1);
+    expect(S.held).toEqual({ "p:a": 3, "x:acc:sleeves": 1 });
+    // La app se cierra: al cargar, vuelven los que no se pagaron
+    releaseHolds();
+    expect(S.sealed.a).toBe(8);
+    expect(S.prod["acc:sleeves"]).toBe(2);
+    expect(S.held).toEqual({});
+  });
+});

@@ -28,6 +28,27 @@ export function saveNow() {
   }
 }
 export const exportStr = () => JSON.stringify({ app: "pcs", v: 5, mode: G.MODE, date: new Date().toISOString(), S });
+/**
+ * Al cargar una partida (que siempre empieza con la tienda cerrada), devuelve al stock los sobres y productos
+ * que llevaban los clientes a la caja (S.held) y suelta las cartas apartadas para
+ * clientes que ya no están: si la app se cerraba a mitad del día con alguien llevando una carta de la vitrina
+ * a la caja, se guardaba apartada (res) y ya no se vendía ni se podía quitar (docs/pendientes.md §7).
+ * Las del mercadillo de hoy o de mañana siguen apartadas.
+ */
+export function releaseHolds() {
+  // Sobres y productos que llevaban los clientes a la caja: vuelven al stock
+  const H = S.held || {};
+  for (const k in H) {
+    const [t, id] = [k.slice(0, 1), k.slice(2)];
+    if (t === "p" && S.sealed[id] != null) S.sealed[id] += H[k];
+    else if (t === "x") S.prod[id] = (S.prod[id] || 0) + H[k];
+  }
+  S.held = {};
+  const mk = S.market && !S.market.res && S.market.day >= S.day ? S.market.items || [] : [];
+  (S.items || []).forEach((it) => {
+    if (it.res && !mk.includes(it.i)) it.res = false;
+  });
+}
 export function loadOrNew() {
   try {
     const r = localStorage.getItem(skey()) || (G.SLOT === 1 ? localStorage.getItem(skey().replace("v3", "v2")) : null);
@@ -36,6 +57,7 @@ export function loadOrNew() {
       S.phase = "closed";
       S.clock = 0;
       ensure();
+      releaseHolds();
       return;
     }
   } catch (e) {}

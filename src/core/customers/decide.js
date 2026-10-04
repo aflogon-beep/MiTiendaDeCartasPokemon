@@ -5,7 +5,7 @@ import { DF } from "../difficulty.js";
 import { G, S } from "../state.js";
 import { LAY } from "../../world/layout.js";
 import { itemVal, pInfo, pPrice, pStock, tolMul, why } from "../economy.js";
-import { leave, queue, say } from "./move.js";
+import { holdNote, leave, queue, say } from "./move.js";
 import { pick, rnd } from "../rng.js";
 import { r05 } from "../util.js";
 import { regS } from "../regulars.js";
@@ -44,6 +44,7 @@ export function decide(c) {
     }
     S.prod[pid]--;
     c.hold = { k: "prod", pid, qty: 1, total: pr };
+    holdNote(c.hold, 1);
   } else if (c.want.k === "pack") {
     const s = c.want.s,
       st = S.sealed[s],
@@ -92,6 +93,7 @@ export function decide(c) {
     }
     S.sealed[s] -= qty;
     c.hold = { k: "pack", s, qty, total: sh * qty };
+    holdNote(c.hold, 1);
   } else {
     let its = S.items.filter((i) => i.case != null && !i.res && !i.fkK);
     if (!its.length) {

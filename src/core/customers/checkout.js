@@ -4,11 +4,12 @@ import { LAY } from "../../world/layout.js";
 import { S } from "../state.js";
 import { fmt } from "../util.js";
 import { loy } from "../regulars.js";
-import { queue, say } from "./move.js";
+import { holdNote, queue, say } from "./move.js";
 import { track } from "../missions.js";
 import { wpick } from "../rng.js";
 export function pay(c, got) {
   const h = c.hold;
+  holdNote(h, -1);
   if (got == null) got = h.total;
   S.money += got;
   S.stats.inc += got;

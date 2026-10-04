@@ -776,3 +776,20 @@ test("20z · Versión del juego en Más → Ajustes; el aviso «Actualizar» dic
   await expect(page.locator("#upd span")).toContainText(`Versión nueva: ${nueva}`);
   await expect(page.locator("#upd span small")).toHaveText(`Tienes: ${mine}`);
 });
+
+test("20aa · Si Android vacía los fondos guardados (salían en negro), se vuelven a dibujar", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  const n0 = await game(page, (P) => P.VIS.bgN || 0);
+  // Como cuando Chrome vacía los lienzos que no están en pantalla
+  await page.evaluate(() => {
+    const p = CanvasRenderingContext2D.prototype,
+      orig = p.isContextLost;
+    p.isContextLost = () => true;
+    setTimeout(() => (p.isContextLost = orig), 150);
+  });
+  await expect.poll(() => game(page, (P) => P.VIS.bgN || 0)).toBeGreaterThan(n0);
+});

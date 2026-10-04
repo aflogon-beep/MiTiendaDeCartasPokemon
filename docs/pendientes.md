@@ -89,3 +89,21 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Arreglo (`ui/back.js`, solo en la app instalada):** «atrás» cierra lo que esté abierto (como la ✕); en pantallas completas (sobres, gradeo, celebraciones, historia) no hace nada; sin nada abierto avisa «Vuelve atrás otra vez para salir» y solo sale si se repite en 2,5 s. Cada «atrás» queda apuntado en el registro, y salir así no cuenta como cierre. Test 20x. Pendiente de que Alberto confirme que ya no se cierra.
 
 **Registro:** hay un registro (`ui/diag.js`, clave `pcs-diag-v1`): cada 2 s, con el juego en pantalla, apunta qué pasa (día, % del día, panel abierto, velocidad, clientes, jugadores, FPS, memoria, elementos y lienzos) y los últimos errores. Si la app se cierra sola estando en pantalla, al volver a abrirla sale un aviso con esos datos y el botón «📋 Copiar» para mandárselos a Claude.
+
+---
+
+## 7. Cartas de la vitrina que no se venden ni se pueden quitar · ✅ arreglado
+
+**Qué pasaba.** Cuando un cliente elige una carta de la vitrina, la carta queda apartada (`res`) mientras la lleva a la caja. Si la app se cerraba a mitad del día (o se volvía al título), la partida se guardaba con la carta apartada y, al volver, seguía apartada para un cliente que ya no existía: los clientes decían «Vitrina vacía» y no se podía quitar. Pasaba igual en la versión original.
+
+**Arreglo:** al cargar o importar una partida se sueltan las cartas apartadas (`releaseHolds`, `core/save.js`), salvo las del mercadillo pendiente. La partida de Alberto (día 19) se arregla sola al abrirla.
+
+**Sobres y productos (también arreglado, pedido por Alberto):** el cliente los quita del stock al cogerlos; si la app se cerraba antes de pagar, se perdían. Ahora se apuntan en la partida mientras van a la caja (`S.held`, `holdNote` en `core/customers/move.js`) y, al cargar, vuelven al stock.
+
+---
+
+## 8. Tienda y ciudad en negro al empezar otro día · ✅ arreglado (falta que Alberto lo confirme)
+
+**Qué pasaba.** En el móvil, a veces el suelo, las paredes de la tienda y los edificios de la calle salían en negro (los muebles, la gente y la calle se veían bien). El juego guarda esos fondos ya dibujados en lienzos aparte; en Android, Chrome puede vaciar los lienzos que no están en pantalla (al pasar la app a segundo plano, p. ej. al hacer una captura, o con poca memoria) y el juego seguía usándolos vacíos. En el ordenador no pasa.
+
+**Arreglo:** cada fotograma se comprueba si esos lienzos se han vaciado (`canvasLost`, `render/canvas.js`) y, si es así, se vuelven a dibujar (fondo de la tienda, ciudad y muñecos de Emma y Álvaro). Test 20aa.
