@@ -1,204 +1,246 @@
-# Tienda de Funkos · diseño
+# Zona Funko · diseño
 
-**Estado: diseño y mockups. No está implementado.** Este documento lo aprueba Alberto antes de empezar. Cuando esté aprobado, se hace por fases (apartado 13) y cada fase termina con `npm test` en verde, commit pequeño en español y capturas.
+**Estado: diseño y mockups. No está implementado.** Alberto lo aprueba antes de empezar. Cuando esté aprobado se hace por fases (apartado 12). Cada fase termina con `npm test` en verde, un commit pequeño en español y capturas.
 
-Mockups: `docs/funkos/mockups.html` (12 pantallas, ábrelo en el navegador a 390 px). El generador de figuras de los mockups está en `docs/funkos/figuras.js`.
+- Mockups: `docs/funkos/mockups.html` (14 pantallas; ábrelo en el navegador a 390 px).
+- `docs/funkos/figuras.js`: generador de figuras de los mockups.
+- `docs/funkos/zona.js`: la zona Funko vista desde arriba.
+- `docs/funkos/tienda.jpg`: captura real de la tienda que usan los mockups.
 
 ## 1. La idea
 
-A mitad de partida, el **local de juguetes del señor Paco** (en la misma calle) se traspasa. Si lo compras, abres una **segunda tienda solo de Funkos**, de muchas colecciones (Marvel, DC, Star Wars, Harry Potter, anime, videojuegos, Pokémon, Disney…).
+A mitad de partida, la **librería de al lado** (pegada a la tienda, a la derecha de la caja) se traspasa. Si la compras, se abre un paso en la pared y la tienda crece con una **zona solo de Funkos**, de muchas colecciones (Marvel, DC, Star Wars, Harry Potter, anime, videojuegos, Pokémon, Disney…).
 
-- Juegas **en una tienda a la vez**. La otra la lleva un **encargado** que vende solo (algo peor que tú). Cambias cuando quieras.
-- El dinero, el día, el nivel y la reputación son **los mismos** para las dos tiendas.
-- Lo que hace distinto a los Funkos: **Chase**, **olas** de lanzamiento, **descatalogados** que suben de precio, **exclusivas de convención** y el **estado de la caja**.
+- **Es una ampliación, no una tienda nueva**, como la panadería: misma caja, misma cola, mismos clientes, mismo personal, mismo dinero y mismo día. El juego sigue dibujando una sola tienda, así que el móvil va igual de fluido.
+- La zona es **mucho más friki** que la tienda de cartas: estatua de Darth Vader, Halcón Milenario colgado del techo, armadura de Iron Man, máquina de gancho, recreativa, alfombra de la Estrella de la Muerte…
+- Más de **150 Funkos**. Los mejores (los «chetados») se desbloquean al **subir de nivel la zona Funko**.
+- Lo que hace distintos a los Funkos: **Chase**, **olas** de lanzamiento, **descatalogados** que suben de precio, **exclusivas de convención** y el **estado de la caja**.
 
-Decisiones ya tomadas por Alberto:
+Decisiones de Alberto:
 
 | Decisión | Elegido |
 |---|---|
-| Dos tiendas | Una a la vez + encargado |
+| Cómo se juega | Ampliación de la tienda: zona dedicada a Funkos, gestionada por la tienda normal |
+| Dónde | Justo al lado: el local de la librería, a la derecha de la caja |
+| Nombre | Lo pone el jugador al comprar el local |
+| Emma | Se va a la zona Funko, pero sigue con el mismo papel en todo el juego |
+| Encargado | Hay encargado de la zona (cobra más que el cajero): repone, pide stock y atiende |
 | Personajes | Nombres reales (dibujo nuestro, sin logos oficiales) |
 | Desbloqueo | Nivel 5 · 15.000 € |
-| Nombre del producto | «Funkos» |
+| Figuras | Más de 150; las mejores se desbloquean con el nivel de la zona |
 
 ## 2. Desbloqueo y compra del local (mockups 1 y 2)
 
-- En la calle hay un local nuevo, **Juguetes Paco**, con el cartel «SE TRASPASA». Siempre se ve; se toca como los demás edificios (banco, café…).
-- Ficha del local: qué trae la tienda y el botón **Comprar el local · 15.000 €** (desactivado hasta nivel 5, con el aviso «Necesitas nivel 5»).
-- Al llegar a nivel 5, el aviso «🔓 ¡Nivel 5!» incluye una línea: «🧸 Se traspasa la tienda de juguetes de la calle».
-- Al comprarlo: el **señor Paco** (personaje nuevo, dibujado como Emma, Álvaro y papá en `render/characters.js`) entrega las llaves y se **pone nombre a la tienda**, como con la tienda de cartas en la historia. Sugerencias: Funko Corner, Pop Galaxy, Cabezones, Vinilo Store.
-- La tienda se abre vacía: hay que comprar stock y (si quieres) contratar encargado.
+- La librería ya existe en la calle (a la derecha de la tienda). Al llegar a nivel 5 se le pone el cartel «SE TRASPASA» y se puede tocar, como la panadería.
+- Al llegar a nivel 5, el aviso «🔓 ¡Nivel 5!» añade: «📚 Se traspasa la librería de al lado».
+- Ficha: qué trae la zona y **Comprar el local · 15.000 €**. Antes del nivel 5, el botón está desactivado con el aviso «Necesitas nivel 5».
+- Al comprarlo:
+  - **Don Ramón**, el librero (personaje nuevo, con retrato como Emma, Álvaro y papá), entrega las llaves.
+  - El jugador **escribe el nombre de la zona**, con sugerencias: Zona Funko, Pop Galaxy, Cabezones, El Rincón Friki.
+  - Emma dice que se encarga de la zona y Álvaro alucina.
+- La zona se abre con lo básico: el paso («portal de las estrellas»), estanterías vacías y su puerta a la calle. El resto del mobiliario se compra en Mejoras.
 
-## 3. Dos tiendas (mockups 3, 4 y 5)
+## 3. La zona en la tienda (mockups 3 y 4)
 
-### Cambiar de tienda
-- Botón fijo en la tienda (arriba a la derecha): «🃏 Poké Cards · encargada: Lucía» / «🧸 Pop Galaxy». También desde la calle.
-- Al cambiar: la cámara baja por la calle (1–2 s) y entra en la otra tienda. Emma y Álvaro van contigo.
-- Se puede cambiar en cualquier momento del día. Los clientes que están dentro de la tienda que dejas **pasan al encargado** (se cuenta lo que compran) y desaparecen de la pantalla.
-- El reloj del día es el mismo. La persiana se baja en las dos a la vez.
+- **Sitio:** el local de la librería (`x 808–1084`, del mismo ancho que la panadería). La fachada de la librería pasa a ser el escaparate de la zona, con el nombre en neón.
+- **Entradas:**
+  - un **paso junto a la caja** (en la pared derecha, cerca del escaparate);
+  - su **propia puerta a la calle**.
+  - Los clientes de Funkos pueden entrar por cualquiera de las dos y pagan **en la misma caja**.
+- **Aspecto:** suelo de nave espacial (hexágonos), luz morada, neón con el nombre, estandartes de Hogwarts en la pared y estanterías con tiras de LED.
+- **Mobiliario** (leyenda del mockup 4):
+  1. estantería iluminada del fondo;
+  2. vitrinas altas de cristal;
+  3. Darth Vader a tamaño real;
+  4. Halcón Milenario colgado;
+  5. isla en pirámide con foco;
+  6. alfombra de la Estrella de la Muerte;
+  7. cámara de los grails;
+  8. armadura de Iron Man;
+  9. máquina de gancho;
+  10. recreativa;
+  11. Pikachu gigante;
+  12. portal.
+- **Emma** pasa a estar en la zona Funko: se mueve entre las estanterías y la máquina de gancho. Sigue igual que siempre en todo lo demás: sus frases, sus consejos, el tutorial y las cuentas. Álvaro sigue en la caja (o paseando si hay cajero).
+- **Clientes:** el máximo de gente dentro sube de 10 a **12** con la zona, porque la tienda es más grande.
+- La panadería sigue siendo la ampliación de la izquierda; las dos se pueden tener a la vez.
 
-### El encargado
-- Se contrata en **Mejoras → Personal** (como el cajero). Tres candidatos:
+## 4. Personal: encargado de la zona Funko (mockup 7)
 
-| Encargado | Vende | Repone solo | Sueldo |
-|---|---|---|---|
-| Marcos (estudiante) | 65 % | No | 50 €/día |
-| Lucía (habitual de la tienda) | 80 % | Sí | 90 €/día |
-| Doña Pili (ex dependienta de Paco) | 95 % | Sí, y regatea bien | 160 €/día |
+- Se contrata en **Mejoras → Personal**, junto al cajero. Sueldo: **45 €/día** (el cajero cobra 20).
+- Lo que hace:
+  - **repone** las estanterías de Funkos desde el almacén cuando se vacían;
+  - **vuelve a pedir** al mayorista lo que se acaba, con un **tope de gasto por día** que eliges;
+  - **compra figuras** a los clientes que vienen a vender Funkos, con un precio razonable, sin preguntarte.
+- **Sin encargado lo haces tú:**
+  - las figuras que llegan van al **almacén** y las estanterías se vacían hasta que las repones desde Stock;
+  - los que vienen a vender Funkos esperan aparte, como las ofertas de cartas («📥 N ofertas esperando»).
+- El almacén y la reposición son **solo de los Funkos**. Los sobres siguen como ahora.
 
-- «Vende un X %»: cada día, la tienda en la que no estás vende lo que venderías tú con su stock y sus precios, por ese porcentaje. No se dibuja (no se mueve gente): es una cuenta al cerrar el día y una cifra en directo en el botón de cambiar de tienda.
-- «Repone solo»: si se acaba un producto, lo vuelve a pedir al precio de mayorista, con un tope de gasto por día que eliges.
-- **Sin encargado**, la tienda en la que no estás está cerrada ese día.
-- El encargado sirve para **las dos tiendas**: si estás en la de Funkos, lleva la de cartas, y al revés.
+## 5. El catálogo (mockup 13)
 
-## 4. El catálogo (mockup 11)
-
-Unas **130–150 figuras** en **10 colecciones**, todas inventadas por nosotros (nombres reales de personajes, dibujo propio). Cada figura tiene: colección, número (#), ola, rareza y precio base.
+**Unas 200 figuras normales en 10 colecciones**, y además sus variantes (Chase, brillan en la oscuridad, metálicas, flocked, Diamond), con lo que pasan de 300 piezas. Todas inventadas por nosotros: nombres reales de personajes, dibujo propio y solo personajes de ficción (nada de personas reales).
 
 | Colección | Ejemplos |
 |---|---|
-| Marvel | Spider-Man, Iron Man, Capitán América, Thor, Hulk, Viuda Negra, Thanos, Groot, Deadpool, Lobezno, Pantera Negra, Venom… |
-| DC | Batman, Superman, Wonder Woman, Joker, Harley Quinn, Flash, Robin… |
-| Star Wars | Darth Vader, Luke, Leia, Han Solo, Chewbacca, Yoda, Grogu, Mandaloriano, Stormtrooper, Boba Fett, R2-D2… |
-| Harry Potter | Harry, Hermione, Ron, Dumbledore, Snape, Hagrid, Voldemort, Dobby, Luna… |
-| Anime | Goku, Vegeta, Naruto, Sasuke, Luffy, Zoro, Tanjiro, Nezuko, Totoro… |
+| Pokémon | Pikachu, Charmander, Bulbasaur, Squirtle, Eevee, Gengar, Mewtwo, Snorlax, Charizard… |
 | Videojuegos | Mario, Luigi, Peach, Bowser, Link, Zelda, Sonic, Kirby, Master Chief, Steve, Creeper… |
-| Pokémon | Pikachu, Charmander, Bulbasaur, Squirtle, Eevee, Gengar, Mewtwo, Snorlax… |
 | Disney y Pixar | Mickey, Minnie, Stitch, Woody, Buzz, Elsa, Olaf, Simba… |
+| Marvel | Spider-Man, Iron Man, Capitán América, Thor, Hulk, Viuda Negra, Thanos, Groot, Deadpool, Lobezno… |
+| Star Wars | Darth Vader, Luke, Leia, Han Solo, Chewbacca, Yoda, Grogu, Mandaloriano, Stormtrooper, Boba Fett… |
+| Harry Potter | Harry, Hermione, Ron, Dumbledore, Snape, Hagrid, Voldemort, Dobby, Luna… |
+| DC | Batman, Superman, Wonder Woman, Joker, Harley Quinn, Flash… |
+| Anime | Goku, Vegeta, Naruto, Sasuke, Luffy, Zoro, Tanjiro, Nezuko, Totoro… |
 | Series y películas | Eleven, Miércoles, Homer, Bart, Bob Esponja, E.T.… |
 | Terror | Ghostface, Freddy, Jason, Pennywise, Chucky… (ver preguntas abiertas) |
 
-- Solo personajes de ficción: nada de personas reales (futbolistas, cantantes).
-- Al empezar hay **2–3 olas** por colección a la venta; el resto sale con el tiempo (apartado 7).
+**Dibujo:**
+- Todas comparten el mismo cuerpo de vinilo (cabezón, ojos negros). Cada figura es una lista de piezas: piel, cabeza, pelo, máscara o casco, lentes, capa, emblema y accesorio.
+- En las pantallas se dibujan en SVG. En la tienda (canvas), cada figura se dibuja **una vez** y se reutiliza.
+- La caja lleva franja negra, ventana, número, nombre y el color de la colección. Pegatinas: CHASE, EXCLUSIVA, BRILLA EN LA OSCURIDAD.
 
-### El dibujo: generador de figuras
-- Todas comparten el **mismo cuerpo de vinilo** (cabezón, ojos negros, cuerpo pequeño). Cada figura es una lista de piezas: color de piel, cabeza (redonda o cuadrada), pelo, máscara o casco, lentes, capa, emblema y accesorio (espada láser, varita, escudo, cuchillo…).
-- En las pantallas se dibuja en SVG (como en los mockups). En la tienda (canvas), cada figura se dibuja **una vez** en una imagen pequeña y se reutiliza: así no pesa al móvil.
-- La caja: franja negra «POP! VINILO», ventana con la figura, número, nombre y el color de la colección. Pegatinas: **CHASE**, **EXCLUSIVA**, **BRILLA EN LA OSCURIDAD**.
+## 6. Nivel de la zona Funko (mockup 6)
 
-## 5. Comprar stock (mockup 6)
+La zona tiene **su propio nivel (1–10)**, aparte del nivel de la tienda (que nunca baja). Sube con **⭐ de Funko**, que se ganan vendiendo Funkos, completando el álbum y con encargos. El nivel de la zona tampoco baja.
 
-- **Stock** de la tienda de Funkos: pestañas por colección; una tarjeta por figura (caja, número, ola, rareza, mercado, tendencia, unidades y precio de venta), con el mismo estilo que la de los sobres.
-- **Comunes**: se piden en **cajas de 6 iguales** (unos 9 € cada una al mayorista) y llegan al día siguiente en la furgoneta. **1 de cada 6 cajas trae una Chase** en lugar de una normal.
-- **Raras** (ediciones especiales, brillan en la oscuridad, metálicas): se piden sueltas, unos 20–25 €.
-- **Descatalogadas**: ya no se pueden pedir. Solo llegan por clientes que venden, lotes o encargos.
-- Precio de venta: uno por figura, con un botón «precio para toda la colección» (por ejemplo, mercado + 5 %).
+| Nivel | Desbloquea |
+|---|---|
+| 1 | Pokémon, Videojuegos, Disney (comunes) |
+| 2 | Marvel, Star Wars (comunes y raras) |
+| 3 | Harry Potter, DC, Anime · brillan en la oscuridad |
+| 4 | Series y películas, Terror · metálicas y flocked |
+| 5 | Convención: exclusivas (una por temporada) |
+| 6 | Deluxe: escenas y figuras de 25 cm (el Halcón con Han, el Trono de Hierro…) |
+| 7 | Chase más a menudo (1 de cada 4 cajas) |
+| 8 | Diamond Collection (purpurina, muy buscadas) |
+| 9 | Grails legendarios (ediciones de 480 unidades) |
+| 10 | El Funko de oro de 24 quilates: una sola pieza, el Santo Grial |
 
-## 6. Vender (mockup 3)
+Algunos muebles también piden nivel de la zona (mockup 5). Al subir de nivel sale el aviso «🔓 ¡Zona Funko nivel N!», como el de la tienda.
 
-### La tienda por dentro
-- Estanterías de pared por colección, islas en el centro, **vitrina de grails** (Chase, exclusivas y descatalogadas caras) y la caja.
-- Las estanterías se asignan a colecciones (como los huecos de sobres). Más estanterías y una vitrina más grande se compran en **Mejoras** de esta tienda.
-- Decoración propia: neón con el nombre, alfombra, figura gigante en la puerta (+ clientes, como la decoración de la otra tienda).
+## 7. Mobiliario friki (mockup 5)
 
-### Clientes de la tienda de Funkos
-Mismo sistema que la tienda de cartas (cestas de 20 € o más, como máximo 10 dentro), con tipos propios:
+Se compra en **Mejoras → Zona Funko**. Cada mueble se ve en la zona y tiene un efecto:
+
+| Mueble | Efecto | Precio | Pide |
+|---|---|---|---|
+| Portal de las estrellas (el paso) | — | Viene con el local | — |
+| Vitrinas de cristal con LED | +8 huecos de exposición | 1.100 € | — |
+| Estatua de Darth Vader (tamaño real) | Los fans de Star Wars compran un 15 % más | 1.200 € | — |
+| Halcón Milenario colgado del techo | +8 % clientes en la zona | 900 € | — |
+| Alfombra de la Estrella de la Muerte | +6 % clientes en la zona | 400 € | — |
+| Máquina de gancho con Funkos | Los niños juegan: 1 € la partida (a veces se llevan un Funko) | 700 € | — |
+| Máquina recreativa | +20 % de paciencia en la cola | 650 € | — |
+| Pikachu gigante de 1 metro | +10 % clientes niños | 800 € | — |
+| Estandartes de Hogwarts | Los fans de Harry Potter compran un 15 % más | 500 € | Nivel 3 |
+| Armadura de Iron Man en su cápsula | Los fans de Marvel aceptan precios un 6 % más altos | 1.500 € | Nivel 4 |
+| Cámara de los grails | Las piezas de vitrina valen un 10 % más | 2.500 € | Nivel 5 |
+
+## 8. Stock, almacén y venta (mockups 8 y 9)
+
+- **Stock → Funkos:** pestañas por colección. Una tarjeta por figura con:
+  - la caja, el número, la ola y la rareza;
+  - el precio de mercado y su tendencia;
+  - unidades en el almacén y en la estantería;
+  - el precio de venta.
+- **Comunes:** se piden en **cajas de 6 iguales** (unos 9 € cada una) y llegan al día siguiente en la furgoneta. **1 de cada 6 cajas trae una Chase** (1 de cada 4 a partir del nivel 7 de la zona).
+- **Raras y especiales:** se piden sueltas, a unos 20–25 €.
+- **Descatalogadas:** ya no se pueden pedir. Llegan por clientes que venden, lotes o encargos.
+- **Estanterías por colección:** cada una con su capacidad. Se reponen desde el almacén (o lo hace el encargado). Lo caro va a las vitrinas o a la cámara de los grails.
+- **Clientes de la zona**, con cestas de 20 € o más, como el resto de la tienda:
 
 | Cliente | Qué hace | Gasto típico |
 |---|---|---|
 | Fan | Busca su colección (un fan de Star Wars). Se lleva 1–3. | 20–45 € |
-| Coleccionista | Mira la vitrina: Chase y descatalogadas. Paga más, regatea. | 40–150 € |
-| Niño | Una figura común, a veces dos. | 15–30 € |
-| Regalo | Alguien que busca un regalo: 2–3 de lo que sea, poco exigente con el precio. | 30–50 € |
-| Revendedor | Solo en días de convención: quiere exclusivas para revenderlas. | 30–60 € |
+| Coleccionista | Mira la vitrina: Chase y descatalogadas. Paga más y regatea. | 40–150 € |
+| Niño | Una común (a veces dos) y quizá una partida a la máquina de gancho. | 15–30 € |
+| Regalo | Busca un regalo: 2–3 de lo que sea, sin mirar mucho el precio. | 30–50 € |
+| Revendedor | Solo tras la convención: quiere exclusivas para revenderlas. | 30–60 € |
 
+- Algunos clientes de cartas compran también un Funko y al revés: se suma a la misma cesta (como los extras de ahora).
 - Si hay protectores de caja en stock, un 30 % se lleva también uno.
-- También hay clientes que **venden** Funkos (como los que venden cartas), con figuras descatalogadas o Chase.
 
-## 7. Lo «pro» de los Funkos (mockups 7, 8, 9 y 12)
+## 9. Lo «pro» de los Funkos (mockups 9, 10, 11 y 14)
 
-### Chase
-- 1 de cada 6 cajas. Variante de la figura (flocked, metálica, otro color). Vale **unas ×5** la normal.
-- Al abrir la caja que la trae: pantalla «✨ ¡HA SALIDO UNA CHASE!» (mockup 8), con confeti como las cartas buenas.
+- **Chase:**
+  - variante de la figura (flocked, metálica u otro color) que vale unas ×5;
+  - al llegar la caja que la trae sale «✨ ¡HA SALIDO UNA CHASE!», con confeti como las cartas buenas.
+- **Olas y descatalogados:**
+  - cada colección saca una ola nueva cada 7–10 días (3–5 figuras); se avisa en el ticket del día anterior;
+  - la ola más antigua pasa a **descatalogada**: ya no se puede pedir y su precio sube poco a poco (hasta unas ×3 en varias semanas).
+- **Convención (desde el nivel 5 de la zona):**
+  - una por temporada, un **Salón del Cómic** que se anuncia en el ticket;
+  - ese día se compran exclusivas limitadas (1–3 por figura) a unos 30 €; en una semana valen ×2–3;
+  - al día siguiente vienen fans y revendedores buscándolas, con cola en la puerta, como en los lanzamientos.
+- **Estado de la caja:**
+  - **Perfecta** o **Dañada** (vale un 40 % menos);
+  - alguna llega dañada, y un cliente torpe puede dañar una de la estantería;
+  - el **protector** (2,50 €) lo evita y también se vende a los clientes.
+- **Precios de mercado:**
+  - como las cartas, con gráfica y «7 d / 30 d» en la ficha;
+  - las de ola nueva empiezan altas y bajan un poco; las descatalogadas suben; Chase y exclusivas cambian más.
 
-### Olas y descatalogados
-- Cada colección saca una **ola nueva cada 7–10 días** (3–5 figuras). Aviso en el ticket del día anterior: «📢 Mañana sale la ola 3 de Star Wars».
-- La **ola más antigua pasa a descatalogada**: ya no se puede pedir y su precio de mercado sube poco a poco (de ×1 a unas ×3 en varias semanas).
-- Esto premia guardar figuras… o venderlas en el momento justo.
+## 10. Colección, álbum, encargos, logros y frases (mockup 12)
 
-### Exclusivas de convención (mockup 9)
-- Una vez por temporada, un **Salón del Cómic**. Se anuncia unos días antes en el ticket.
-- Ese día se pueden comprar **exclusivas** (unidades limitadas, 1–3 por figura) a precio de convención (unos 30 €). En una semana valen unas ×2–3.
-- Al día siguiente vienen a tu tienda revendedores y fans buscándolas: hay cola en la puerta (como en los lanzamientos de sobres).
+- **Mis Funkos:** las figuras que te quedas, como las cartas favoritas.
+- **Álbum** por colección: silueta hasta que tienes la figura. Hay premio al completar cada colección (100–150 € y ⭐ de Funko) y al completar sus Chase.
+- **Encargos:** un habitual busca una figura concreta y paga más si se la consigues a tiempo.
+- **Logros y misiones** nuevos: primera Chase, colección completa, 10 exclusivas, 500 € de Funkos en un día…
+- **Frases:** varias por situación, sin repetir, como ahora.
+  - Emma: precios, olas y descatalogados.
+  - Álvaro: ojos de estrella con una Chase.
+  - Papá: frases frikis de cada saga.
+  - Don Ramón: de visita («¡Dónde estaban mis libros ahora hay un Halcón Milenario!»).
 
-### Estado de la caja (mockup 7)
-- Cada figura tiene caja **Perfecta** o **Dañada** (vale un 40 % menos).
-- A veces llega alguna dañada en una caja de 6, y un cliente torpe puede dañar una de la estantería.
-- **Protector de caja** (2,50 €): la que lo lleva no se daña. También se vende a los clientes como accesorio.
+## 11. Ticket del día (mockup 14)
 
-### Precios de mercado
-- Como las cartas: cada figura tiene un precio que sube y baja cada día, con gráfica y «7 d / 30 d» en su ficha.
-- Las de ola nueva empiezan altas y bajan un poco; las descatalogadas suben; las Chase y exclusivas son más volátiles.
+- Es el mismo ticket con una sección **🧸 Zona Funko**: ventas, Chase vendidas, máquina de gancho y el sueldo del encargado.
+- El récord de ventas cuenta toda la tienda.
+- Debajo:
+  - ⭐ de Funko ganadas y cuánto falta para el siguiente nivel;
+  - avisos de ola nueva, convención y figuras que pasan a descatalogadas.
 
-## 8. Colección personal, álbum, encargos y logros (mockup 10)
-
-- **Mis Funkos**: las figuras que te quedas (como las cartas favoritas). No se venden ni van a la vitrina sin quitarlas antes.
-- **Álbum** por colección: casillas con silueta hasta que tienes la figura. Premio al completar cada colección (100–150 €) y otro al completar todas las Chase de una colección.
-- **Encargos**: un habitual busca una figura concreta (a veces Chase o descatalogada) y paga más si se la consigues antes de una fecha.
-- **Logros** nuevos: primera Chase, colección completa, 10 exclusivas, tienda de Funkos con 1.000 € en un día…
-- **Misiones del día** de la tienda de Funkos (vende N figuras, coloca una Chase en la vitrina…).
-
-## 9. Personajes y frases
-
-- **Señor Paco** (nuevo): el antiguo dueño. Aparece al traspasar el local y de visita de vez en cuando («¡Cómo ha cambiado mi tienda!»).
-- **Emma**: lleva las cuentas; frases sobre precios, descatalogados y olas.
-- **Álvaro**: loco por los Funkos; ojos de estrella con una Chase (como con las cartas raras).
-- **Papá**: frases frikis de cada saga («Que la Fuerza os acompañe, padawans…»).
-- Varias frases por situación, sin repetir, como ahora (`core/quips.js`).
-
-## 10. Ticket del día (mockup 12)
-
-- Una línea por tienda (quién la llevaba y cuánto vendió), Chase vendidas, sueldo del encargado y alquiler de los dos locales.
-- El récord de ventas («¡RÉCORD!») cuenta el total de las dos tiendas.
-- Avisos para mañana: ola nueva, convención, figuras que pasan a descatalogadas.
-
-## 11. Números de partida (primer ajuste, se probarán con el bot)
-
-| Concepto | Valor |
-|---|---|
-| Local | 15.000 € · nivel 5 |
-| Alquiler del local | 40 €/día |
-| Figura común | ~9 € al mayorista · ~15 € de mercado |
-| Caja de 6 | ~54 € · 1 de cada 6 con Chase |
-| Chase | ~×5 la normal |
-| Rara / especial | ~20–25 € al mayorista · ~30–40 € de mercado |
-| Exclusiva de convención | ~30 € · luego ×2–3 |
-| Descatalogada | sube hasta ~×3 en varias semanas |
-| Caja dañada | −40 % |
-| Protector | 1 € al mayorista · 2,50 € de venta |
-| Objetivo | la tienda de Funkos vende parecido a la de cartas (unos 600–1.000 €/día a mitad de partida) |
-
-## 12. Cómo se hará (técnica)
-
-- **Estado** nuevo en `S.fk` (la tienda de Funkos: nombre, stock, precios, mercado, olas, colección, álbum, encargos, encargado) y `S.here` (`"cards"` o `"funko"`). Las partidas de antes no tienen `S.fk`: todo sigue igual hasta comprar el local. El formato de exportación no cambia (`v: 5`).
-- **Tamaño de la partida**: el historial de precios de 150 figuras (31 días, 6 cifras) ocupa unos 40 KB.
-- **Archivos nuevos** (casi todo va aparte; de lo de siempre solo se toca la calle, el ticket, Mejoras → Personal y el bucle del día):
-  - `core/funko/`: catálogo, mercado y olas, stock y pedidos, clientes, encargado, convención, álbum y encargos.
-  - `world/funkoLayout.js`: posiciones de la tienda de Funkos.
-  - `render/funkoShop.js` y `render/funkoFig.js`: la tienda y las figuras en el canvas (figuras en caché).
-  - `ui/funko/` y `ui/screens/funkos.js`: Stock, ficha, colección, convención, cambiar de tienda.
-- **Dependencias**: las de siempre (`core` sin DOM; avisos por `bus.js`).
-- **Rendimiento**: una sola tienda se dibuja y se mueve a la vez; la otra es una cuenta. Figuras dibujadas una vez y reutilizadas.
-- **Tests**: unitarios (catálogo, mercado, olas, encargado, partidas de antes) y de navegador (comprar el local, cambiar de tienda, ticket con las dos tiendas, comprar y vender figuras). El test 14 no cambia: las pantallas de siempre siguen igual.
-
-## 13. Fases
+## 12. Fases
 
 | Fase | Qué se puede hacer al terminarla |
 |---|---|
-| **F1 · El local** | Comprar el local, ponerle nombre, entrar en la tienda de Funkos (vacía) y volver. Encargado en Mejoras → Personal. Ticket con las dos tiendas. Señor Paco. |
-| **F2 · Catálogo y figuras** | Generador de figuras y cajas, 10 colecciones, precios de mercado. Stock de Funkos: pedir cajas, que lleguen en la furgoneta. |
-| **F3 · Vender** | Estanterías por colección, vitrina, clientes propios con cestas grandes, precios de venta. El encargado vende de verdad en la tienda en la que no estás. |
-| **F4 · Lo pro** | Chase, olas y descatalogados, convención con exclusivas, estado de la caja y protectores. |
-| **F5 · Colección** | Mis Funkos, álbum, encargos, logros, misiones y frases de Emma, Álvaro, papá y Paco. |
+| **F1 · El local** | Librería «SE TRASPASA», comprarla, Don Ramón, poner nombre, paso en la pared, zona dibujada con lo básico (suelo, pared, neón, estanterías vacías, escaparate). Emma se pasa a la zona. |
+| **F2 · Catálogo y stock** | Generador de figuras y cajas, 200 figuras en 10 colecciones, precios de mercado, Stock → Funkos, pedir cajas, almacén y reponer estanterías. |
+| **F3 · Vender y nivel** | Clientes de la zona y cestas, venta en la misma caja, encargado de la zona, nivel de la zona y desbloqueos, mobiliario friki en Mejoras. |
+| **F4 · Lo pro** | Chase, olas y descatalogados, convención con exclusivas, estado de la caja y protectores, máquina de gancho. |
+| **F5 · Colección** | Mis Funkos, álbum, encargos, logros, misiones y frases de Emma, Álvaro, papá y Don Ramón. |
 
 Cada fase se une a `main` cuando Alberto lo pida.
 
+## 13. Cómo se hará (técnica)
+
+- **Estado nuevo en `S.fk`:** nombre, nivel y ⭐ de la zona, almacén, estanterías, precios de venta, mercado, olas, muebles, colección, álbum, encargos y encargado.
+  - Las partidas de antes no tienen `S.fk`, así que todo sigue igual hasta comprar el local.
+  - El formato de exportación no cambia (`v: 5`).
+  - El historial de precios de unas 300 piezas (31 días, 6 cifras) ocupa unos 80 KB.
+- **Archivos nuevos:**
+  - `core/funko/`: catálogo, mercado y olas, almacén y pedidos, clientes, encargado, nivel, convención, álbum y encargos;
+  - `render/funkoZone.js` y `render/funkoFig.js`: la zona y las figuras en el canvas, con las figuras en caché;
+  - `ui/screens/funkos.js` y `ui/funko/`: Stock, ficha, colección, nivel y convención.
+- **Cambios en lo que ya existe** (pocos y marcados):
+  - la calle: la librería y su cartel;
+  - `world/layout.js` y `world/nav.js`: la zona, el paso y la puerta;
+  - el fondo de la tienda;
+  - Mejoras: personal y una pestaña nueva;
+  - el ticket;
+  - el máximo de clientes con la zona.
+- **Rendimiento:** una sola tienda, como ahora. Las figuras se dibujan una vez y se reutilizan. Se mide en el móvil antes de unir.
+- **Tests:**
+  - unitarios: catálogo, mercado, olas, nivel, encargado y partidas de antes;
+  - en el navegador: comprar el local, nombre, reponer, vender un Funko en la caja y ticket.
+  - El test 14 no cambia: sin la zona, la tienda se ve igual.
+
 ## 14. Preguntas abiertas (para Alberto)
 
-1. **¿Quién está en la caja de cada tienda?** Propuesta: Emma y Álvaro van siempre contigo; en la tienda en la que no estás solo está el encargado.
-2. **Colección «Terror»**: Ghostface, Chucky, Pennywise… ¿la ponemos o la quitamos (por los peques)?
-3. **¿Qué colecciones o personajes quieres sí o sí?** (y si sobra alguna de la lista).
-4. **Convención**: ¿una por temporada (unas 4 al año de juego) o más a menudo?
-5. **Encargado**: ¿te gustan los tres candidatos y sus números, o lo hacemos más sencillo (uno solo)?
-6. **¿Puede el encargado llevar la tienda de cartas?** (propuesta: sí, cuando estás en la de Funkos).
-7. **El señor Paco**: ¿te parece bien como personaje nuevo, con retrato como Emma, Álvaro y papá?
+1. **Colección «Terror»** (Chucky, Pennywise…): ¿la ponemos o la quitamos por los peques?
+2. **¿Qué colecciones o personajes quieres sí o sí?** ¿Sobra alguna de la lista?
+3. **Convención:** ¿una por temporada o más a menudo?
+4. **Emma en la zona:** ¿se pasea por ella (propuesta) o tiene un mostrador propio de Funkos?
+5. **Máximo de clientes con la zona:** ¿12 te parece bien, o los dejamos en 10?
+6. **Don Ramón, el librero:** ¿te gusta como personaje nuevo?
+7. **Precio del local:** 15.000 € a nivel 5 (la panadería cuesta 4.000 € a nivel 3). ¿Te cuadra?

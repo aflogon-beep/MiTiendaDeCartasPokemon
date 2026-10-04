@@ -118,6 +118,7 @@ h3{font-family:var(--fd);margin:14px 0 8px;font-size:17px}
 </head>
 <body>
 <script src="figuras.js"></script>
+<script src="zona.js"></script>
 <script>
 const W = (h) => document.write(h);
 const fig = (n) => FIG.find((x) => x[0] === n)[2];
@@ -129,59 +130,73 @@ function box(n, num, col, st, cls) {
 const spark = (up) => `<svg class="spark" viewBox="0 0 84 26"><polyline fill="none" stroke="${up ? "#4cc98a" : "#ff7a6b"}" stroke-width="2" points="${up ? "0,22 12,20 24,21 36,16 48,17 60,11 72,8 84,4" : "0,6 12,8 24,7 36,12 48,11 60,16 72,18 84,21"}"/></svg>`;
 const scr = (n, t, h) => W(`<div class="scr" id="m${n}"><div class="cap">${n} · ${t}</div>${h}</div>`);
 
-// 1 · La calle
-scr(1, "La calle: el local en venta", `<div class="street">
-<div class="bld" style="left:4%;width:42%;height:62%;background:#e3350d"><div class="sign" style="background:#f2b705;color:#2a2000">POKÉ CARDS</div><div class="wn"></div></div>
-<div class="bld" style="left:52%;width:44%;height:58%;background:#6e6a73"><div class="sign" style="background:#3a3a40;color:#aaa">JUGUETES PACO</div><div class="wn" style="background:repeating-linear-gradient(90deg,#c9c3b6 0 10px,#b3ac9d 10px 12px)"></div><div class="sale">SE TRASPASA</div></div>
-<div class="pin" style="left:58%;bottom:4%">👆 Toca el local</div></div>
-<div class="pn"><h3 style="margin-top:0">🧸 Se traspasa: Juguetes Paco</h3><p style="margin:0 0 8px">El señor Paco se jubila y traspasa su tienda, dos puertas más abajo. Es perfecta para una tienda <b>solo de Funkos</b>.</p>
-<div class="tip">🧸 Marvel, DC, Star Wars, Harry Potter, anime, videojuegos, Disney, terror… y Pokémon</div>
-<div class="tip">👔 Mientras estás en una tienda, la otra la lleva un encargado</div>
-<div class="tip">📈 Olas nuevas, Chase, exclusivas de convención y descatalogados que suben de precio</div>
+// 1 · La calle: la librería de al lado se traspasa
+scr(1, "La librería de al lado se traspasa", `<div style="position:relative;height:230px;border-radius:16px;overflow:hidden;background:url(tienda.jpg) -190px -420px / 560px auto"><div class="sale" style="left:62%;top:48%">SE TRASPASA</div><div class="pin" style="left:4%;top:6%">⬅ Tu tienda</div><div class="pin" style="right:4%;top:6%">La librería ➡</div></div>
+<div class="pn"><h3 style="margin-top:0">📚 Se traspasa: la librería de al lado</h3><p style="margin:0 0 8px">Don Ramón, el librero, se jubila. Su local está <b>pegado a tu tienda</b>, al lado de la caja: si lo compras, abrimos un paso en la pared y tu tienda crece con una <b>zona solo de Funkos</b>.</p>
+<div class="tip">🧸 Funkos de Marvel, DC, Star Wars, Harry Potter, anime, videojuegos, Disney… y Pokémon</div>
+<div class="tip">🏪 Es tu misma tienda: misma caja, mismos clientes, mismo personal</div>
+<div class="tip">🛸 Mobiliario friki: estatua de Vader, Halcón Milenario colgado, máquina de gancho…</div>
+<div class="tip">⭐ La zona tiene su propio nivel: al subirlo desbloqueas las figuras más chetadas</div>
 <span class="b pri" style="margin-top:8px">Comprar el local · 15.000 €<small>Necesitas nivel 5</small></span></div>`);
 
-// 2 · Nombre de la tienda
-scr(2, "Al comprarlo: el nombre", `<div class="hero sun"><div class="av">👴</div><div><b>Señor Paco:</b> Aquí tenéis las llaves, chavales. Cuidádmela, que en esta tienda vendí juguetes cuarenta años.</div></div>
-<h2 style="margin-top:14px">¿Cómo se llama vuestra tienda de Funkos?</h2>
-<div class="inp">Pop Galaxy</div>
-<div class="sug"><span>Funko Corner</span><span>Pop Galaxy</span><span>Cabezones</span><span>Vinilo Store</span><span>🎲 Otro</span></div>
-<div class="hero" style="margin-top:14px"><div class="av">🤩</div><div><b>Álvaro:</b> ¡¡Una tienda entera de Funkos!! ¿Puedo poner el Vader en el escaparate?</div></div>
+// 2 · Nombre de la zona
+scr(2, "Al comprarlo: le pones nombre", `<div class="hero sun"><div class="av">👴</div><div><b>Don Ramón:</b> Cuarenta años vendiendo libros aquí… Me alegra que sean figuras de esas cabezonas. ¡Cuidádmelo!</div></div>
+<h2 style="margin-top:14px">¿Cómo se llama vuestra zona Funko?</h2>
+<div class="inp">Zona Funko</div>
+<div class="sug"><span>Zona Funko</span><span>Pop Galaxy</span><span>Cabezones</span><span>El Rincón Friki</span><span>✏️ Escribe el tuyo</span></div>
+<div class="hero" style="margin-top:14px"><div class="av">🤩</div><div><b>Álvaro:</b> ¡¡Una zona entera de Funkos!! ¿Ponemos un Vader de verdad en la puerta?</div></div>
+<div class="hero sky" style="margin-top:8px"><div class="av">🤓</div><div><b>Emma:</b> Yo me encargo de la zona Funko. Pero las cuentas de toda la tienda las sigo llevando yo, ¿eh?</div></div>
 <span class="b pri" style="margin-top:12px">¡Abrimos! 🎉</span>`);
 
-// 3 · Interior
-const mini = (c) => `<div class="mini" style="background:${c}"></div>`;
-scr(3, "Dentro de la tienda de Funkos", `<div class="shop"><div class="wall"></div><div class="floor"></div>
-<div class="neon">POP GALAXY</div>
-<div class="wsh" style="left:8px">${["#d0202a", "#d0202a", "#2a4bb8", "#d0202a", "#d0202a", "#2a4bb8"].map(mini).join("")}</div><div class="tag" style="left:12px;top:58px">MARVEL</div>
-<div class="wsh" style="left:140px">${["#1a1a1e", "#f2f4f7", "#1a1a1e", "#1a1a1e", "#f2f4f7", "#a9c98d"].map(mini).join("")}</div><div class="tag" style="left:144px;top:58px">STAR WARS</div>
-<div class="wsh" style="right:8px">${["#2b2b33", "#7a1018", "#2b2b33", "#7a1018", "#2b2b33"].map(mini).join("")}</div><div class="tag" style="right:12px;top:58px">HARRY POTTER</div>
-<div class="isl" style="left:18px;top:180px">${["#f07a1e", "#f2c21a", "#f07a1e", "#3c9a4a", "#d0202a"].map(mini).join("")}</div><div class="tag" style="left:22px;top:242px">ANIME · VIDEOJUEGOS</div>
-<div class="isl" style="left:150px;top:230px;width:96px">${["#f7d02c", "#78c8b4", "#f08a3c", "#6b4a9c"].map(mini).join("")}</div><div class="tag" style="left:154px;top:292px">POKÉMON</div>
-<div class="grail">${F(fig("Darth Vader"))}</div><div class="tag" style="right:20px;top:338px;background:#c9a227;color:#2a2000">VITRINA · GRAILS</div>
-<div class="cnt">CAJA · Emma</div>
-<div class="ppl" style="left:120px;top:330px">🧑‍🎤</div><div class="ppl" style="left:250px;top:150px">🧔</div><div class="ppl" style="left:70px;top:280px">👧</div><div class="ppl" style="left:205px;top:360px">🧑</div>
-<div class="sw"><b>🃏 Poké Cards<br><span style="font-weight:500;font-size:10px">encargada: Lucía</span></b><b class="on">🧸 Pop Galaxy</b></div>
-<div class="hud"><span class="b">📦 Stock</span><span class="b">🧸 Colección</span><span class="b pri">Cobrar 34,90 €</span></div></div>
-<p class="mu">Se dibujará en el canvas con el mismo estilo que la tienda de cartas (paredes, suelo, gente, luz de día y noche).</p>`);
+// 3 · La tienda ampliada (captura real del juego + zona dibujada encima)
+scr(3, "Tu tienda con la zona Funko", `<div style="position:relative;width:362px;height:513px;border-radius:14px;overflow:hidden;background:url(tienda.jpg) 0 0 / 362px 513px"><div id="zov" style="position:absolute"></div></div>
+<p class="mu">Captura real de la tienda con la ampliación de la panadería. La zona Funko (dibujada encima) ocupa el local de la librería, a la derecha de la caja. Se entra por un paso junto a la caja y también por su puerta de la calle.</p>`);
 
-// 4 · Cambiar de tienda
-scr(4, "Cambiar de tienda", `<div class="street" style="height:200px">
-<div class="bld" style="left:4%;width:42%;height:62%;background:#e3350d"><div class="sign" style="background:#f2b705;color:#2a2000">POKÉ CARDS</div><div class="wn"></div></div>
-<div class="bld" style="left:52%;width:44%;height:62%;background:#5a2a7a"><div class="sign" style="background:#2a1f3d;color:#ffd1ff;text-shadow:0 0 6px #ff4fd8">POP GALAXY</div><div class="wn" style="background:linear-gradient(#ffe3ff,#d9b8ff)"></div></div>
-<div class="pin" style="left:24%;bottom:6%">🚶 Emma y Álvaro van calle abajo →</div></div>
-<div class="pn"><div class="row"><div><b>🃏 Poké Cards</b><div class="mu">La lleva Lucía · hoy 214,60 € · stock de sobres para 2 días</div></div><span class="b" style="padding:8px 10px">Ir</span></div></div>
-<div class="pn" style="border-color:var(--fk)"><div class="row"><div><b>🧸 Pop Galaxy</b><div class="mu">Estás aquí · hoy 388,20 €</div></div><span class="chip" style="background:var(--fk);color:#2a0028">Aquí</span></div></div>
-<p class="mu">Al cambiar, la cámara baja por la calle (1–2 s) y entra en la otra tienda. El reloj del día es el mismo para las dos.</p>`);
+// 4 · La zona de cerca
+scr(4, "La zona Funko de cerca", `<div id="zbig" style="border-radius:14px;overflow:hidden"></div><ol class="mu" style="padding-left:18px;margin:8px 0 0">${ZONA_LEYENDA.map((t) => `<li>${t}</li>`).join("")}</ol>`);
 
-// 5 · Encargado
-scr(5, "Contratar encargado", `<h2>👔 Encargado</h2><div class="hero sky"><div class="av">🤓</div><div><b>Papá:</b> Un buen encargado vale su peso en oro. Uno malo… en Stormtroopers fallando el tiro.</div></div>
-<div class="pn cand"><div class="av">👩</div><div><b>Lucía</b> <span class="stars">★★★☆</span><div class="mu">Habitual de la tienda. Vende el 80 % de lo que venderías tú y repone sola.</div></div><span class="b pri" style="padding:8px">90 €<small>/día</small></span></div>
-<div class="pn cand"><div class="av">🧑‍🦱</div><div><b>Marcos</b> <span class="stars">★★☆☆</span><div class="mu">Estudiante. Vende el 65 % y no repone: tienes que dejarle stock.</div></div><span class="b pri" style="padding:8px">50 €<small>/día</small></span></div>
-<div class="pn cand"><div class="av">👵</div><div><b>Doña Pili</b> <span class="stars">★★★★</span><div class="mu">Ex dependienta de Paco. Vende el 95 %, repone y regatea bien.</div></div><span class="b pri" style="padding:8px">160 €<small>/día</small></span></div>
-<p class="mu">Sin encargado, la tienda en la que no estás se queda cerrada ese día.</p>`);
+// 5 · Mobiliario friki
+const MOB = [
+  ["🗿", "Estatua de Darth Vader (tamaño real)", "Los fans de Star Wars compran un 15 % más", "1.200 €", 1],
+  ["🛸", "Halcón Milenario colgado del techo", "+8 % clientes en la zona", "900 €", 1],
+  ["🕹️", "Máquina de gancho con Funkos", "Los niños juegan: 1 € la partida (a veces se llevan un Funko)", "700 €", 2],
+  ["👾", "Máquina recreativa", "+20 % de paciencia en la cola", "650 €", 2],
+  ["🦾", "Armadura de Iron Man en su cápsula", "Los fans de Marvel aceptan precios un 6 % más altos", "1.500 €", 4],
+  ["🌑", "Alfombra de la Estrella de la Muerte", "+6 % clientes en la zona", "400 €", 1],
+  ["🏰", "Estandartes de Hogwarts", "Los fans de Harry Potter compran un 15 % más", "500 €", 3],
+  ["⚡", "Pikachu gigante de 1 metro", "+10 % clientes niños", "800 €", 2],
+  ["🔭", "Vitrinas de cristal con LED", "+8 huecos de exposición", "1.100 €", 1],
+  ["💎", "Cámara de los grails", "Las piezas de vitrina valen un 10 % más", "2.500 €", 5],
+  ["🌀", "Portal de las estrellas (el paso)", "Viene con el local", "incluido", 1],
+];
+scr(5, "Mejoras: mobiliario friki", `<h2>🛸 Mejoras · Zona Funko</h2><div class="hero sky"><div class="av">🤓</div><div><b>Papá:</b> Una tienda friki sin un Halcón Milenario colgado del techo es solo… una tienda.</div></div>
+${MOB.map(([ic, n, d, c, lv]) => `<div class="pn row" style="margin:8px 0"><div style="display:flex;gap:10px;align-items:center"><div style="width:42px;height:42px;border-radius:12px;background:#3a2a58;display:grid;place-items:center;font-size:22px;flex:none">${ic}</div><div><b style="font-size:14px">${n}</b><div class="mu">${d}</div></div></div>${c === "incluido" ? '<span class="chip ok">Incluido</span>' : lv > 3 ? `<span class="chip va" style="white-space:nowrap">🔒 Nivel ${lv}</span>` : `<span class="b pri" style="padding:8px 10px;font-size:13px;white-space:nowrap">${c}</span>`}</div>`).join("")}`);
+
+// 6 · Nivel de la zona Funko
+const NIV = [
+  [1, "Pokémon · Videojuegos · Disney", "comunes", 1],
+  [2, "Marvel · Star Wars", "comunes y raras", 1],
+  [3, "Harry Potter · DC · Anime", "+ brillan en la oscuridad", 1],
+  [4, "Series y películas · Terror", "+ metálicas y flocked", 0],
+  [5, "Convención: exclusivas", "1 por temporada", 0],
+  [6, "Deluxe: escenas y figuras de 25 cm", "Halcón con Han, Trono de Hierro…", 0],
+  [7, "Chase más a menudo", "1 de cada 4 cajas", 0],
+  [8, "Diamond Collection", "purpurina, muy buscadas", 0],
+  [9, "Grails legendarios", "edición de 480 unidades", 0],
+  [10, "Funko de oro de 24 quilates", "el Santo Grial (una sola pieza)", 0],
+];
+scr(6, "Nivel de la zona Funko", `<h2>⭐ Zona Funko · Nivel 3</h2>
+<div class="row"><span class="mu">Sube vendiendo Funkos, completando el álbum y con encargos</span><b>1.240 / 2.000 ⭐</b></div><div class="bar"><i style="width:62%"></i></div>
+${NIV.map(([l, n, d, ok]) => `<div class="pn row" style="margin:7px 0;${ok ? "" : "opacity:.75"}"><div style="display:flex;gap:10px;align-items:center"><div style="width:36px;height:36px;border-radius:50%;background:${ok ? "var(--fk)" : "var(--panel2)"};color:${ok ? "#2a0028" : "#fff"};display:grid;place-items:center;font:800 15px var(--fd);flex:none">${l}</div><div><b style="font-size:14px">${n}</b><div class="mu">${d}</div></div></div>${ok ? '<span class="chip ok">✔</span>' : "<span>🔒</span>"}</div>`).join("")}`);
+
+// 7 · Encargado de Funkos
+scr(7, "Personal: encargado de la zona Funko", `<h2>👔 Personal</h2>
+<div class="pn cand"><div class="av">🧑‍💼</div><div><b>Cajero/a</b><div class="mu">Cobra a los clientes de toda la tienda.</div></div><span class="chip ok">Contratado · 20 €/día</span></div>
+<div class="pn cand" style="border-color:var(--fk)"><div class="av">🧑‍🎤</div><div><b>Encargado de la zona Funko</b><div class="mu">Repone las estanterías de Funkos desde el almacén, vuelve a pedir lo que se acaba (con el tope de gasto que elijas) y compra figuras a los clientes que vienen a vender, sin preguntarte.</div><div class="mu" style="margin-top:4px">Tope de pedidos: <b style="color:#fff">150 €/día</b> · ✏️</div></div><span class="b pri" style="padding:8px">45 €<small>/día</small></span></div>
+<div class="tip">Sin encargado, lo haces tú: las estanterías de Funkos se vacían y hay que reponerlas desde Stock.</div>`);
 
 // 6 · Stock de Funkos
-scr(6, "Stock de Funkos", `<h2>📦 Stock · Pop Galaxy</h2>
+scr(8, "Stock de Funkos", `<h2>📦 Stock · Funkos</h2>
 <div class="hero"><div class="av">🤩</div><div><b>Álvaro:</b> ¡Ha salido la <b>ola 3 de Star Wars</b>! Si pillamos la Chase de Grogu…</div></div>
 <div class="tabs"><b class="on">Star Wars</b><b>Marvel</b><b>DC</b><b>Harry Potter</b><b>Anime</b></div>
 <div class="pn fkc" style="--fc:#a9c98d">${box("Grogu", 368, "#7a8f62")}
@@ -195,26 +210,26 @@ scr(6, "Stock de Funkos", `<h2>📦 Stock · Pop Galaxy</h2>
 <div class="btns" style="grid-column:1/-1"><span class="b" style="opacity:.5">Sin pedidos</span><span class="b fk">🏆 A la vitrina<small>vale más expuesto</small></span></div></div>`);
 
 // 7 · Ficha de figura
-scr(7, "Ficha de una figura", `<div class="big">${box("Batman", 1, "#2b2d36", "chase")}</div>
+scr(9, "Ficha de una figura", `<div class="big">${box("Batman", 1, "#2b2d36", "chase")}</div>
 <h2 style="text-align:center;margin:0">Batman</h2>
 <div class="chips" style="justify-content:center"><span class="chip">DC · #1 · Ola 1</span><span class="chip ch">Chase</span><span class="chip ok">📦 Caja perfecta</span></div>
 <div class="pn"><div class="row"><span>Valor de mercado</span><b style="font:700 20px var(--fd)">89,90 €</b></div><div class="row">${spark(1)}<span class="mu">7 d <span class="up">+4,1 %</span> · 30 d <span class="up">+18,0 %</span></span></div></div>
 <div class="pn"><b>📦 Estado de la caja</b><div class="mu">Perfecta · Un golpe la deja en «Dañada» (vale un 40 % menos). Con protector, no se daña.</div><div class="btns"><span class="b pri">🛡️ Poner protector<small>2,50 €</small></span><span class="b">💰 Vender<small>76,40 €</small></span></div></div>`);
 
 // 8 · Llega una caja: ¡Chase!
-scr(8, "Llega una caja con Chase", `<div class="reveal"><h4>✨ ¡HA SALIDO UNA CHASE! ✨</h4><div class="big">${box("Spider-Man", 593, "#d0202a", "chase")}</div>
+scr(10, "Llega una caja con Chase", `<div class="reveal"><h4>✨ ¡HA SALIDO UNA CHASE! ✨</h4><div class="big">${box("Spider-Man", 593, "#d0202a", "chase")}</div>
 <div class="val">74,90 € <span class="mu" style="font-size:14px">(la normal: 14,95 €)</span></div><div class="mu" style="margin-top:6px;position:relative">5 normales a la estantería · la Chase, a ti</div></div>
 <div class="btns"><span class="b fk">🏆 A la vitrina</span><span class="b">❤️ Me la quedo</span></div>`);
 
 // 9 · Convención
-scr(9, "Evento: convención con exclusivas", `<div class="conv"><div class="mu" style="color:#cdd6ff">📢 Este sábado · Salón del Cómic</div><h3>🎪 Exclusivas de convención</h3><div class="timer">⏳ 02:48</div><div class="mu" style="color:#cdd6ff">Solo hoy · unidades limitadas</div></div>
+scr(11, "Evento: convención con exclusivas", `<div class="conv"><div class="mu" style="color:#cdd6ff">📢 Este sábado · Salón del Cómic</div><h3>🎪 Exclusivas de convención</h3><div class="timer">⏳ 02:48</div><div class="mu" style="color:#cdd6ff">Solo hoy · unidades limitadas</div></div>
 <div class="pn fkc" style="--fc:#d0202a">${box("Iron Man", 1031, "#b5121b", "ex")}
 <div><b class="n">Iron Man dorado</b><div class="chips"><span class="chip ex">Exclusiva · 3 000 unidades</span></div><div class="mu">Precio de convención <b style="color:#fff">29,90 €</b><br>En una semana: unos <b class="up">60–90 €</b></div><div class="btns" style="grid-template-columns:1fr"><span class="b pri">Comprar (quedan 2)</span></div></div></div>
 <div class="pn"><b>🧍 Cola en la puerta de tu tienda</b><div class="queue">🧑🧔👧🧑‍🎤👩🧓🧑‍🦱</div><div class="mu">Si las tienes, al día siguiente viene gente a tu tienda a por ellas. Véndelas rápido… o guárdalas y espera a que suban.</div></div>`);
 
 // 10 · Colección y álbum
 const ALB = [["Spider-Man", 1], ["Iron Man", 1], ["Capitán América", 0], ["Batman", 2], ["Darth Vader", 1], ["Stormtrooper", 1], ["Grogu", 0], ["Harry Potter", 1], ["Hermione", 0], ["Goku", 1], ["Naruto", 0], ["Mario", 1]];
-scr(10, "Colección y álbum", `<h2>🧸 Colección</h2><div class="tabs"><b class="on">Álbum</b><b>Mis Funkos</b><b>Encargos</b><b>Logros</b></div>
+scr(12, "Colección y álbum", `<h2>🧸 Colección</h2><div class="tabs"><b class="on">Álbum</b><b>Mis Funkos</b><b>Encargos</b><b>Logros</b></div>
 <div class="row"><b>Marvel · 2 de 15</b><span class="mu">premio 120 €</span></div><div class="bar"><i style="width:13%"></i></div>
 <div class="row"><b>Star Wars · 3 de 15</b><span class="mu">premio 150 €</span></div><div class="bar"><i style="width:20%"></i></div>
 <div class="row"><b>Harry Potter · 1 de 12</b><span class="mu">premio 100 €</span></div><div class="bar"><i style="width:8%"></i></div>
@@ -222,18 +237,28 @@ scr(10, "Colección y álbum", `<h2>🧸 Colección</h2><div class="tabs"><b cla
 <div class="pn"><b>📋 Encargo · Hugo busca Grogu (Chase)</b><div class="mu">Paga 95,00 € · quedan 4 días</div></div>`);
 
 // 11 · Catálogo del generador
-scr(11, "Figuras del generador (muestra)", `<div class="grid">${FIG.map(([n, col, o]) => `<div class="fg">${F(o)}${n}<i>${col}</i></div>`).join("")}</div>
+scr(13, "Figuras del generador (muestra)", `<div class="grid">${FIG.map(([n, col, o]) => `<div class="fg">${F(o)}${n}<i>${col}</i></div>`).join("")}</div>
 <p class="mu">Todas con el mismo cuerpo de vinilo y piezas que se combinan: cabeza, pelo, máscara o casco, capa, emblema y accesorio. Unas 150 figuras en 10 colecciones.</p>`);
 
 // 12 · Ticket
-scr(12, "Ticket del día con las dos tiendas", `<div class="ticket"><h4>DÍA 34 · TUS TIENDAS</h4>
-<div class="tl"><span>🃏 Poké Cards (Lucía)</span><span>612,40 €</span></div>
-<div class="tl"><span>🧸 Pop Galaxy (tú)</span><span>874,10 €</span></div>
+scr(14, "Ticket del día", `<div class="ticket"><h4>DÍA 34 · POKÉ CARDS</h4>
+<div class="tl"><span>Sobres y sellado</span><span>596,40 €</span></div>
+<div class="tl"><span>Cartas de vitrina</span><span>210,00 €</span></div>
+<div class="tl"><span>🧸 Zona Funko</span><span>488,10 €</span></div>
 <div class="tl"><span>  ✨ Chase vendida: Batman</span><span>89,90 €</span></div>
-<div class="tl"><span>Sueldo de Lucía</span><span>−90,00 €</span></div>
-<div class="tl"><span>Alquiler de los dos locales</span><span>−120,00 €</span></div>
-<div class="tl t"><span>TOTAL</span><span>1.366,40 €</span></div></div>
+<div class="tl"><span>  🕹️ Máquina de gancho</span><span>23,00 €</span></div>
+<div class="tl"><span>Sueldos (cajero y encargado Funko)</span><span>−65,00 €</span></div>
+<div class="tl"><span>Alquiler</span><span>−55,00 €</span></div>
+<div class="tl t"><span>TOTAL</span><span>1.287,40 €</span></div></div>
+<div class="pn"><b>⭐ Zona Funko: +180 ⭐</b><div class="mu">Te faltan 580 para el nivel 4 (Series y Terror, metálicas y flocked).</div></div>
 <div class="pn"><b>📢 Mañana sale la ola 3 de Star Wars</b><div class="mu">La ola 1 pasa a <b>descatalogada</b>: ya no se puede pedir y su precio sube.</div></div>`);
+// La zona sobre la captura (misma cámara que la captura: escala 0,719, desplazamiento -402,8 / 21,6; recortada 8 px por la izquierda)
+{
+  const k = 362 / 374, s0 = 0.7192307692307692, ox = -402.7692307692308, oy = 21.576923076923077, z = document.getElementById("zov");
+  Object.assign(z.style, { left: (ox + 808 * s0) * k + "px", top: oy * k + "px", width: 276 * s0 * k + "px", height: 572 * s0 * k + "px" });
+  z.innerHTML = zona().replace("<svg ", '<svg width="100%" height="100%" ');
+  document.getElementById("zbig").innerHTML = zona({ n: 1 }).replace("<svg ", '<svg width="362" height="750" ');
+}
 </script>
 </body>
 </html>

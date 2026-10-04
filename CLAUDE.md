@@ -26,7 +26,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. En diseño (sin implementar, esperando su aprobación): la **tienda de Funkos** (`docs/funkos/`).
+Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. En diseño (sin implementar, esperando su aprobación): la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/`).
 
 ## Reglas
 
@@ -41,7 +41,7 @@ Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa 
 - El juego es el código de `src/`. `reference/pokemon-card-shop-v22.html` es la versión original (antes del refactor): sirve para los tests que comparan con ella (`npm run test:ref` y el test 14 de estilos).
 - `docs/intro/` (INTRO.md, HISTORIA.md, personajes.html): especificación de la Fase I, el guion y los personajes.
 - `docs/app.md`: instalar la app, funcionamiento sin red y actualizaciones.
-- `docs/funkos/` (DISENO.md, mockups.html, figuras.js): diseño de la tienda de Funkos (segunda tienda). Solo diseño: no se implementa hasta que Alberto lo apruebe.
+- `docs/funkos/` (DISENO.md, mockups.html, figuras.js, zona.js): diseño de la zona Funko (ampliación de la tienda). Solo diseño: no se implementa hasta que Alberto lo apruebe.
 
 ## Stack
 
