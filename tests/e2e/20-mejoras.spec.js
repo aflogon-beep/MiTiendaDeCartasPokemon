@@ -927,3 +927,20 @@ test("20af · El sobre de la búsqueda del tesoro se abre al momento y, al abrir
   });
   expect(bad).toEqual([]);
 });
+
+test("20ag · Retos: las cuatro pestañas abren la ventana a la misma altura (las pestañas y los botones no bailan)", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await freshGame(page, gamePath);
+  const boxes = [];
+  for (const k of ["tasks", "medals", "games", "story"]) {
+    await game(page, (P, k) => P.openM(k), k);
+    await page.waitForTimeout(400);
+    const b = await page.locator("#ovh .sheet").boundingBox();
+    boxes.push([Math.round(b.y), Math.round(b.height)]);
+  }
+  expect(new Set(boxes.map((b) => b.join())).size).toBe(1);
+});
