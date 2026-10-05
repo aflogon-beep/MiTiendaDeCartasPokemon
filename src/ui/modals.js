@@ -68,6 +68,8 @@ export function closeM() {
   saveNow();
   hud();
 }
+/** Pestañas de Retos: la ventana siempre a toda altura, para que las pestañas y los botones no bailen al cambiar. */
+const RETO_TABS = ["tasks", "medals", "games", "story"];
 export function renderM() {
   if (!G.M) {
     $("#ovh").innerHTML = "";
@@ -173,7 +175,7 @@ export function renderM() {
     G.M === "fkdeal" ||
     G.M === "toffer";
   $("#ovh").innerHTML =
-    `<div class="ov${isNew ? " in" : ""}"${lock ? "" : ' data-a="close"'}><div class="sheet${G.M === "open" ? " wide" : ""}${isNew ? " in" : ""}"><div class="grab"></div><button class="xbtn" data-a="close" aria-label="Cerrar">✕</button>${body}<button class="b big" data-a="close">${G.M === "ck" ? "Atender luego" : G.M === "insp" ? "Volver" : G.M === "lot" && !(G.LOT && G.LOT.done) ? "Rechazar y cerrar" : "Cerrar"}</button></div></div>`;
+    `<div class="ov${isNew ? " in" : ""}"${lock ? "" : ' data-a="close"'}><div class="sheet${G.M === "open" ? " wide" : ""}${RETO_TABS.includes(G.M) ? " full" : ""}${isNew ? " in" : ""}"><div class="grab"></div><button class="xbtn" data-a="close" aria-label="Cerrar">✕</button>${body}<button class="b big" data-a="close">${G.M === "ck" ? "Atender luego" : G.M === "insp" ? "Volver" : G.M === "lot" && !(G.LOT && G.LOT.done) ? "Rechazar y cerrar" : "Cerrar"}</button></div></div>`;
   const nw = $("#ovh .sheet");
   if (nw && sc) nw.scrollTop = sc;
   prevM = G.M;

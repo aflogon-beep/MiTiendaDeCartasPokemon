@@ -250,3 +250,7 @@ html.ux .b.fire {
   margin: -2px 0 0 8px;
   font-size: 12px;
 }
+/* Pestañas de Retos: siempre a toda altura (no cambia de tamaño al pasar de una a otra) */
+html.ux .sheet.full {
+  height: 90%;
+}
