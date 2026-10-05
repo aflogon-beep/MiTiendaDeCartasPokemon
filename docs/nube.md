@@ -4,6 +4,8 @@ La partida se guarda también en internet, con **usuario y contraseña**. Así s
 
 - **Cuenta:** solo usuario (3–20 letras o números) y contraseña (mínimo 6). Supabase pide un correo, así que el juego usa `usuario@aflogon-beep.github.io` por dentro (nunca se manda nada a esa dirección). **Sin correo no se puede recuperar la contraseña**: apúntala.
 - **Qué se sube:** al terminar cada día y con «☁️ Subir ahora» (Más → Partida → ☁️ Nube), la partida de la ranura en la que juegas, comprimida (de ~2 MB a unos cientos de KB).
+- **Las otras ranuras:** al entrar en una partida (o con la cuenta recién abierta) se suben también las demás ranuras de este dispositivo que la nube no tiene al día. Si en la nube hay una copia de una ranura que salió de otro dispositivo, no se pisa: se pregunta al entrar en ella.
+- **Recordatorio de copia:** con la cuenta abierta y una subida de hace menos de 7 días, no sale el aviso de exportar la copia (`backupDue`, `core/alerts.js`).
 - **Copias:** en la nube se quedan **las 7 últimas de cada ranura**. Desde ☁️ Nube se puede cargar cualquiera.
 - **Al entrar en una partida:** si en la nube hay una copia que no salió de este dispositivo (p. ej. has jugado en otro), pregunta: «Cargar la de la nube» o «Seguir con esta». Nunca se borra nada sin preguntar.
 - **Sin red:** el juego va igual. Lo que no se pudo subir queda pendiente y se sube al volver la conexión.

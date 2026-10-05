@@ -109,3 +109,42 @@ test("22c · Con cuenta, los errores del juego se apuntan en la nube", async ({ 
   expect(db.logs[0]).toMatchObject({ kind: "error" });
   expect(db.logs[0].data.m).toContain("boom de prueba");
 });
+
+test("22d · Al entrar con la cuenta se suben también las otras ranuras (sin pisar las de otro dispositivo)", async ({
+  page,
+  gamePath,
+}) => {
+  const db = await mockSupa(page);
+  await freshGame(page, gamePath);
+  await game(page, (P) => {
+    P.saveNow();
+    const js = JSON.parse(localStorage.getItem("pcs-save-real-v3"));
+    localStorage.setItem("pcs-save-real-v3-s2", JSON.stringify(Object.assign({}, js, { day: 8, savedAt: Date.now() })));
+    localStorage.setItem(
+      "pcs-save-real-v3-s3",
+      JSON.stringify(Object.assign({}, js, { day: 15, savedAt: Date.now() })),
+    );
+  });
+  await game(page, (P) => P.cloudSignUp("emma", "123456"));
+  await game(page, (P) => P.cloudCheck());
+  await expect.poll(() => db.saves.map((r) => r.slot).sort()).toEqual([1, 2, 3]);
+  expect(db.saves.find((r) => r.slot === 3).day).toBe(15);
+  // Sin cambios, no se vuelven a subir
+  await game(page, (P) => P.cloudSyncAll());
+  expect(db.saves.length).toBe(3);
+  // Otro dispositivo sube la ranura 2: aquí no se pisa aunque se guarde otra vez
+  db.saves.push(
+    Object.assign(
+      {},
+      db.saves.find((r) => r.slot === 2),
+      { id: 999, day: 30 },
+    ),
+  );
+  await game(page, (P) => {
+    const k = "pcs-save-real-v3-s2",
+      js = JSON.parse(localStorage.getItem(k));
+    localStorage.setItem(k, JSON.stringify(Object.assign(js, { savedAt: Date.now() + 1000 })));
+    return P.cloudSyncAll();
+  });
+  expect(db.saves.filter((r) => r.slot === 2).length).toBe(2);
+});

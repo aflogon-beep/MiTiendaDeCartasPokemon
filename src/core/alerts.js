@@ -2,6 +2,7 @@
 // guardar una copia de la partida si hace una semana que no se guarda ninguna.
 import { S } from "./state.js";
 import { price } from "./economy.js";
+import { cloudLastAt, cloudUser } from "./cloud.js";
 
 /** Cambio de precio de una carta en los últimos d días (0,2 = +20 %). */
 export function trend(id, d) {
@@ -38,6 +39,7 @@ const WEEK = 7 * 24 * 3600 * 1000;
 /** ¿Toca recordar la copia? (7 días reales sin exportar, compartir ni copiar el código). now: Date.now(). */
 export function backupDue(now) {
   if (!S.bkpAt) S.bkpAt = now; // partidas de antes: se empieza a contar ahora
+  if (cloudUser() && now - cloudLastAt() < WEEK) return false; // con la nube al día no hace falta (docs/nube.md)
   return now - S.bkpAt >= WEEK && !(S.bkpSnooze > now);
 }
 export const backupDone = (now) => ((S.bkpAt = now), (S.bkpSnooze = 0));

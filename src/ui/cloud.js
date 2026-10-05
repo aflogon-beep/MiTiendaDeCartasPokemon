@@ -25,8 +25,10 @@ import {
   pendingSlots,
   setPending,
   setSynced,
+  syncedAt,
   syncedId,
 } from "../core/cloud.js";
+import { SLOTS } from "../core/slots.js";
 
 const form = () => [document.querySelector("#cldu")?.value || "", document.querySelector("#cldp")?.value || ""];
 /** El botón «☁️ Nube: …» de los ajustes del título, al día con la cuenta. */
@@ -39,6 +41,7 @@ function afterLogin(u) {
   toast(`☁️ Hola, ${u}`);
   CL.list = null;
   if (hasState() && !G.TITLE) setTimeout(cloudCheck, 300);
+  else cloudSyncAll();
 }
 
 /* ---------- Subir y cargar ---------- */
@@ -95,6 +98,29 @@ function applyCloud(txt, id) {
   });
 }
 
+/**
+ * Sube las otras ranuras de este dispositivo que la nube no tiene al día (nunca subidas o guardadas después de
+ * la última subida). Si en la nube hay una copia de esa ranura que no salió de aquí, no la pisa: se preguntará
+ * al entrar en ella.
+ */
+export async function cloudSyncAll() {
+  if (!cloudOn() || !cloudUser()) return;
+  const mode = G.MODE || "real";
+  for (let n = 1; n <= SLOTS; n++) {
+    if (hasState() && !G.TITLE && n === G.SLOT) continue; // la de ahora la mira cloudCheck
+    const js = localStorage.getItem(slotKey(n, mode));
+    if (!js) continue;
+    const at = +((/"savedAt":(\d+)/.exec(js) || [])[1] || 0);
+    try {
+      const r = await cloudLatest(mode, n);
+      if (r && r.id !== syncedId(mode, n)) continue;
+      if (!r || at > syncedAt(mode, n)) await uploadSlot(mode, n);
+    } catch (e) {
+      return; // sin red: otra vez será
+    }
+  }
+}
+
 /* ---------- Al entrar en una partida: ¿hay otra en la nube? ---------- */
 /** Si la copia más nueva de la nube no salió de aquí, pregunta cuál se queda. */
 export async function cloudCheck(tries = 0) {
@@ -108,10 +134,11 @@ export async function cloudCheck(tries = 0) {
   }
   if (!r) {
     // Nada en la nube para esta ranura: se sube la de aquí
-    uploadSlot(G.MODE, G.SLOT).catch(() => {});
+    await uploadSlot(G.MODE, G.SLOT).catch(() => {});
+    cloudSyncAll();
     return;
   }
-  if (r.id === syncedId(G.MODE, G.SLOT)) return;
+  if (r.id === syncedId(G.MODE, G.SLOT)) return cloudSyncAll();
   if (G.M || G.STORY) {
     if (tries < 40) setTimeout(() => cloudCheck(tries + 1), 3000);
     return;

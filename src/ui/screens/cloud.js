@@ -37,7 +37,7 @@ export function mCloud() {
   ).join("");
   return `<h2 class="cl-h">☁️ Nube</h2><div class="pn cl-me">Conectado como <b>${u}</b> · ranura ${G.SLOT}${pend ? `<div class="mu">⏳ Hay cambios sin subir (sin conexión). Se suben solos al volver la red.</div>` : ""}</div>${err}
   <div class="btns"><button class="b pri" data-a="cldsave">☁️ Subir ahora</button></div>
-  <p class="mu">Se sube sola al terminar cada día. En la nube se quedan las 7 últimas copias de cada ranura.</p>${busy}
+  <p class="mu">Se sube sola al terminar cada día, y también las otras ranuras de este dispositivo. En la nube se quedan las 7 últimas copias de cada ranura.</p>${busy}
   <h3>Copias en la nube</h3>${rows || (CL.list ? '<p class="mu">Todavía no hay ninguna.</p>' : "")}
   <div class="btns"><button class="b danger" data-a="cldout">Cerrar sesión</button></div>`;
 }
