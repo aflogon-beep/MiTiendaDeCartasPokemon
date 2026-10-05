@@ -463,3 +463,62 @@ html.no-hint #hint {
     animation: none;
   }
 }
+/* Niveles de la tienda: tocar «Nivel N» arriba (ui/screens/levels.js) */
+html.ux #lv {
+  cursor: pointer;
+}
+.lvnow {
+  display: grid;
+  gap: 5px;
+  font-family: var(--fd);
+}
+.lvbar {
+  display: block;
+  height: 9px;
+  border-radius: 6px;
+  background: var(--panel2);
+  overflow: hidden;
+}
+.lvbar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #f2b705, #e8582c);
+}
+.lvnow small {
+  color: var(--mu);
+  font-size: 11px;
+}
+.lvrow {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  opacity: 0.7;
+}
+.lvrow.on {
+  opacity: 1;
+}
+.lvrow.now {
+  outline: 2px solid #f2b705;
+}
+.lvrow ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 13px;
+}
+.lvrow ul:empty {
+  display: none;
+}
+.lvrow-n {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--panel2);
+  display: grid;
+  place-items: center;
+  font: 800 15px var(--fd);
+}
+.lvrow.on .lvrow-n {
+  background: #f2b705;
+  color: #1d1a15;
+}

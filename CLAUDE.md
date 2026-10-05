@@ -25,6 +25,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Menos clientes y cestas más grandes (≥ 20 €): reputación con techo ×2, máx. 10 dentro, extras en la cesta | ✅ |
 | Zona Funko · F1: la librería se traspasa (nivel 5, 15.000 €), Don Ramón, nombre, zona dibujada y Emma en su sofá (`docs/funkos/`) | ✅ |
 | Zona Funko · F2–F5: catálogo (220 figuras + Deluxe, grails y oro), stock, venta en la misma caja, encargado, nivel de zona, mobiliario, Chase, olas, eventos, álbum, encargos y logros | ✅ |
+| Mejoras · Pantalla de niveles (tocar «Nivel» arriba) y premios en los niveles 4, 6, 8 y 9 | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -69,7 +70,8 @@ src/
     quips.js             frases de Emma y Álvaro y visitas de papá: varias por situación (la 1.ª, la del guion; luego al azar sin repetir, S.quipV)
     wish.js              lista de deseos (S.wish): avisos si un cliente o un lote trae una carta
     alerts.js            alertas de precio (S.palert) y recordatorio de copia (S.bkpAt, 7 días reales)
-    unlocks.js           desbloqueos por nivel: colecciones por época (1 · 3 · 5) y aviso «🔓 ¡Nivel N!» (S.lvSeen)
+    unlocks.js           desbloqueos por nivel: colecciones por época (1 · 3 · 5) y aviso «🔓 ¡Nivel N!» (S.lvSeen);
+                         nivel 4 préstamo de 10.000 €, 6 y 8 reputación (`lvRep` en economy.js), 9 premio de 50.000 € (`lvPrize`)
     dirt.js              suciedad en el suelo (S.dirt): se recoge tocándola; −3 % clientes por cosa (máx. −24 %)
     tables.js            mesa de juego: grupos de 2 o 4 juegan y pagan 2 € por jugador y partida; a veces compran (players, no se guardan)
     funko.js             zona Funko (S.fk): la librería se traspasa a nivel 5 (FK_LV) por 15.000 € (FK_COST), nombre, frases de Emma al despertarla
@@ -93,6 +95,7 @@ src/
     update.js            aviso «Actualizar», con la versión nueva y la que tienes (version.json)
     packart.js           sobre imitado: bordes dentados, brillo, logo oficial (sd.logo) e ilustración de la carta estrella
     hero.js              banners con Emma, Álvaro o papá en Stock, Mejoras, Retos y Cartas (data-fase)
+    screens/levels.js    niveles de la tienda: al tocar «Nivel N» arriba (qué da cada uno y cuánto falta)
     screens/funko.js     zona Funko: ficha de la librería (fklocal) y poner nombre (fkname), con Don Ramón
     screens/funkoStock.js  Stock → 🧸 Funkos, ficha de figura (fkfig), nivel (fklv), colección (fkcolec), evento (fkev), Chase (fkchase)
     funko/fig.js         dibujo SVG de las figuras (piezas del catálogo y variantes) y de su caja (boxHTML)

@@ -15,7 +15,7 @@ import { CHARS, drawMini, charFace } from "../render/characters.js";
 import { NAMES } from "../story/script.js";
 import { BYID } from "../core/cards/sets.js";
 import { priceAlert, backupDue } from "../core/alerts.js";
-import { unlocksAt } from "../core/unlocks.js";
+import { lvPrize, unlocksAt } from "../core/unlocks.js";
 import { alvaroWow } from "../render/family.js";
 
 const calm = () => document.documentElement.classList.contains("ui-calm");
@@ -228,6 +228,7 @@ function levelTick() {
   S.lvSeen = lv;
   const l = [];
   for (let n = from + 1; n <= lv; n++) l.push(...unlocksAt(n));
+  lvPrize(from, lv);
   if (l.length) showLevelUp(lv, l);
 }
 /** Aviso de Emma: «🔓 ¡Nivel N!» con lo nuevo (y un botón a Colecciones si se han desbloqueado). */

@@ -34,7 +34,9 @@ export const level = () => {
 export const caseCap = () => 8 + 8 * S.up.case;
 export const caseItems = () => S.items.filter((i) => i.case != null && !i.lux);
 export const tierOf = (l) => (l >= 7 ? 3 : l >= 5 ? 2 : l >= 3 ? 1 : 0);
-export const repv = () => Math.floor(S.sales / 6) + (S.repB || 0) + trophyRep();
+/** Reputación que dan los niveles de la tienda: +10 en el 6 y +20 más en el 8 (core/unlocks.js). */
+export const lvRep = () => (S.lvMax >= 8 ? 30 : S.lvMax >= 6 ? 10 : 0);
+export const repv = () => Math.floor(S.sales / 6) + (S.repB || 0) + trophyRep() + lvRep();
 /** Cuántos clientes más trae la reputación: sube rápido al principio y se frena; como mucho ×2. */
 export const repMul = () => 1 + repv() / (repv() + 40);
 export const dsum = (k) => DECOR.reduce((a, d) => a + (S.decor[d.k] && d[k] ? d[k] : 0), 0);

@@ -22,6 +22,7 @@ import { mGames, mHunt, mMG, mMedals, mStory, mTasks } from "./screens/retos.js"
 import { mGrading, mountGR, slabHTML } from "./screens/grading.js";
 import { mOpen, mountBox, mountPX } from "./packOpening.js";
 import { mPacks, mUp } from "./screens/stock.js";
+import { mLevels } from "./screens/levels.js";
 import { mStats } from "./screens/stats.js";
 import { mSum } from "./screens/summary.js";
 import { navAct } from "./nav.js";
@@ -136,6 +137,7 @@ export function renderM() {
     fkname: mFkName,
     fkfig: mFkFig,
     fklv: mFkLv,
+    levels: mLevels,
     fkcolec: mFkColec,
     fkev: mFkEv,
     fkdeal: mFkDeal,
