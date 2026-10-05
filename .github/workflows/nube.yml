@@ -1,0 +1,26 @@
+# Aviso diario a Supabase para que el proyecto gratuito no se pause por falta de uso (docs/nube.md).
+# Usa los secretos SUPABASE_URL y SUPABASE_ANON; si no están, no hace nada.
+name: Nube despierta
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consulta pequeña a Supabase
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_ANON }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "Sin secretos SUPABASE_URL / SUPABASE_ANON: nada que hacer."
+            exit 0
+          fi
+          curl -sS --fail -o /dev/null -w "Supabase respondió %{http_code}\n" \
+            "$URL/rest/v1/saves?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
