@@ -33,7 +33,7 @@ import {
 } from "../core/economy.js";
 import { clamp, fmt, r05 } from "../core/util.js";
 import { closeDeal, finishDeal } from "../core/deals.js";
-import { closeM, confetti, openM, renderM, zoom } from "./modals.js";
+import { closeM, hitLv, confetti, openM, renderM, zoom } from "./modals.js";
 import { collGrid } from "./screens/cards.js";
 import { custs, leave, queue, say } from "../core/customers/move.js";
 import { dealHg, finishCK, serveFront, serveOffer } from "./checkout.js";
@@ -1334,6 +1334,15 @@ export const A = {
     );
     const val = pulled.reduce((a, x) => a + price(x.c.id) * (x.rv ? rvr(x.c) : 1), 0);
     const val1 = (x) => price(x.c.id) * (x.rv ? rvr(x.c) : 1);
+    // Un sobre: la carta más especial (rareza y valor, como su animación) sale siempre la última
+    if (n === 1) {
+      const best = pulled.reduce((b, x, i) => {
+        const k = hitLv(x) * 1e6 + val1(x),
+          kb = hitLv(pulled[b]) * 1e6 + val1(pulled[b]);
+        return k > kb ? i : b;
+      }, pulled.length - 1);
+      pulled.push(pulled.splice(best, 1)[0]);
+    }
     const shown =
       n === 1
         ? pulled

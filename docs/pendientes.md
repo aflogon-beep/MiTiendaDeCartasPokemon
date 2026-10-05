@@ -119,3 +119,9 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Qué pasaba.** Alberto no conseguía encontrar nunca las 5 Poké Balls. De los 18 sitios posibles (salen 5 al azar cada día), 7 podían quedar tapados: dos bajo árboles de la acera (150, 712 · 560, 700), dos en la fachada (40, 560 por un árbol y la persiana; 760, 560 detrás de la parada), dos junto al escaparate que tapaba la persiana con la tienda cerrada (200, 520 · 500, 520) y uno detrás de la vitrina grande (110, 370). Así, muchos días era imposible encontrarlas todas. La mascota, además, se escondía detrás de la vitrina grande (80, 470) y, con el sofá, se iba a dormir a un sitio que tapaba la fachada (560, 522).
 
 **Arreglo:** 19 sitios comprobados uno a uno con capturas (tienda abierta y cerrada, con todo comprado: vitrina grande, decoración, ampliación y zona Funko); las partidas con algún sitio de antes lo cambian por uno bueno (`huntDay`, `core/minigames.js`). La mascota: sin el sitio de la vitrina si es la grande y, con sofá, duerme a su lado (640, 498) (`catSpots`, `render/pets.js`). Test 20ae.
+
+## 11. El sobre de la búsqueda del tesoro iba al stock y la carta especial no siempre salía la última · ✅ arreglado (pedido por Alberto)
+
+**Qué pasaba.** Al encontrar las 5 Poké Balls, el sobre del premio se sumaba al stock sin abrirse (y si esa colección no estaba en una estantería, ni siquiera se podía vender). Al abrir un sobre, las cartas salían en el orden del reparto (comunes, infrecuentes, reverse holo y la rara): la reverse holo, la penúltima, a veces era la más especial (una rara en reverse o de más de 5 €, que ya tiene animación de carta especial).
+
+**Arreglo:** el sobre del premio se abre en el momento (`huntTap`, `ui/input.js`); al abrir un sobre, la carta más especial (nivel de la animación, `hitLv`, y si empatan, el valor) se pasa al final (`A.open`, `ui/actions.js`). Test 20af.

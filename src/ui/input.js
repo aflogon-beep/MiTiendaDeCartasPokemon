@@ -9,6 +9,7 @@ import { ac, sfx, tone } from "../audio/sfx.js";
 import { catchThief } from "../core/theft.js";
 import { custs, front } from "../core/customers/move.js";
 import { fx, starsAt } from "../render/effects.js";
+import { A } from "./actions.js";
 import { hud } from "./hud.js";
 import { huntDay } from "../core/minigames.js";
 import { openM } from "./modals.js";
@@ -164,6 +165,8 @@ export function huntTap(x, y) {
     toast(`🎉 ¡Encontraste las 5 Poké Balls! Premio: un sobre de ${sd ? sd.n : ""}`);
     sfx.ach();
     track("mgwin");
+    // El sobre del premio se abre en el momento (no va al stock)
+    if (sd) setTimeout(() => !G.M && A.open({ k: sd.id, n: "1" }), 700);
   } else toast(`⚪ Poké Ball encontrada · quedan ${left}`);
   hud();
   return true;
