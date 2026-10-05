@@ -14,9 +14,9 @@ Código: `src/core/cloud.js` (acceso, subir, bajar, registro), `src/ui/cloud.js`
 ## Montarlo (lo hace Alberto una vez, ~15 minutos)
 
 1. Crea una cuenta en <https://supabase.com> y un proyecto nuevo (plan **Free**, región **West EU** o la más cercana). Apunta la contraseña de la base de datos (no hace falta para el juego).
-2. **Authentication → Sign In / Providers → Email**: deja **Email** activado y **desactiva «Confirm email»**. Guarda.
+2. **Authentication → Sign In / Providers** (menú de la izquierda, en CONFIGURATION). En la lista de proveedores pulsa **Email**: déjalo activado y **desactiva «Confirm email»**. Guarda. (Arriba, en «User Signups», «Allow new users to sign up» tiene que estar activado.)
 3. **SQL Editor → New query**: pega el SQL de abajo y pulsa **Run**.
-4. **Project Settings → API** (o «Data API»): copia la **Project URL** y la clave **anon / publishable** y pásaselas a Claude. Van dentro del juego (`CLOUD_URL` y `CLOUD_ANON` en `src/core/cloud.js`); son públicas, la seguridad la ponen las reglas del SQL. **No pases nunca la clave `service_role` / secret.**
+4. Botón verde **Connect** de arriba: copia la **Project URL** (`https://<id>.supabase.co`) y la clave **publishable** (`sb_publishable_…`; en proyectos antiguos, «anon») y pásaselas a Claude. La clave también está en **Project Settings → API Keys**. Van dentro del juego (`CLOUD_URL` y `CLOUD_ANON` en `src/core/cloud.js`); son públicas, la seguridad la ponen las reglas del SQL. **No pases nunca la clave secret (`sb_secret_…`) ni la `service_role`.**
 5. En GitHub: **Settings → Secrets and variables → Actions → New repository secret**: `SUPABASE_URL` (la Project URL) y `SUPABASE_ANON` (la clave anon). Los usa el aviso diario.
 
 ## SQL

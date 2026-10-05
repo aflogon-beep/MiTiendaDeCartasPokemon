@@ -23,4 +23,4 @@ jobs:
             exit 0
           fi
           curl -sS --fail -o /dev/null -w "Supabase respondió %{http_code}\n" \
-            "$URL/rest/v1/saves?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
+            "$URL/rest/v1/saves?select=id&limit=1" -H "apikey: $KEY"
