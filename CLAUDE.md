@@ -28,7 +28,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Mejoras · Pantalla de niveles (tocar «Nivel» arriba) y premios en los niveles 4, 6, 8 y 9 | ✅ |
 | Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (probado en el móvil de Alberto) |
 | Nube · Las 3 ranuras en la nube, sin recordatorio de copia con la nube al día y 🏆 Ranking en Retos (tabla `ranks`, `docs/nube.md`) | ✅ (tabla creada y probada contra el proyecto de Alberto) |
-| Nube · Ranking con 4 pestañas (empresa, carta, colección, Funkos), visitar tiendas y regalar o cambiar cartas y Funkos entre cuentas (tabla `trades`, `core/trade.js`) | ✅ (falta que Alberto ejecute el SQL de `docs/nube.md`) |
+| Nube · Ranking con 4 pestañas (empresa, carta, colección, Funkos), visitar tiendas y regalar o cambiar cartas y Funkos entre cuentas (tabla `trades`, `core/trade.js`) | ✅ (SQL ejecutado y probado contra el proyecto de Alberto) |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
