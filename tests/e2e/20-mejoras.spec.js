@@ -889,3 +889,41 @@ test("20ae · Búsqueda del tesoro: ninguna Poké Ball queda tapada (árboles, p
   expect(h.every((q) => q[2])).toBe(true);
   expect(h[1]).toEqual([30, 330, true]);
 });
+
+test("20af · El sobre de la búsqueda del tesoro se abre al momento y, al abrir un sobre, la carta especial sale la última", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  // Con 4 Poké Balls recogidas, tocar la última abre el sobre del premio
+  const before = await game(page, (P) => {
+    P.S.hunt = {
+      day: P.S.day,
+      p: [0, 1, 2, 3, 4].map((i) => ({ x: P.HUNTS[i][0], y: P.HUNTS[i][1], g: i < 4 ? 1 : 0 })),
+      done: 0,
+    };
+    return P.S.items.length;
+  });
+  await game(page, (P) => P.huntTap(P.HUNTS[4][0], P.HUNTS[4][1] - 4));
+  await expect.poll(() => game(page, (P) => P.G.M)).toBe("open");
+  expect(await game(page, (P) => P.S.items.length)).toBeGreaterThan(before);
+  // En 40 sobres, la última carta es siempre la más especial (rareza de la animación y, si empatan, el valor)
+  const bad = await game(page, (P) => {
+    const sid = P.SETS[0].id,
+      v = (x) => P.price(x.c.id) * (x.rv ? P.rvr(x.c) : 1),
+      k = (x) => P.hitLv(x) * 1e6 + v(x),
+      out = [];
+    for (let i = 0; i < 40; i++) {
+      P.closeM();
+      P.S.sealed[sid] = 1;
+      P.A.open({ k: sid, n: "1" });
+      const c = P.G.openState.cards,
+        last = c[c.length - 1];
+      if (c.some((x) => k(x) > k(last))) out.push(c.map((x) => x.c.r + (x.rv ? "rv" : "")).join(" "));
+    }
+    P.closeM();
+    return out;
+  });
+  expect(bad).toEqual([]);
+});
