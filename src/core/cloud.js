@@ -66,6 +66,8 @@ function niceErr(st, j) {
   if (/user_already_exists|already registered/i.test(m)) return "Ese usuario ya existe. Prueba con otro";
   if (/weak_password|password should/i.test(m)) return "La contraseña es demasiado corta (mínimo 6)";
   if (/over_request_rate|rate limit/i.test(m) || st === 429) return "Demasiados intentos. Espera un poco";
+  if (/email_provider_disabled|signups? (are|is) disabled/i.test(m))
+    return "La nube no admite cuentas: activa «Email» en Supabase (docs/nube.md)";
   if (/email_not_confirmed/i.test(m)) return "Falta desactivar «Confirm email» en Supabase (docs/nube.md)";
   return `Error de la nube (${st}${m ? ": " + m.slice(0, 60) : ""})`;
 }
