@@ -11,6 +11,7 @@ import { face } from "../modals.js";
 import { fmt } from "../../core/util.js";
 import { guideImg } from "../tutorial.js";
 import { huntDay, mgLeft, power, wname } from "../../core/minigames.js";
+import { cloudOn } from "../../core/cloud.js";
 import { mkOutfit } from "../../core/customers/outfit.js";
 import { ownFor } from "../../core/orders.js";
 import { portrait } from "../../render/people.js";
@@ -96,7 +97,7 @@ export function mGames() {
   return (
     retoTabs("games") +
     `<p class="mu">Premios en ${mgLeft()} partida(s) más hoy (se recargan cada día). Puedes seguir jugando aunque se acaben.</p>
-  <div class="menu"><button class="b big" data-a="mgstart" data-k="hl">💰 ¿Más caro o más barato?</button><button class="b big" data-a="mgstart" data-k="who">❓ ¿Quién es ese Pokémon?</button><button class="b big" data-a="mgstart" data-k="duel">⚔️ Duelo de cartas</button><button class="b big" data-a="m" data-k="hunt">⚪ Búsqueda del tesoro</button></div>`
+  <div class="menu"><button class="b big" data-a="mgstart" data-k="hl">💰 ¿Más caro o más barato?</button><button class="b big" data-a="mgstart" data-k="who">❓ ¿Quién es ese Pokémon?</button><button class="b big" data-a="mgstart" data-k="duel">⚔️ Duelo de cartas</button><button class="b big" data-a="m" data-k="hunt">⚪ Búsqueda del tesoro</button>${cloudOn() ? '<button class="b big" data-a="m" data-k="rank" data-fase="I">🏆 Ranking</button>' : ""}</div>`
   );
 }
 export function mHunt() {

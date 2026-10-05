@@ -3,7 +3,7 @@
 import { G, S, hasState } from "../../core/state.js";
 import { renderM } from "../modals.js";
 import { fmt } from "../../core/util.js";
-import { cloudList, cloudOn, cloudUser, pendingSlots, syncedId } from "../../core/cloud.js";
+import { cloudList, cloudOn, cloudRanks, cloudUid, cloudUser, pendingSlots, syncedId } from "../../core/cloud.js";
 
 /** Lo que enseña la pantalla mientras llegan las cosas de la nube. */
 export const CL = { list: null, busy: "", err: "", ask: null, other: null };
@@ -76,4 +76,34 @@ export function mCloudNew() {
   <div class="pn cl-cmp"><div><b>☁️ En la nube</b><span>Día ${r.day}</span><small>${when(r.created_at)}</small></div><div><b>📱 En este dispositivo</b><span>Día ${S.day}</span><small>${S.savedAt ? when(S.savedAt) : "—"} · ${fmt(S.money)}</small></div></div>${CL.err ? `<div class="pn down cl-err">⚠️ ${CL.err}</div>` : ""}
   <div class="btns"><button class="b pri" data-a="cldtake">☁️ Cargar la de la nube</button><button class="b" data-a="cldkeep">📱 Seguir con esta</button></div>
   <p class="mu">Si sigues con esta, se sube ahora y pasa a ser la más nueva. La otra queda entre las copias de ☁️ Nube.</p>`;
+}
+
+/* ---------- 🏆 Ranking (Retos) ---------- */
+export const RK = { list: null, busy: false, err: "" };
+async function loadRanks() {
+  RK.busy = true;
+  try {
+    RK.list = await cloudRanks("real");
+    RK.err = "";
+  } catch (e) {
+    RK.list = [];
+    RK.err = /404|ranks/.test(e.message) ? "Falta crear la tabla del ranking en Supabase (docs/nube.md)." : e.message;
+  }
+  RK.busy = false;
+  if (G.M === "rank") renderM();
+}
+export function mRank() {
+  if (!cloudOn()) return `<h2>🏆 Ranking</h2><div class="pn">La nube aún no está configurada.</div>`;
+  if (!cloudUser())
+    return `<h2>🏆 Ranking</h2><div class="pn">Para ver el ranking y salir en él, entra con tu cuenta en ☁️ Nube.</div><div class="btns"><button class="b pri" data-a="m" data-k="cloud">☁️ Entrar</button></div>`;
+  if (RK.list == null && !RK.busy) loadRanks();
+  const me = cloudUid(),
+    medal = (i) => ["🥇", "🥈", "🥉"][i] || `${i + 1}.`,
+    rows = (RK.list || [])
+      .map(
+        (r, i) =>
+          `<div class="pn rk-row${r.user_id === me ? " me" : ""}"><span class="rk-pos">${medal(i)}</span><div><b>${esc(r.shop || "Pokémon Card Shop")}</b><small>${esc(r.username || "")} · ranura ${r.slot} · día ${r.day} · nivel ${r.lv}${r.fk_lv ? ` · 🧸 ${r.fk_lv}` : ""}</small>${r.best_name ? `<small>💎 ${esc(r.best_name)} · ${fmt(r.best)}</small>` : ""}</div><b class="rk-v">${fmt(r.worth)}</b></div>`,
+      )
+      .join("");
+  return `<h2>🏆 Ranking</h2><p class="mu">Las tiendas de todas las cuentas, por lo que vale la empresa. Se actualiza al terminar cada día.</p>${RK.err ? `<div class="pn down">⚠️ ${RK.err}</div>` : ""}${RK.busy && !RK.list ? '<p class="mu">⏳ Mirando la nube…</p>' : ""}${rows || (RK.list && !RK.err ? '<p class="mu">Todavía no hay nadie. ¡Termina un día para salir!</p>' : "")}<div class="btns"><button class="b" data-a="rkload">↻ Actualizar</button></div>`;
 }

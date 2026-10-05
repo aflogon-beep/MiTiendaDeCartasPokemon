@@ -81,6 +81,32 @@ end $$;
 create trigger logs_keep after insert on public.logs for each row execute function public.logs_keep();
 ```
 
+## Ranking (Retos → 🏆 Ranking)
+
+Una fila por cuenta y ranura (solo partidas con cartas reales), ordenadas por el valor de la empresa: tienda, usuario, ranura, día, nivel, nivel de la zona Funko y la carta más cara. Se actualiza al entrar en una partida y al terminar cada día. Todas las cuentas del proyecto ven el ranking; cada una solo escribe sus filas. Para activarlo, pega esto en **SQL Editor** y pulsa **Run** (una vez):
+
+```sql
+create table public.ranks (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  username text,
+  mode text not null,
+  slot smallint not null check (slot between 1 and 3),
+  shop text,
+  day int not null default 0,
+  worth numeric not null default 0,
+  lv smallint not null default 1,
+  fk_lv smallint not null default 0,
+  best numeric not null default 0,
+  best_name text,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, mode, slot)
+);
+alter table public.ranks enable row level security;
+create policy "ranking: lo ven todas las cuentas" on public.ranks for select to authenticated using (true);
+create policy "ranking: apuntar lo mío" on public.ranks for insert to authenticated with check (auth.uid() = user_id);
+create policy "ranking: actualizar lo mío" on public.ranks for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
 ## Que no se duerma
 
 En el plan gratuito, Supabase pausa el proyecto si pasa **una semana sin uso** (habría que reactivarlo a mano en su web). Para evitarlo, `.github/workflows/nube.yml` hace una consulta pequeña **cada día** con los secretos `SUPABASE_URL` y `SUPABASE_ANON`. Si los secretos no están, usa la dirección y la clave publishable que ya van en el juego (son públicas).

@@ -59,6 +59,21 @@ export function fakeSupa() {
         rows.map((r) => pick(r, q.get("select"))),
       );
     }
+    if (p === "/rest/v1/ranks") {
+      db.ranks = db.ranks || [];
+      if (method === "POST") {
+        const i = db.ranks.findIndex((r) => r.user_id === uid && r.mode === b.mode && r.slot === b.slot);
+        const row = Object.assign(i >= 0 ? db.ranks[i] : {}, b, { user_id: uid });
+        if (i < 0) db.ranks.push(row);
+        return json(201, null);
+      }
+      let rows = db.ranks.filter((r) => !q.get("mode") || r.mode === eq("mode"));
+      rows = rows.sort((a, c) => c.worth - a.worth).slice(0, +(q.get("limit") || 99));
+      return json(
+        200,
+        rows.map((r) => pick(r, q.get("select"))),
+      );
+    }
     if (p === "/rest/v1/logs" && method === "POST") {
       db.logs.push(Object.assign({}, b, { user_id: uid }));
       return json(201, null);

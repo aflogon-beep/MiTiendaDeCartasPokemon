@@ -191,6 +191,25 @@ export async function cloudFetch(id) {
   return unpackSave(rows[0].data);
 }
 
+/* ---------- Ranking (Retos → 🏆 Ranking) ---------- */
+/** Columnas de una fila del ranking (una por cuenta y ranura). */
+const RSEL = "user_id,username,mode,slot,shop,day,worth,lv,fk_lv,best,best_name,updated_at";
+/** Apunta (o actualiza) la fila de esta ranura en el ranking. */
+export async function cloudRankPush(mode, slot, r) {
+  const c = readC();
+  await call("/rest/v1/ranks?on_conflict=user_id,mode,slot", {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: Object.assign({ username: c.u, mode, slot, updated_at: new Date().toISOString() }, r),
+  });
+  return true;
+}
+/** El ranking: las ranuras de todas las cuentas, de la empresa que más vale a la que menos. */
+export const cloudRanks = (mode = "real") =>
+  call(`/rest/v1/ranks?select=${RSEL}&mode=eq.${mode}&order=worth.desc&limit=50`);
+/** Id de la cuenta (para resaltar las filas propias). */
+export const cloudUid = () => readC().uid || null;
+
 /* ---------- Registro de errores ---------- */
 let sent = 0;
 /** Apunta un error o un cierre en la nube (solo con la cuenta abierta; como mucho 20 por sesión). */

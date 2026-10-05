@@ -148,3 +148,40 @@ test("22d · Al entrar con la cuenta se suben también las otras ranuras (sin pi
   });
   expect(db.saves.filter((r) => r.slot === 2).length).toBe(2);
 });
+
+test("22e · Ranking: cada ranura de cada cuenta, ordenado por el valor de la empresa, con las tuyas resaltadas", async ({
+  page,
+  gamePath,
+}) => {
+  const db = await mockSupa(page);
+  await freshGame(page, gamePath);
+  // Otra cuenta ya está en el ranking
+  db.ranks = [
+    {
+      user_id: "otro",
+      username: "papa",
+      mode: "real",
+      slot: 1,
+      shop: "Cartas Papá",
+      day: 40,
+      worth: 99999,
+      lv: 7,
+      fk_lv: 3,
+      best: 120,
+      best_name: "Charizard",
+    },
+  ];
+  await game(page, (P) => P.cloudSignUp("emma", "123456"));
+  await game(page, (P) => ((P.S.shopName = "Tienda Emma"), P.cloudRankNow()));
+  expect(db.ranks.find((r) => r.username === "emma")).toMatchObject({ slot: 1, shop: "Tienda Emma", mode: "real" });
+  // Retos → 🏆 Ranking
+  await game(page, (P) => P.openM("games"));
+  await page.locator('#ovh [data-k="rank"]').click();
+  const ovh = page.locator("#ovh");
+  await expect(ovh.locator(".rk-row")).toHaveCount(2);
+  await expect(ovh.locator(".rk-row").first()).toContainText("Cartas Papá");
+  await expect(ovh.locator(".rk-row.me")).toContainText("Tienda Emma");
+  // Al terminar el día se actualiza
+  await game(page, (P) => ((P.S.day = 2), P.cloudDayEnd()));
+  await expect.poll(() => db.ranks.find((r) => r.username === "emma").day).toBe(2);
+});
