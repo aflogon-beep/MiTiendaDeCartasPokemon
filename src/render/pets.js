@@ -9,13 +9,13 @@ export const CAT = { x: 120, y: 470, tx: 120, ty: 470, st: "sleep", t: 6, ph: 0,
 export function catSpots() {
   const l = [
     [262, 500],
-    [80, 470],
     [240, 340],
     [470, 480],
     [700, 470],
     [160, 240],
   ];
-  if (S.decor.sofa) l.push([560, 522], [560, 522]);
+  if (!S.up.case) l.push([80, 470]); // con la vitrina grande, ahí quedaba escondida detrás
+  if (S.decor.sofa) l.push([640, 498], [640, 498]); // junto al sofá (en el sitio de antes la tapaba la fachada)
   return l;
 }
 export function updCat(dt) {

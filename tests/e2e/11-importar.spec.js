@@ -11,9 +11,11 @@ const EXPORTED = JSON.parse(readFileSync(FILE, "utf8"));
 let VOLATILE = ["savedAt", "phase", "clock"];
 // En Vite, el historial de precios se recorta al cargar (31 días y 6 cifras, para que la partida quepa al guardar):
 // se compara con el de la exportación recortado igual.
+// En Vite, la búsqueda del tesoro (hunt) recoloca las Poké Balls que estaban en sitios que podían quedar tapados
+// (docs/pendientes.md §10): se comprueba aparte (huntKept) que conserva el día, lo recogido y que los sitios son buenos.
 let COMPACT = false;
 test.beforeEach(({}, info) => {
-  VOLATILE = ["savedAt", "phase", "clock"].concat(info.project.name === "referencia" ? ["pack"] : []);
+  VOLATILE = ["savedAt", "phase", "clock"].concat(info.project.name === "referencia" ? ["pack"] : ["hunt"]);
   COMPACT = info.project.name !== "referencia";
 });
 const compacted = (prices) => {
@@ -33,6 +35,16 @@ function lostFields(saved, loaded) {
   return lost;
 }
 
+/** La búsqueda del tesoro tras cargar: mismo día y Poké Balls recogidas, y todas en sitios de HUNTS (solo Vite). */
+async function huntKept(page, loaded) {
+  const want = EXPORTED.S.hunt;
+  if (!want || !VOLATILE.includes("hunt")) return;
+  const H = await game(page, (P) => P.HUNTS);
+  expect(loaded.hunt.day).toBe(want.day);
+  expect(loaded.hunt.p.map((q) => q.g)).toEqual(want.p.map((q) => q.g));
+  expect(loaded.hunt.p.every((q) => H.some(([x, y]) => x === q.x && y === q.y))).toBe(true);
+}
+
 async function openBackup(page) {
   await page.locator('#nav [data-k="more"]').click();
   await page.locator('#ovh [data-a="m"][data-k="backup"]').click();
@@ -48,6 +60,7 @@ test("11 · Importar partida: un JSON exportado desde la v22 carga sin pérdidas
   await expect(page.locator("#toast")).toContainText("✅ Partida cargada");
   const S1 = await game(page, (P) => JSON.parse(JSON.stringify(P.S)));
   expect(lostFields(EXPORTED.S, S1)).toEqual([]);
+  await huntKept(page, S1);
   expect(S1.phase).toBe("closed");
   expect(Object.keys(S1.pack)).toEqual(Object.keys(EXPORTED.S.pack));
   expect(S1.shopName).toBe("Tienda de Prueba");
