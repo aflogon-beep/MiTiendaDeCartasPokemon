@@ -113,3 +113,9 @@ Pasa cada vez que se abre el juego, no solo al importar.
 **Qué pasaba.** El navegador deja guardar unos 5 MB por web. La partida del día 27 ocupaba 5,4 MB: 4,9 MB eran el historial de precios de sus 5.255 cartas (31 colecciones), con 60 días por carta y cada precio con 17 cifras. Al pasar del límite, la partida dejaba de guardarse (se quedaba la última que cupo).
 
 **Arreglo:** los precios se guardan con 6 cifras y 31 días de historial, que es lo que se usa (la gráfica y «30 d» miran 30 días atrás). Las partidas de antes se recortan al cargar (`compactPrice`, `core/cards/prices.js`); lo que se ve no cambia. Esa partida pasa de 5,4 MB a 2,4 MB. Test 11 (compara los precios ya recortados) y unitario de `compactPrice`.
+
+## 10. Poké Balls de la búsqueda del tesoro y mascota que quedan tapadas · ✅ arreglado (falta que Alberto lo confirme)
+
+**Qué pasaba.** Alberto no conseguía encontrar nunca las 5 Poké Balls. De los 18 sitios posibles (salen 5 al azar cada día), 7 podían quedar tapados: dos bajo árboles de la acera (150, 712 · 560, 700), dos en la fachada (40, 560 por un árbol y la persiana; 760, 560 detrás de la parada), dos junto al escaparate que tapaba la persiana con la tienda cerrada (200, 520 · 500, 520) y uno detrás de la vitrina grande (110, 370). Así, muchos días era imposible encontrarlas todas. La mascota, además, se escondía detrás de la vitrina grande (80, 470) y, con el sofá, se iba a dormir a un sitio que tapaba la fachada (560, 522).
+
+**Arreglo:** 19 sitios comprobados uno a uno con capturas (tienda abierta y cerrada, con todo comprado: vitrina grande, decoración, ampliación y zona Funko); las partidas con algún sitio de antes lo cambian por uno bueno (`huntDay`, `core/minigames.js`). La mascota: sin el sitio de la vitrina si es la grande y, con sofá, duerme a su lado (640, 498) (`catSpots`, `render/pets.js`). Test 20ae.

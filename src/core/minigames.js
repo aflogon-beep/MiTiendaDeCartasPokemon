@@ -119,25 +119,29 @@ export function mgEnd(again, title, res, win, eur) {
   ui.hud();
   ui.renderM();
 }
+// Sitios de las Poké Balls: todos se ven con la tienda abierta y cerrada (persiana) y con todo comprado
+// (vitrina grande, decoración, ampliación, zona Funko), y en la calle lejos de los árboles y de la parada.
+// Antes había 7 que podían quedar tapados y, muchos días, era imposible encontrar las 5.
 export const HUNTS = [
   [30, 330],
-  [790, 210],
   [350, 250],
   [150, 130],
-  [500, 520],
   [620, 60],
-  [40, 560],
-  [760, 560],
-  [260, 600],
-  [700, 605],
-  [440, 600],
-  [200, 520],
-  [110, 370],
   [600, 380],
+  [790, 210],
+  [30, 200],
+  [420, 310],
+  [380, 440],
+  [640, 420],
   [-80, 600],
-  [880, 598],
-  [560, 700],
-  [150, 712],
+  [100, 600],
+  [260, 600],
+  [440, 600],
+  [700, 605],
+  [960, 600],
+  [250, 712],
+  [455, 712],
+  [640, 712],
 ];
 export function huntDay() {
   if (!S.hunt || S.hunt.day !== S.day) {
@@ -146,5 +150,13 @@ export function huntDay() {
       .slice(0, 5);
     S.hunt = { day: S.day, p: l.map(([x, y]) => ({ x, y, g: 0 })), done: 0 };
   }
-  return S.hunt;
+  // Partidas guardadas con algún sitio de antes que podía quedar tapado: esa Poké Ball pasa a uno bueno
+  const h = S.hunt,
+    at = (x, y) => (q) => q.x === x && q.y === y;
+  h.p.forEach((q) => {
+    if (q.g || HUNTS.some(([x, y]) => at(x, y)(q))) return;
+    const f = HUNTS.find(([x, y]) => !h.p.some(at(x, y)));
+    if (f) [q.x, q.y] = f;
+  });
+  return h;
 }

@@ -855,3 +855,37 @@ test("20ad · Al tocar «Nivel» arriba salen los niveles de la tienda y lo que 
   await game(page, (P) => P.openM("bank"));
   await expect(ovh.locator('[data-a="loan"][data-n="10000"]')).toBeEnabled();
 });
+
+test("20ae · Búsqueda del tesoro: ninguna Poké Ball queda tapada (árboles, persiana, muebles) y las de antes se recolocan", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  const bad = await game(page, (P) => {
+    const trees = P.cityTrees(),
+      out = [];
+    P.HUNTS.forEach(([x, y]) => {
+      // Dentro: lejos de la fachada y la persiana. Fuera: lejos de la copa de los árboles.
+      if (y < P.FRONT_Y && y > 490) out.push([x, y, "fachada"]);
+      if (y >= P.FRONT_Y && trees.some(([tx, ty]) => x > tx - 34 && x < tx + 44 && y > ty - 80 && y < ty + 12))
+        out.push([x, y, "árbol"]);
+    });
+    return out;
+  });
+  expect(bad).toEqual([]);
+  // Una partida guardada con un sitio de antes (tapado por un árbol): esa Poké Ball pasa a un sitio bueno
+  const h = await game(page, (P) => {
+    P.S.hunt = {
+      day: P.S.day,
+      p: [
+        { x: 150, y: 712, g: 0 },
+        { x: 30, y: 330, g: 1 },
+      ],
+      done: 0,
+    };
+    return P.huntDay().p.map((q) => [q.x, q.y, P.HUNTS.some(([x, y]) => x === q.x && y === q.y)]);
+  });
+  expect(h.every((q) => q[2])).toBe(true);
+  expect(h[1]).toEqual([30, 330, true]);
+});
