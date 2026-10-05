@@ -23,8 +23,11 @@ import { CAT, drawPet } from "./pets.js";
 import { fkForSale } from "../core/funko.js";
 import { drawFkFront, drawFkZone } from "./funkoZone.js";
 import {
+  CLOTHES,
   LAMPS,
   buildCity,
+  drawClothes,
+  drawRoofCat,
   cityTrees,
   drawBird,
   drawBusStop,
@@ -204,6 +207,9 @@ export function draw() {
   L.push({ y: FRONT_Y + 1.5, f: drawFkFront });
   L.push({ y: FRONT_Y + 2, f: drawShutter });
   VIS.ped.forEach((p) => L.push({ y: p.y, f: () => drawPed(p) }));
+  // Encima de la tienda: el gato de los tejados y la ropa tendida (render/city.js)
+  if (VIS.rcat) L.push({ y: VIS.rcat.y, f: drawRoofCat });
+  CLOTHES.forEach((c) => L.push({ y: c[1], f: () => drawClothes(c) }));
   (VIS.cars || []).forEach((c) => L.push({ y: c.y, f: () => drawCar(c) }));
   cityTrees().forEach(([x, y]) => L.push({ y, f: () => drawTree(x, y) }));
   LAMPS.forEach(([x, y, s]) => L.push({ y, f: () => streetLamp(x, y, s) }));
