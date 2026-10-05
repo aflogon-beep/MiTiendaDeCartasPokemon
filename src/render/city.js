@@ -241,6 +241,7 @@ export function streetLamp(x, y, s) {
   cx.fillRect(s > 0 ? x + 8 : x - 16, y - 59, 8, 2);
 }
 export function updPed(dt) {
+  updAlley(dt);
   VIS.pedT -= dt;
   const nk = nightK();
   if (VIS.pedT <= 0) {
@@ -834,4 +835,165 @@ export function drawMarket() {
       o,
     );
   }
+}
+
+/* ---------- Encima de la tienda: callejón con gente, gato de los tejados y ropa tendida ---------- */
+/** Paseantes del callejón de detrás de la tienda (y entre −40 y −16) y el gato que pasea por los tejados. */
+function updAlley(dt) {
+  VIS.alleyT = (VIS.alleyT || 0) - dt;
+  if (VIS.alleyT <= 0) {
+    VIS.alleyT = (3 + Math.random() * 5) * (1 + nightK() * 2);
+    if (VIS.ped.filter((p) => p.y < 0).length < (LITE() ? 1 : 3)) {
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      VIS.ped.push({
+        x: dir > 0 ? CX0 - 20 : CX1 + 20,
+        y: -40 + rnd(24),
+        dir,
+        sp: 22 + rnd(16),
+        ph: rnd(6),
+        out: mkOutfit(pick(["kid", "collector", "investor", "seller"]), null),
+        skin: pick(SKINS),
+        dog: Math.random() < 0.3,
+        dogc: pick(["#c47a2c", "#f4f4f4", "#3a2a20", "#d9b36c"]),
+      });
+    }
+  }
+  const c = (VIS.rcat = VIS.rcat || { x: 260, y: -112, tx: 260, st: "sleep", t: 8, dir: 1, ph: 0 });
+  c.t -= dt;
+  if (c.st === "walk") {
+    const d = c.tx - c.x;
+    if (Math.abs(d) < 2) {
+      c.st = Math.random() < 0.55 ? "sleep" : "sit";
+      c.t = c.st === "sleep" ? 12 + Math.random() * 14 : 4 + Math.random() * 5;
+    } else {
+      c.x += Math.sign(d) * 26 * dt;
+      c.dir = Math.sign(d);
+      c.ph += dt * 10;
+    }
+  } else if (c.t <= 0) {
+    // Por los tejados de encima de la tienda (sin cruzar la carretera)
+    c.tx = pick([-420, -240, -60, 120, 300, 470, 640, 820, 980]);
+    c.st = "walk";
+  }
+}
+/** El gato de los tejados: negro con el pecho blanco (se ve sobre cualquier tejado), paseando, sentado o dormido. */
+export function drawRoofCat() {
+  const c = VIS.rcat;
+  if (!c) return;
+  const t = performance.now() / 1000,
+    body = "#22232a",
+    dark = "#111216";
+  cx.save();
+  cx.translate(c.x, c.y);
+  cx.scale(c.dir * 1.5, 1.5);
+  cx.fillStyle = "rgba(0,0,0,.22)";
+  cx.beginPath();
+  cx.ellipse(0, 0, 11, 3.5, 0, 0, 7);
+  cx.fill();
+  if (c.st === "sleep") {
+    cx.fillStyle = body;
+    cx.beginPath();
+    cx.ellipse(0, -5, 10, 6, 0, 0, 7);
+    cx.arc(7, -6, 4.5, 0, 7);
+    cx.fill();
+    cx.fillStyle = dark;
+    [-4, 0, 4].forEach((s) => cx.fillRect(s - 1, -10, 2, 5));
+    cx.restore();
+    const zz = (t % 2) / 2;
+    cx.globalAlpha = 1 - zz;
+    txt("z", c.x + 13, c.y - 22 - zz * 16, 12 + zz * 5, "#fff", "center");
+    cx.globalAlpha = 1;
+    return;
+  }
+  const w = c.st === "walk" ? Math.sin(c.ph) * 2 : 0,
+    sit = c.st === "sit";
+  cx.fillStyle = dark;
+  if (!sit)
+    [
+      [-6, w],
+      [-2, -w],
+      [4, -w],
+      [8, w],
+    ].forEach(([lx, o]) => cx.fillRect(lx + o, -5, 2, 5));
+  cx.fillStyle = body;
+  cx.beginPath();
+  if (sit) cx.ellipse(0, -7, 6, 8, 0, 0, 7);
+  else cx.ellipse(1, -8, 10, 5, 0, 0, 7);
+  cx.fill();
+  cx.beginPath();
+  cx.arc(sit ? 3 : 10, sit ? -16 : -12, 4.5, 0, 7);
+  cx.fill();
+  const hx = sit ? 3 : 10,
+    hy = sit ? -16 : -12;
+  cx.beginPath();
+  cx.moveTo(hx - 3, hy - 3);
+  cx.lineTo(hx - 2, hy - 7);
+  cx.lineTo(hx, hy - 4);
+  cx.moveTo(hx + 1, hy - 4);
+  cx.lineTo(hx + 3, hy - 7);
+  cx.lineTo(hx + 4, hy - 2);
+  cx.fill();
+  cx.strokeStyle = body;
+  cx.lineWidth = 2.5;
+  cx.lineCap = "round";
+  cx.beginPath();
+  cx.moveTo(sit ? -5 : -9, sit ? -3 : -8);
+  cx.quadraticCurveTo(sit ? -12 : -15, (sit ? -6 : -14) + Math.sin(t * 2) * 2, sit ? -10 : -13, sit ? -14 : -20);
+  cx.stroke();
+  cx.lineCap = "butt";
+  cx.fillStyle = "#f4f4f4"; // pecho blanco
+  cx.beginPath();
+  cx.ellipse(sit ? 4 : 8, sit ? -9 : -7, 2.5, 3, 0, 0, 7);
+  cx.fill();
+  cx.fillStyle = "#f2d64b";
+  cx.fillRect(hx + 1, hy - 1, 1.5, 1.5);
+  cx.restore();
+}
+/** Cuerdas de ropa tendida en las azoteas de encima de la tienda (la ropa se mueve un poco con el aire). */
+export const CLOTHES = [
+  [-250, -150, 96],
+  [330, -200, 110],
+  [760, -140, 90],
+];
+const CLOTH_COL = ["#e8574d", "#f2c94c", "#4a90d9", "#f4f4f4", "#6fcf97", "#bb6bd9", "#f2994a"];
+export function drawClothes([x0, y0, w0]) {
+  const t = performance.now() / 1000,
+    K = 1.6; // más grande, para que se vea con el zoom del móvil
+  cx.save();
+  cx.translate(x0, y0);
+  cx.scale(K, K);
+  const x = 0,
+    y = 0,
+    w = w0 / K;
+  cx.strokeStyle = "#5a5f68";
+  cx.lineWidth = 2;
+  cx.beginPath();
+  cx.moveTo(x, y);
+  cx.lineTo(x, y - 22);
+  cx.moveTo(x + w, y);
+  cx.lineTo(x + w, y - 22);
+  cx.stroke();
+  cx.strokeStyle = "#d8dbe0";
+  cx.lineWidth = 1;
+  cx.beginPath();
+  cx.moveTo(x, y - 20);
+  cx.quadraticCurveTo(x + w / 2, y - 14, x + w, y - 20);
+  cx.stroke();
+  const n = Math.floor(w / 18);
+  for (let i = 0; i < n; i++) {
+    const px = x + 9 + i * 18,
+      py = y - 19 + Math.sin((i / (n - 1 || 1)) * Math.PI) * 5,
+      sw = Math.sin(t * 1.6 + i * 1.3 + x0) * 0.12;
+    cx.save();
+    cx.translate(px, py);
+    cx.rotate(sw);
+    cx.fillStyle = CLOTH_COL[(i + Math.abs(x0)) % CLOTH_COL.length];
+    if (i % 3 === 1) {
+      cx.fillRect(-4, 0, 3, 12); // pantalón
+      cx.fillRect(1, 0, 3, 12);
+      cx.fillRect(-4, 0, 8, 4);
+    } else cx.fillRect(-6, 0, 12, i % 3 ? 9 : 12); // camiseta o toalla
+    cx.restore();
+  }
+  cx.restore();
 }
