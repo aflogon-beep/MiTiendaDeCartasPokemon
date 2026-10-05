@@ -29,7 +29,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. Hecha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`, F1–F5).
+Pendiente: nada en `docs/pendientes.md` (todo arreglado y confirmado por Alberto). Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. Hecha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`, F1–F5).
 
 ## Reglas
 
