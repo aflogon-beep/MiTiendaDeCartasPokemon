@@ -193,7 +193,8 @@ export async function cloudFetch(id) {
 
 /* ---------- Ranking (Retos → 🏆 Ranking) ---------- */
 /** Columnas de una fila del ranking (una por cuenta y ranura). */
-const RSEL = "user_id,username,mode,slot,shop,day,worth,lv,fk_lv,best,best_name,updated_at";
+const RSEL0 = "user_id,username,mode,slot,shop,day,worth,lv,fk_lv,best,best_name,updated_at";
+const RSEL = RSEL0 + ",cards,funkos,show";
 /** Apunta (o actualiza) la fila de esta ranura en el ranking. */
 export async function cloudRankPush(mode, slot, r) {
   const c = readC();
@@ -206,9 +207,35 @@ export async function cloudRankPush(mode, slot, r) {
 }
 /** El ranking: las ranuras de todas las cuentas, de la empresa que más vale a la que menos. */
 export const cloudRanks = (mode = "real") =>
-  call(`/rest/v1/ranks?select=${RSEL}&mode=eq.${mode}&order=worth.desc&limit=50`);
+  call(`/rest/v1/ranks?select=${RSEL}&mode=eq.${mode}&order=worth.desc&limit=50`).catch(() =>
+    // Sin las columnas nuevas todavía (docs/nube.md): lo de siempre
+    call(`/rest/v1/ranks?select=${RSEL0}&mode=eq.${mode}&order=worth.desc&limit=50`),
+  );
 /** Id de la cuenta (para resaltar las filas propias). */
 export const cloudUid = () => readC().uid || null;
+
+/* ---------- Regalos y cambios entre cuentas (core/trade.js) ---------- */
+/** Manda un regalo (want vacío) o propone un cambio. Devuelve el trato creado. */
+export async function cloudTradeSend(toId, toName, give, want) {
+  const rows = await call("/rest/v1/trades?select=id,status", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: { from_name: readC().u, to_id: toId, to_name: toName, give, want: want || null },
+  });
+  return rows && rows[0];
+}
+/** Los tratos de esta cuenta (mandados y recibidos) que aún no están cerrados. */
+export const cloudTrades = () =>
+  call("/rest/v1/trades?select=*&status=in.(open,done,no,cancel)&order=id.desc&limit=50");
+/** Cambia el estado de un trato solo si sigue en «from» (así dos dispositivos no lo hacen a la vez). */
+export async function cloudTradeSet(id, from, to) {
+  const rows = await call(`/rest/v1/trades?id=eq.${+id}&status=eq.${from}`, {
+    method: "PATCH",
+    headers: { Prefer: "return=representation" },
+    body: { status: to, updated_at: new Date().toISOString() },
+  });
+  return !!(rows && rows.length);
+}
 
 /* ---------- Registro de errores ---------- */
 let sent = 0;

@@ -185,3 +185,126 @@ test("22e · Ranking: cada ranura de cada cuenta, ordenado por el valor de la em
   await game(page, (P) => ((P.S.day = 2), P.cloudDayEnd()));
   await expect.poll(() => db.ranks.find((r) => r.username === "emma").day).toBe(2);
 });
+
+test("22f · Ranking con pestañas, visitar una tienda, regalar y cambiar cartas entre cuentas", async ({
+  page,
+  gamePath,
+}) => {
+  const db = await mockSupa(page);
+  await freshGame(page, gamePath);
+  // Dos cartas en la vitrina para que la ficha tenga algo
+  await game(page, (P) => {
+    const cs = P.CARDS.filter((c) => P.S.sets.includes(c.s)).slice(0, 3);
+    cs.forEach((c, i) =>
+      P.S.items.push({ i: P.S.nid++, c: c.id, k: "NM", rv: false, cost: 1, case: i < 2 ? i : null, res: false }),
+    );
+  });
+  // Emma se apunta en el ranking; después entra Alberto
+  await game(page, async (P) => {
+    await P.cloudSignUp("emma", "123456");
+    P.S.shopName = "Tienda Emma";
+    await P.cloudRankNow();
+    P.cloudSignOut();
+    await P.cloudSignUp("alberto", "123456");
+    P.S.shopName = "Gengar Cards";
+    await P.cloudRankNow();
+  });
+  expect(db.ranks.find((r) => r.username === "emma").show.vit.length).toBe(2);
+  // Ranking: pestañas
+  await game(page, (P) => P.openM("rank"));
+  const ovh = page.locator("#ovh");
+  await expect(ovh.locator(".rk-row")).toHaveCount(2);
+  await ovh.locator('[data-a="rktab"][data-k="cards"]').click();
+  await expect(ovh.locator(".rk-row").first()).toContainText("cartas");
+  // Visitar a Emma y regalarle una carta
+  await ovh.locator('.rk-row:has-text("Tienda Emma")').click();
+  await expect(ovh.locator("h2")).toContainText("Tienda Emma");
+  await expect(ovh.locator(".td-tile")).toHaveCount(2);
+  const n0 = await game(page, (P) => P.S.items.length);
+  await ovh.locator('[data-a="tdgift"]').click();
+  await ovh.locator('[data-a="tdpick"]').first().click();
+  await ovh.locator('[data-a="tdsend"]').click();
+  await expect.poll(() => (db.trades || []).length).toBe(1);
+  expect(await game(page, (P) => P.S.items.length)).toBe(n0 - 1); // ya no la tiene Alberto
+  // Emma lo ve en 📬 y lo acepta
+  await game(page, async (P) => {
+    P.cloudSignOut();
+    await P.cloudSignIn("emma", "123456");
+    await P.tradeSync(true);
+    P.openM("trades");
+  });
+  await ovh.locator('[data-a="tdyes"]').click();
+  await expect.poll(() => db.trades[0].status).toBe("done");
+  expect(await game(page, (P) => P.S.items.length)).toBe(n0); // la ha recibido
+  // Alberto: el regalo se cierra
+  await game(page, async (P) => {
+    P.closeM();
+    P.cloudSignOut();
+    await P.cloudSignIn("alberto", "123456");
+    await P.tradeSync(true);
+  });
+  expect(db.trades[0].status).toBe("closed");
+  // Cambio: Alberto pide una carta de la vitrina de Emma a cambio de otra suya; Emma lo rechaza y le vuelve
+  await game(page, (P) => {
+    P.RK.list = null;
+    P.openM("rank");
+  });
+  await ovh.locator('.rk-row:has-text("Tienda Emma")').click();
+  await ovh.locator('[data-a="tdwant"]').first().click();
+  await ovh.locator('[data-a="tdpick"]').first().click();
+  await expect(ovh.locator(".td-deal")).toContainText("Recibes");
+  await ovh.locator('[data-a="tdsend"]').click();
+  await expect.poll(() => db.trades.length).toBe(2);
+  expect(db.trades[1].want).toBeTruthy();
+  const n1 = await game(page, (P) => P.S.items.length);
+  await game(page, async (P) => {
+    P.cloudSignOut();
+    await P.cloudSignIn("emma", "123456");
+    await P.tradeSync(true);
+    P.openM("trades");
+  });
+  await ovh.locator('[data-a="tdno"]').click();
+  await expect.poll(() => db.trades[1].status).toBe("no");
+  await game(page, async (P) => {
+    P.closeM();
+    P.cloudSignOut();
+    await P.cloudSignIn("alberto", "123456");
+    await P.tradeSync(true);
+  });
+  expect(db.trades[1].status).toBe("closed");
+  expect(await game(page, (P) => P.S.items.length)).toBe(n1 + 1); // le ha vuelto
+  // Cambio aceptado: Emma da la carta pedida y recibe la de Alberto; Alberto recibe la pedida
+  const [give, want] = await game(page, (P) => {
+    const c = P.S.items.filter((it) => !it.res);
+    return [c[0].c, c[1].c];
+  });
+  await game(
+    page,
+    async (P, [give, want]) => {
+      const g = P.cardPack(P.S.items.find((it) => it.c === give)),
+        w = P.cardPack(P.S.items.find((it) => it.c === want));
+      P.tradeTake(g);
+      const emma = P.RK.list.find((r) => r.username === "emma");
+      await P.cloudTradeSend(emma.user_id, "emma", g, w);
+    },
+    [give, want],
+  );
+  const n2 = await game(page, (P) => P.S.items.length);
+  await game(page, async (P) => {
+    P.cloudSignOut();
+    await P.cloudSignIn("emma", "123456");
+    await P.tradeSync(true);
+    P.openM("trades");
+  });
+  await ovh.locator('[data-a="tdyes"]').click();
+  await expect.poll(() => db.trades[2].status).toBe("done");
+  expect(await game(page, (P) => P.S.items.length)).toBe(n2); // Emma: una sale (la pedida) y otra entra
+  await game(page, async (P) => {
+    P.closeM();
+    P.cloudSignOut();
+    await P.cloudSignIn("alberto", "123456");
+    await P.tradeSync(true);
+  });
+  expect(db.trades[2].status).toBe("closed");
+  expect(await game(page, (P) => P.S.items.length)).toBe(n2 + 1); // Alberto recibe la pedida
+});

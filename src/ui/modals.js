@@ -23,7 +23,7 @@ import { mGrading, mountGR, slabHTML } from "./screens/grading.js";
 import { mOpen, mountBox, mountPX } from "./packOpening.js";
 import { mPacks, mUp } from "./screens/stock.js";
 import { mLevels } from "./screens/levels.js";
-import { mCloud, mCloudNew, mRank } from "./screens/cloud.js";
+import { mCloud, mCloudNew, mRank, mTdGive, mTrades, mVisit } from "./screens/cloud.js";
 import { mStats } from "./screens/stats.js";
 import { mSum } from "./screens/summary.js";
 import { navAct } from "./nav.js";
@@ -144,6 +144,9 @@ export function renderM() {
     cloud: mCloud,
     cloudnew: mCloudNew,
     rank: mRank,
+    visit: mVisit,
+    tdgive: mTdGive,
+    trades: mTrades,
     fkcolec: mFkColec,
     fkev: mFkEv,
     fkdeal: mFkDeal,
