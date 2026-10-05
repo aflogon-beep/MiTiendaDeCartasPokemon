@@ -4,6 +4,8 @@ La partida se guarda también en internet, con **usuario y contraseña**. Así s
 
 - **Cuenta:** solo usuario (3–20 letras o números) y contraseña (mínimo 6). Supabase pide un correo, así que el juego usa `usuario@aflogon-beep.github.io` por dentro (nunca se manda nada a esa dirección). **Sin correo no se puede recuperar la contraseña**: apúntala.
 - **Qué se sube:** al terminar cada día y con «☁️ Subir ahora» (Más → Partida → ☁️ Nube), la partida de la ranura en la que juegas, comprimida (de ~2 MB a unos cientos de KB).
+- **Las otras ranuras:** al entrar en una partida (o con la cuenta recién abierta) se suben también las demás ranuras de este dispositivo que la nube no tiene al día. Si en la nube hay una copia de una ranura que salió de otro dispositivo, no se pisa: se pregunta al entrar en ella.
+- **Recordatorio de copia:** con la cuenta abierta y una subida de hace menos de 7 días, no sale el aviso de exportar la copia (`backupDue`, `core/alerts.js`).
 - **Copias:** en la nube se quedan **las 7 últimas de cada ranura**. Desde ☁️ Nube se puede cargar cualquiera.
 - **Al entrar en una partida:** si en la nube hay una copia que no salió de este dispositivo (p. ej. has jugado en otro), pregunta: «Cargar la de la nube» o «Seguir con esta». Nunca se borra nada sin preguntar.
 - **Sin red:** el juego va igual. Lo que no se pudo subir queda pendiente y se sube al volver la conexión.
@@ -77,6 +79,32 @@ begin
   return null;
 end $$;
 create trigger logs_keep after insert on public.logs for each row execute function public.logs_keep();
+```
+
+## Ranking (Retos → 🏆 Ranking)
+
+Una fila por cuenta y ranura (solo partidas con cartas reales), ordenadas por el valor de la empresa: tienda, usuario, ranura, día, nivel, nivel de la zona Funko y la carta más cara. Se actualiza al entrar en una partida y al terminar cada día. Todas las cuentas del proyecto ven el ranking; cada una solo escribe sus filas. Para activarlo, pega esto en **SQL Editor** y pulsa **Run** (una vez):
+
+```sql
+create table public.ranks (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  username text,
+  mode text not null,
+  slot smallint not null check (slot between 1 and 3),
+  shop text,
+  day int not null default 0,
+  worth numeric not null default 0,
+  lv smallint not null default 1,
+  fk_lv smallint not null default 0,
+  best numeric not null default 0,
+  best_name text,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, mode, slot)
+);
+alter table public.ranks enable row level security;
+create policy "ranking: lo ven todas las cuentas" on public.ranks for select to authenticated using (true);
+create policy "ranking: apuntar lo mío" on public.ranks for insert to authenticated with check (auth.uid() = user_id);
+create policy "ranking: actualizar lo mío" on public.ranks for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 ```
 
 ## Que no se duerma

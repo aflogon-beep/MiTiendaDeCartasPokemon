@@ -1237,3 +1237,25 @@ html.ux .cbig.gr .slab {
   color: var(--mu);
   font-size: 11px;
 }
+/* 🏆 Ranking (ui/screens/cloud.js) */
+.rk-row {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.rk-row small {
+  display: block;
+  color: var(--mu);
+  font-size: 11px;
+}
+.rk-row.me {
+  outline: 2px solid #f2b705;
+}
+.rk-pos {
+  font: 800 18px var(--fd);
+  text-align: center;
+}
+.rk-v {
+  font-family: var(--fd);
+}

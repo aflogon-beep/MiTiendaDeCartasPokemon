@@ -12,6 +12,8 @@ import {
   cloudFetch,
   cloudLog,
   syncedId,
+  syncedAt,
+  cloudLastAt,
   packSave,
   unpackSave,
   validUser,
@@ -87,5 +89,20 @@ describe("partida en la nube", () => {
     expect(F.db.logs[0]).toMatchObject({ kind: "error", data: { m: "x" } });
     F.db.down = true;
     await expect(cloudUpload("real", 1, "{}", {})).rejects.toThrow("Sin conexión");
+  });
+  it("al subir o bajar se apunta cuándo; con la nube al día no sale el recordatorio de copia", async () => {
+    const { backupDue } = await import("../../src/core/alerts.js");
+    const { S } = await import("../../src/core/state.js");
+    const WEEK = 7 * 864e5;
+    S.bkpAt = Date.now() - 2 * WEEK;
+    S.bkpSnooze = 0;
+    expect(backupDue(Date.now())).toBe(true); // sin cuenta: sale
+    await cloudSignUp("abuela", "123456");
+    expect(backupDue(Date.now())).toBe(true); // con cuenta, pero nada subido todavía
+    await cloudUpload("real", 2, "{}", { day: 1 });
+    expect(syncedAt("real", 2)).toBeGreaterThan(0);
+    expect(cloudLastAt()).toBeGreaterThan(0);
+    expect(backupDue(Date.now())).toBe(false); // subida hace nada: no sale
+    expect(backupDue(Date.now() + 8 * 864e5)).toBe(true); // más de una semana sin subir: vuelve a salir
   });
 });

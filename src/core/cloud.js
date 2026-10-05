@@ -38,9 +38,17 @@ export const syncedId = (mode, slot) => (readC().sync || {})[slotId(mode, slot)]
 export function setSynced(mode, slot, id) {
   const c = readC();
   c.sync = Object.assign({}, c.sync, { [slotId(mode, slot)]: id });
+  if (id) {
+    c.syncAt = Object.assign({}, c.syncAt, { [slotId(mode, slot)]: Date.now() });
+    c.last = Date.now(); // última vez que una partida quedó a salvo en la nube (core/alerts.js)
+  }
   if (c.pend) delete c.pend[slotId(mode, slot)];
   writeC(c);
 }
+/** Cuándo se subió o se bajó por última vez la copia de una ranura (0 si nunca). */
+export const syncedAt = (mode, slot) => (readC().syncAt || {})[slotId(mode, slot)] || 0;
+/** Última vez que alguna partida quedó a salvo en la nube (0 si nunca). */
+export const cloudLastAt = () => readC().last || 0;
 /** Ranuras con algo sin subir (falló la red). */
 export const pendingSlots = () => Object.keys(readC().pend || {});
 export function setPending(mode, slot) {
@@ -182,6 +190,25 @@ export async function cloudFetch(id) {
   if (!rows || !rows[0]) throw new CloudError("Esa copia ya no está en la nube");
   return unpackSave(rows[0].data);
 }
+
+/* ---------- Ranking (Retos → 🏆 Ranking) ---------- */
+/** Columnas de una fila del ranking (una por cuenta y ranura). */
+const RSEL = "user_id,username,mode,slot,shop,day,worth,lv,fk_lv,best,best_name,updated_at";
+/** Apunta (o actualiza) la fila de esta ranura en el ranking. */
+export async function cloudRankPush(mode, slot, r) {
+  const c = readC();
+  await call("/rest/v1/ranks?on_conflict=user_id,mode,slot", {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: Object.assign({ username: c.u, mode, slot, updated_at: new Date().toISOString() }, r),
+  });
+  return true;
+}
+/** El ranking: las ranuras de todas las cuentas, de la empresa que más vale a la que menos. */
+export const cloudRanks = (mode = "real") =>
+  call(`/rest/v1/ranks?select=${RSEL}&mode=eq.${mode}&order=worth.desc&limit=50`);
+/** Id de la cuenta (para resaltar las filas propias). */
+export const cloudUid = () => readC().uid || null;
 
 /* ---------- Registro de errores ---------- */
 let sent = 0;

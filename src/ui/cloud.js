@@ -4,7 +4,10 @@
 import { A } from "./actions.js";
 import { G, S, ensure, hasState, replaceState } from "../core/state.js";
 import { closeM, openM, renderM } from "./modals.js";
-import { CL, work } from "./screens/cloud.js";
+import { CL, RK, work } from "./screens/cloud.js";
+import { BYID } from "../core/cards/sets.js";
+import { itemVal, level, netWorth } from "../core/economy.js";
+import { fkLv } from "../core/funko/zone.js";
 import { custs, queue } from "../core/customers/move.js";
 import { hud } from "./hud.js";
 import { loadSetsFor } from "../core/cards/api.js";
@@ -25,8 +28,11 @@ import {
   pendingSlots,
   setPending,
   setSynced,
+  cloudRankPush,
+  syncedAt,
   syncedId,
 } from "../core/cloud.js";
+import { SLOTS } from "../core/slots.js";
 
 const form = () => [document.querySelector("#cldu")?.value || "", document.querySelector("#cldp")?.value || ""];
 /** El botón «☁️ Nube: …» de los ajustes del título, al día con la cuenta. */
@@ -39,6 +45,7 @@ function afterLogin(u) {
   toast(`☁️ Hola, ${u}`);
   CL.list = null;
   if (hasState() && !G.TITLE) setTimeout(cloudCheck, 300);
+  else cloudSyncAll();
 }
 
 /* ---------- Subir y cargar ---------- */
@@ -54,11 +61,38 @@ async function uploadSlot(mode, slot) {
     throw e;
   }
 }
+/** La fila del ranking de la partida que se está jugando (valor de la empresa, nivel, Funkos y la carta más cara). */
+export function rankRow() {
+  let best = null;
+  (S.items || []).forEach((it) => {
+    if (it.fkK) return;
+    const v = itemVal(it);
+    if (!best || v > best.v) best = { v, n: (BYID[it.c] || {}).name };
+  });
+  return {
+    shop: (S.shopName || "").trim() || null,
+    day: S.day,
+    worth: Math.round(netWorth()),
+    lv: level(),
+    fk_lv: S.fk ? fkLv() : 0,
+    best: best ? Math.round(best.v * 100) / 100 : 0,
+    best_name: best ? best.n || null : null,
+  };
+}
+/** Apunta esta ranura en el ranking (sin red o sin tabla, no pasa nada). */
+export function cloudRankNow() {
+  if (!cloudOn() || !cloudUser() || !hasState() || G.TITLE || G.MODE !== "real") return Promise.resolve(false);
+  return cloudRankPush(G.MODE, G.SLOT, rankRow()).then(
+    () => ((RK.list = null), true),
+    () => false,
+  );
+}
 /** Al terminar el día (main.js): se guarda y se sube. */
 export function cloudDayEnd() {
   if (!cloudOn() || !cloudUser() || !hasState()) return;
   saveNow();
   const [m, n] = [G.MODE, G.SLOT];
+  cloudRankNow();
   uploadSlot(m, n).then(
     () => (CL.list = null),
     () => toast("☁️ Sin conexión: la partida se subirá a la nube más tarde"),
@@ -95,11 +129,35 @@ function applyCloud(txt, id) {
   });
 }
 
+/**
+ * Sube las otras ranuras de este dispositivo que la nube no tiene al día (nunca subidas o guardadas después de
+ * la última subida). Si en la nube hay una copia de esa ranura que no salió de aquí, no la pisa: se preguntará
+ * al entrar en ella.
+ */
+export async function cloudSyncAll() {
+  if (!cloudOn() || !cloudUser()) return;
+  const mode = G.MODE || "real";
+  for (let n = 1; n <= SLOTS; n++) {
+    if (hasState() && !G.TITLE && n === G.SLOT) continue; // la de ahora la mira cloudCheck
+    const js = localStorage.getItem(slotKey(n, mode));
+    if (!js) continue;
+    const at = +((/"savedAt":(\d+)/.exec(js) || [])[1] || 0);
+    try {
+      const r = await cloudLatest(mode, n);
+      if (r && r.id !== syncedId(mode, n)) continue;
+      if (!r || at > syncedAt(mode, n)) await uploadSlot(mode, n);
+    } catch (e) {
+      return; // sin red: otra vez será
+    }
+  }
+}
+
 /* ---------- Al entrar en una partida: ¿hay otra en la nube? ---------- */
 /** Si la copia más nueva de la nube no salió de aquí, pregunta cuál se queda. */
 export async function cloudCheck(tries = 0) {
   if (!cloudOn() || !cloudUser() || !hasState() || G.TITLE) return;
   await cloudRetry();
+  if (!tries) cloudRankNow(); // esta ranura, al día en el ranking
   let r;
   try {
     r = await cloudLatest(G.MODE, G.SLOT);
@@ -108,10 +166,11 @@ export async function cloudCheck(tries = 0) {
   }
   if (!r) {
     // Nada en la nube para esta ranura: se sube la de aquí
-    uploadSlot(G.MODE, G.SLOT).catch(() => {});
+    await uploadSlot(G.MODE, G.SLOT).catch(() => {});
+    cloudSyncAll();
     return;
   }
-  if (r.id === syncedId(G.MODE, G.SLOT)) return;
+  if (r.id === syncedId(G.MODE, G.SLOT)) return cloudSyncAll();
   if (G.M || G.STORY) {
     if (tries < 40) setTimeout(() => cloudCheck(tries + 1), 3000);
     return;
@@ -120,6 +179,10 @@ export async function cloudCheck(tries = 0) {
   openM("cloudnew");
 }
 Object.assign(A, {
+  rkload: () => {
+    RK.list = null;
+    cloudRankNow().then(() => renderM());
+  },
   cldin: () => {
     const [u, p] = form();
     work("Entrando…", async () => afterLogin(await cloudSignIn(u, p)));
