@@ -74,6 +74,33 @@ export function fakeSupa() {
         rows.map((r) => pick(r, q.get("select"))),
       );
     }
+    if (p === "/rest/v1/trades") {
+      db.trades = db.trades || [];
+      const mine = (r) => r.from_id === uid || r.to_id === uid;
+      if (method === "POST") {
+        if (b.to_id === uid) return json(403, { message: "new row violates row-level security policy" });
+        const row = Object.assign({ status: "open" }, b, {
+          id: ++db.seq,
+          from_id: uid,
+          created_at: new Date().toISOString(),
+        });
+        db.trades.push(row);
+        return json(201, [pick(row, q.get("select"))]);
+      }
+      let rows = db.trades.filter(mine);
+      if (q.get("id")) rows = rows.filter((r) => r.id === +eq("id"));
+      const st = q.get("status") || "";
+      if (st.startsWith("eq.")) rows = rows.filter((r) => r.status === st.slice(3));
+      if (st.startsWith("in.(")) rows = rows.filter((r) => st.slice(4, -1).split(",").includes(r.status));
+      if (method === "PATCH") {
+        rows.forEach((r) => Object.assign(r, b));
+        return json(200, rows);
+      }
+      return json(
+        200,
+        rows.sort((a, c) => c.id - a.id),
+      );
+    }
     if (p === "/rest/v1/logs" && method === "POST") {
       db.logs.push(Object.assign({}, b, { user_id: uid }));
       return json(201, null);

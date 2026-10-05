@@ -27,7 +27,8 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Zona Funko · F2–F5: catálogo (220 figuras + Deluxe, grails y oro), stock, venta en la misma caja, encargado, nivel de zona, mobiliario, Chase, olas, eventos, álbum, encargos y logros | ✅ |
 | Mejoras · Pantalla de niveles (tocar «Nivel» arriba) y premios en los niveles 4, 6, 8 y 9 | ✅ |
 | Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (probado en el móvil de Alberto) |
-| Nube · Las 3 ranuras en la nube, sin recordatorio de copia con la nube al día y 🏆 Ranking en Retos (tabla `ranks`, `docs/nube.md`) | ✅ (falta que Alberto cree la tabla del ranking) |
+| Nube · Las 3 ranuras en la nube, sin recordatorio de copia con la nube al día y 🏆 Ranking en Retos (tabla `ranks`, `docs/nube.md`) | ✅ (tabla creada y probada contra el proyecto de Alberto) |
+| Nube · Ranking con 4 pestañas (empresa, carta, colección, Funkos), visitar tiendas y regalar o cambiar cartas y Funkos entre cuentas (tabla `trades`, `core/trade.js`) | ✅ (SQL ejecutado y probado contra el proyecto de Alberto) |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -68,6 +69,7 @@ src/
     save.js slots.js     guardado por ranuras (3), exportar/importar
     cloud.js             partida en la nube (Supabase sin librería, con fetch): cuenta (usuario → correo interno), subir/bajar
                          comprimida (gzip), copias, registro de errores; pcs-cloud-v1. Vacío CLOUD_URL = sin nube (no se ve nada)
+    trade.js             regalos y cambios entre cuentas: paquetes de carta o Funko, sacar al mandar y meter al aceptar
     bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
     cards/ customers/    API y caché de cartas; clientes (con cajero, los que venden, cambian o traen lote esperan aparte: «aside»/«offer», `offers()`)
                          menos clientes y cestas grandes: `repMul` (reputación, máx. ×2), `CUST_MAX` (10 dentro), `PQTY` (sobres por tipo)
@@ -108,7 +110,8 @@ src/
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
                          (con cuenta en la nube, los errores y cierres van también a la tabla logs)
     cloud.js             nube: subida al terminar el día, pendiente sin red, aviso «Hay otra partida en la nube» (cloudCheck)
-    screens/cloud.js     pantallas ☁️ Nube (cloud), aviso (cloudnew) y 🏆 Ranking (rank, en Retos)
+    screens/cloud.js     pantallas ☁️ Nube (cloud), aviso (cloudnew), 🏆 Ranking con pestañas (rank, en Retos), visita a una
+                         tienda (visit), elegir qué mandar (tdgive) y 📬 regalos y cambios (trades)
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
     screens/ …           paneles del juego

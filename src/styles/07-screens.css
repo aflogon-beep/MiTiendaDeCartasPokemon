@@ -1259,3 +1259,86 @@ html.ux .cbig.gr .slab {
 .rk-v {
   font-family: var(--fd);
 }
+/* Ranking con pestañas, visitas y regalos/cambios (ui/screens/cloud.js) */
+.rk-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.rk-tabs .b {
+  padding: 8px 2px;
+  font-size: 12px;
+}
+.rk-inbox {
+  width: 100%;
+  margin-bottom: 4px;
+}
+button.rk-row {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.vs-head {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+.td-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+.td-tile {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--panel2);
+  text-align: center;
+  font-size: 12px;
+}
+.td-tile b {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.td-tile small {
+  color: var(--mu);
+  font-size: 11px;
+}
+.td-card {
+  width: 74px;
+  height: 103px;
+  object-fit: contain;
+  border-radius: 5px;
+}
+.td-noimg {
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  background: var(--panel);
+}
+.td-fig {
+  width: 70px;
+  height: 90px;
+}
+.td-fig svg {
+  width: 100%;
+  height: 100%;
+}
+.td-deal {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+.td-deal h3 {
+  margin: 4px 0;
+  font-size: 13px;
+  text-align: center;
+}
+.td-who {
+  margin-bottom: 4px;
+}

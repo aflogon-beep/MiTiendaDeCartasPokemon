@@ -107,6 +107,40 @@ create policy "ranking: apuntar lo mío" on public.ranks for insert to authentic
 create policy "ranking: actualizar lo mío" on public.ranks for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 ```
 
+## Pestañas del ranking, visitas y regalos/cambios
+
+Pega esto en **SQL Editor** y pulsa **Run** (una vez). Añade al ranking lo que hace falta para las pestañas (cartas distintas, Funkos) y la ficha que se ve al visitar una tienda (`show`), y crea la tabla de regalos y cambios (`trades`): cada cuenta ve solo los que manda o recibe.
+
+```sql
+alter table public.ranks
+  add column if not exists cards int not null default 0,
+  add column if not exists funkos int not null default 0,
+  add column if not exists show jsonb;
+
+create table public.trades (
+  id bigint generated always as identity primary key,
+  from_id uuid not null default auth.uid() references auth.users on delete cascade,
+  from_name text,
+  to_id uuid not null references auth.users on delete cascade,
+  to_name text,
+  give jsonb not null,
+  want jsonb,
+  status text not null default 'open' check (status in ('open', 'done', 'no', 'cancel', 'closed')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index trades_to on public.trades (to_id, status);
+create index trades_from on public.trades (from_id, status);
+alter table public.trades enable row level security;
+create policy "tratos: ver los míos" on public.trades for select to authenticated
+  using (auth.uid() = from_id or auth.uid() = to_id);
+create policy "tratos: mandar" on public.trades for insert to authenticated
+  with check (auth.uid() = from_id and to_id <> from_id);
+create policy "tratos: contestar o cerrar los míos" on public.trades for update to authenticated
+  using (auth.uid() = from_id or auth.uid() = to_id)
+  with check (auth.uid() = from_id or auth.uid() = to_id);
+```
+
 ## Que no se duerma
 
 En el plan gratuito, Supabase pausa el proyecto si pasa **una semana sin uso** (habría que reactivarlo a mano en su web). Para evitarlo, `.github/workflows/nube.yml` hace una consulta pequeña **cada día** con los secretos `SUPABASE_URL` y `SUPABASE_ANON`. Si los secretos no están, usa la dirección y la clave publishable que ya van en el juego (son públicas).
