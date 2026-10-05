@@ -10,6 +10,7 @@ import { players } from "../core/tables.js";
 import { dayT } from "../core/day.js";
 import { nightK } from "../render/lighting.js";
 import { ALVARO } from "../render/family.js";
+import { cloudLog } from "../core/cloud.js";
 
 export const DIAG_KEY = "pcs-diag-v1";
 const D = { snaps: [], errs: [], start: Date.now() };
@@ -62,8 +63,11 @@ export function diagSnap() {
 export function diagNote(m) {
   err(m, "");
 }
-function err(m, st) {
-  D.errs.push({ t: Date.now(), m: String(m).slice(0, 200), s: String(st || "").slice(0, 400) });
+function err(m, st, real) {
+  const e = { t: Date.now(), m: String(m).slice(0, 200), s: String(st || "").slice(0, 400) };
+  D.errs.push(e);
+  // Los errores de verdad (no los sucesos como «atrás») también van a la nube, con lo que pasaba
+  if (real) cloudLog("error", Object.assign({}, e, { snap: D.snaps[D.snaps.length - 1] || null }), build);
   if (D.errs.length > 6) D.errs.shift();
   diagSnap();
   write(!document.hidden);
@@ -116,11 +120,14 @@ export function initDiag() {
   const last = (prev && prev.snaps && prev.snaps.slice(-1)[0]) || {},
     note = (prev && prev.errs && prev.errs.slice(-1)[0]) || {},
     backExit = note.m === "atrás: salir?" && note.t >= (last.t || 0) - 3000;
-  if (prev && prev.fg && !backExit && Date.now() - last.t < 3 * 864e5) show(prev);
+  if (prev && prev.fg && !backExit && Date.now() - last.t < 3 * 864e5) {
+    show(prev);
+    cloudLog("cierre", { txt: diagText(prev) }, prev.build); // con cuenta en la nube, también allí (docs/nube.md)
+  }
   write(false); // si ahora se cierra bien, no hay aviso
-  addEventListener("error", (e) => err(e.message, e.error && e.error.stack));
+  addEventListener("error", (e) => err(e.message, e.error && e.error.stack, true));
   addEventListener("unhandledrejection", (e) =>
-    err("promise: " + (e.reason && e.reason.message), e.reason && e.reason.stack),
+    err("promise: " + (e.reason && e.reason.message), e.reason && e.reason.stack, true),
   );
   document.addEventListener("visibilitychange", () => (diagSnap(), write(!document.hidden)));
   addEventListener("pagehide", () => (diagSnap(), write(false)));

@@ -26,10 +26,11 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Zona Funko · F1: la librería se traspasa (nivel 5, 15.000 €), Don Ramón, nombre, zona dibujada y Emma en su sofá (`docs/funkos/`) | ✅ |
 | Zona Funko · F2–F5: catálogo (220 figuras + Deluxe, grails y oro), stock, venta en la misma caja, encargado, nivel de zona, mobiliario, Chase, olas, eventos, álbum, encargos y logros | ✅ |
 | Mejoras · Pantalla de niveles (tocar «Nivel» arriba) y premios en los niveles 4, 6, 8 y 9 | ✅ |
+| Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (probado contra el proyecto de Alberto; falta probarlo en el móvil) |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
-Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa probable, el gesto «atrás»; arreglado en `ui/back.js`, falta que Alberto lo confirme; registro en `ui/diag.js`). §1, §2, §4 y §5 arreglados. Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. Hecha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`, F1–F5).
+Pendiente: nada en `docs/pendientes.md` (todo arreglado y confirmado por Alberto). Por hacer, cuando Alberto quiera: el guion de la Fase II de la historia. Hecha: la **zona Funko**, ampliación de la tienda en el local de la librería (`docs/funkos/DISENO.md`, F1–F5).
 
 ## Reglas
 
@@ -44,6 +45,7 @@ Pendiente: `docs/pendientes.md` §6 (la app se cerraba sola en el móvil: causa 
 - El juego es el código de `src/`. `reference/pokemon-card-shop-v22.html` es la versión original (antes del refactor): sirve para los tests que comparan con ella (`npm run test:ref` y el test 14 de estilos).
 - `docs/intro/` (INTRO.md, HISTORIA.md, personajes.html): especificación de la Fase I, el guion y los personajes.
 - `docs/app.md`: instalar la app, funcionamiento sin red y actualizaciones.
+- `docs/nube.md`: partida en la nube (Supabase): cómo montarlo, el SQL y el aviso diario.
 - `docs/funkos/` (DISENO.md, mockups.html, figuras.js, zona.js): diseño aprobado de la zona Funko (ampliación de la tienda), por fases F1–F5.
 
 ## Stack
@@ -63,6 +65,8 @@ src/
   core/                  lógica: NO toca DOM ni canvas
     state.js             S, G (variables que se reasignan), partida nueva, ensure()
     save.js slots.js     guardado por ranuras (3), exportar/importar
+    cloud.js             partida en la nube (Supabase sin librería, con fetch): cuenta (usuario → correo interno), subir/bajar
+                         comprimida (gzip), copias, registro de errores; pcs-cloud-v1. Vacío CLOUD_URL = sin nube (no se ve nada)
     bus.js               eventos (toast, sfx, quip…) para que core no dependa de ui
     cards/ customers/    API y caché de cartas; clientes (con cajero, los que venden, cambian o traen lote esperan aparte: «aside»/«offer», `offers()`)
                          menos clientes y cestas grandes: `repMul` (reputación, máx. ×2), `CUST_MAX` (10 dentro), `PQTY` (sobres por tipo)
@@ -101,6 +105,9 @@ src/
     funko/fig.js         dibujo SVG de las figuras (piezas del catálogo y variantes) y de su caja (boxHTML)
     version.js           versión del juego = fecha del último commit (__BUILD__; mismo código, misma versión); se ve en Más → Ajustes
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
+                         (con cuenta en la nube, los errores y cierres van también a la tabla logs)
+    cloud.js             nube: subida al terminar el día, pendiente sin red, aviso «Hay otra partida en la nube» (cloudCheck)
+    screens/cloud.js     pantallas ☁️ Nube (cloud) y aviso (cloudnew)
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
     screens/ …           paneles del juego
@@ -108,9 +115,9 @@ src/
   styles/                01-base … 08-tutorial (juego) · 09-title · 10-story (Fase I) · 11-funko (zona Funko)
 public/icons/            iconos de la app (se generan con docs/icono/iconos.py)
 tests/
-  e2e/                   Playwright: 01–13 (tabla original), 14 estilos, 15 PWA, 16–19 Fase I, 20 mejoras, 21 zona Funko
+  e2e/                   Playwright: 01–13 (tabla original), 14 estilos, 15 PWA, 16–19 Fase I, 20 mejoras, 21 zona Funko, 22 nube
   unit/                  Vitest
-  fixtures/              API simulada de pokemontcg.io y partida exportada de la v22
+  fixtures/              API simulada de pokemontcg.io, Supabase simulado (supa.js) y partida exportada de la v22
 reference/pokemon-card-shop-v22.html
 docs/                    pendientes.md, app.md, intro/, icono/, funkos/
 ```
@@ -133,9 +140,9 @@ docs/                    pendientes.md, app.md, intro/, icono/, funkos/
 
 ## Compatibilidad obligatoria
 
-- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`, `pcs-vibe` (nueva: vibración) y `pcs-diag-v1` (registro de cierres, `ui/diag.js`). **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
+- **localStorage**: la ranura 1 usa la clave de siempre (`pcs-save-real-v3` / `pcs-save-offline-v3`); las ranuras 2 y 3, la misma con `-s2` / `-s3`; `pcs-slots-v1` recuerda la última ranura. También `pcs-sets-v1`, `pcs-sound`, `pcs-music`, `pcs-vibe` (nueva: vibración) `pcs-diag-v1` (registro de cierres, `ui/diag.js`) y `pcs-cloud-v1` (cuenta de la nube: sesión y qué copia tiene cada ranura). **IndexedDB** `pcs`, almacén `kv`. La partida de Alberto debe cargarse tal cual.
 - Formato de exportación: `{app:"pcs", v:5, mode, date, S}`.
-- Red: solo `api.pokemontcg.io`, `images.pokemontcg.io` y Google Fonts.
+- Red: solo `api.pokemontcg.io`, `images.pokemontcg.io`, Google Fonts y el proyecto de Supabase de `docs/nube.md` (aprobado por Alberto).
 
 ## Tests
 

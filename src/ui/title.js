@@ -11,6 +11,8 @@
 //   Cargar partida → elegir ranura, borrar ranuras o importar (archivo o código)
 //   ⚙️ → sonido, música y texto grande
 // Desde el juego: Más → Título (guarda antes de salir).
+import { emit } from "../core/bus.js";
+import { cloudOn, cloudUser } from "../core/cloud.js";
 import { $, VIS } from "../render/canvas.js";
 import { G, S, hasState, newState, replaceState, ensure } from "../core/state.js";
 import { loadOrNew, releaseHolds, saveNow } from "../core/save.js";
@@ -203,7 +205,8 @@ export function paintTitle() {
     body = `<h2>⚙️ Ajustes</h2><div class="tgrid">
       <button class="tilebtn" data-a="tsnd"><span>${G.SOUND ? "🔊" : "🔇"}</span>Sonido: ${G.SOUND ? "sí" : "no"}</button>
       <button class="tilebtn" data-a="tmus"><span>🎵</span>Música: ${MUSIC ? "sí" : "no"}</button>
-      <button class="tilebtn" data-a="tbig"><span>🔠</span>Texto: ${big ? "grande" : "normal"}</button></div>${back}`;
+      <button class="tilebtn" data-a="tbig"><span>🔠</span>Texto: ${big ? "grande" : "normal"}</button>
+      ${cloudOn() ? `<button class="tilebtn" data-a="m" data-k="cloud"><span>☁️</span>Nube: ${cloudUser() || "sin cuenta"}</button>` : ""}</div>${back}`;
   el.innerHTML = `<div class="title-in title-${view}">${view === "main" ? `<button class="title-gear" data-a="tset" aria-label="Ajustes">⚙️</button>` : ""}${body}</div>`;
   // En el menú principal la tienda se ve detrás; en las pantallas interiores, casi nada (se leen mejor)
   el.classList.toggle("solid", view !== "main");
@@ -251,6 +254,7 @@ function startGame(holdToasts) {
   if (firstStart && FAILED.size)
     setTimeout(() => toast(`⚠️ ${FAILED.size} colección(es) no cargaron. Reinténtalo en Más → Colecciones`), 800);
   firstStart = false;
+  emit("started"); // ui/cloud.js mira si en la nube hay otra partida
 }
 export { startGame };
 
