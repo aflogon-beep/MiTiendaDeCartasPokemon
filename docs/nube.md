@@ -81,7 +81,7 @@ create trigger logs_keep after insert on public.logs for each row execute functi
 
 ## Que no se duerma
 
-En el plan gratuito, Supabase pausa el proyecto si pasa **una semana sin uso** (habría que reactivarlo a mano en su web). Para evitarlo, `.github/workflows/nube.yml` hace una consulta pequeña **cada día** con los secretos `SUPABASE_URL` y `SUPABASE_ANON`. Si los secretos no están, no hace nada.
+En el plan gratuito, Supabase pausa el proyecto si pasa **una semana sin uso** (habría que reactivarlo a mano en su web). Para evitarlo, `.github/workflows/nube.yml` hace una consulta pequeña **cada día** con los secretos `SUPABASE_URL` y `SUPABASE_ANON`. Si los secretos no están, usa la dirección y la clave publishable que ya van en el juego (son públicas).
 
 ## Límites del plan gratuito
 
