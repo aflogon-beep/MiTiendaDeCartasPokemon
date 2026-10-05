@@ -17,6 +17,7 @@ import { tipsList } from "../../core/tips.js";
 import { toast } from "../toast.js";
 import { trophies, trophyRep } from "../../core/trophies.js";
 import { BUILD, verLabel } from "../version.js";
+import { cloudOn, cloudUser } from "../../core/cloud.js";
 export function mMkt() {
   const pool = CARDS.filter((c) => c.b >= 1),
     arr = pool.map((c) => ({ c, d: chg(c.id, 7) })).sort((a, b) => b.d - a.d);
@@ -72,6 +73,7 @@ export const canShareFiles = () => {
 };
 export function mBackup() {
   return `<h2>Partida</h2><div class="pn"><div>Se guarda sola cada 10 segundos, al cerrar y al terminar el día.</div><div class="mu">Último guardado: ${S.savedAt ? new Date(S.savedAt).toLocaleString("es-ES") : "—"}</div><div class="btns"><button class="b pri" data-a="savebtn">💾 Guardar ahora</button></div></div>
+  ${cloudOn() ? `<div class="pn row" data-fase="I"><span><b>☁️ Nube</b><div class="mu">${cloudUser() ? `Conectado como ${cloudUser()}: se sube sola al terminar cada día.` : "Guarda la partida en internet con usuario y contraseña."}</div></span><button class="b pri" data-a="m" data-k="cloud">${cloudUser() ? "Abrir" : "Entrar"}</button></div>` : ""}
   <div class="pn"><b>Copia de seguridad</b><div class="mu">Si el navegador borra sus datos, perderías la partida. Descarga una copia de vez en cuando.</div><div class="btns"><button class="b pri" data-a="export">⬇️ Exportar archivo</button>${canShareFiles() ? `<button class="b" data-a="sharesave" data-fase="I">📤 Compartir</button>` : ""}<button class="b" data-a="importf">⬆️ Importar archivo</button><button class="b" data-a="copycode">📋 Copiar código</button></div>
   <textarea class="inp" id="impcode" rows="3" placeholder="…o pega aquí un código de partida"></textarea><button class="b" data-a="importc">Cargar código</button></div>
   <div class="pn"><b>Empezar de cero</b><div class="btns"><button class="b danger" data-a="reset">🗑️ Borrar partida</button></div></div>`;
@@ -139,7 +141,7 @@ export function mMore() {
     ui = S.ui || {};
   return `<h2>☰ Más</h2>
   <h3>🏪 Mi tienda</h3><div class="tgrid">${T("🛠️", "Mejoras", K("up"))}${T("🎨", "Personalizar", K("custom"))}${T("🗂️", "Colecciones", K("sets"))}${T("📈", "Mercado", K("mkt"))}${T("🏗️", "Ampliar", K("annex"))}${T("📊", "Estadísticas", K("stats"))}${T("🏆", "Trofeos", K("trophy"))}${T("🔔", "Avisos", K("notes"))}</div>
-  <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("📳", "Vibración: " + (VIBE ? "sí" : "no"), 'data-a="vibtog" data-fase="I"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}${T("🏠", "Volver al título", 'data-a="totitle" data-fase="I"')}</div>
+  <h3>⚙️ Ajustes</h3><div class="tgrid">${T(G.SOUND ? "🔊" : "🔇", "Sonido: " + (G.SOUND ? "sí" : "no"), 'data-a="sndtog"')}${T("🎵", "Música: " + (MUSIC ? "sí" : "no"), 'data-a="mustog"')}${T("📳", "Vibración: " + (VIBE ? "sí" : "no"), 'data-a="vibtog" data-fase="I"')}${T("🔠", "Texto: " + (ui.big ? "grande" : "normal"), 'data-a="uibig"')}${T("🌀", "Animaciones: " + (ui.calm ? "pocas" : "todas"), 'data-a="uicalm"')}${T("🎚️", "Dificultad: " + DF().n, 'data-a="diff"')}${T("⚡", "Rendimiento: " + { auto: "auto", hi: "alto", lo: "ahorro" }[ui.perf || "auto"] + (!ui.perf && VIS.autoLite ? " (ahorro)" : ""), 'data-a="perf"')}${T("📊", "FPS: " + (ui.fps ? "sí" : "no"), 'data-a="fpstog"')}${T("🗓️", "Temporada: " + (S.season && S.season !== "auto" ? SEAS[S.season].replace(/^\S+\s/, "") : "auto"), 'data-a="seastog"')}${T("💾", "Partida", K("backup"))}${cloudOn() ? T("☁️", "Nube: " + (cloudUser() || "sin cuenta"), K("cloud") + ' data-fase="I"') : ""}${T("🏠", "Volver al título", 'data-a="totitle" data-fase="I"')}</div>
   <h3>❓ Ayuda</h3><div class="tgrid">${T("💡", "Consejos", K("tips"))}${T("🎓", "Tutorial", 'data-a="tutre"')}${T("🎬", "Ver la historia", 'data-a="storyre" data-fase="I"')}${T("⤢", "Ver tienda", 'data-a="zreset"')}</div>
   <div class="mu ver" data-fase="I">📦 Versión del juego: <b>${verLabel(BUILD)}</b></div>
   <div class="pn" style="margin-top:12px"><div class="row"><span>⭐ Reputación</span><b>${repv()}</b></div><div class="mu">Sube vendiendo, con encargos, torneos y el álbum. Más reputación = más clientes.</div></div>`;

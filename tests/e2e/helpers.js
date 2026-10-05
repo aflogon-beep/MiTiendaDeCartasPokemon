@@ -51,6 +51,7 @@ export async function mockNetwork(page, opts = {}) {
     const url = route.request().url();
     const host = new URL(url).hostname;
     if (host === "localhost" || host === "127.0.0.1") return route.continue();
+    if (host.endsWith(".supabase.co")) return route.fallback(); // Supabase simulado (tests/fixtures/supa.js)
     if (!ALLOWED_HOSTS.includes(host)) {
       api.foreign.push(url);
       return route.abort();

@@ -597,3 +597,7 @@ html.ui-calm .title-pj {
     animation: none;
   }
 }
+/* Paneles abiertos desde el título (☁️ Nube en Ajustes): por encima de la pantalla de título */
+html.title-on .ov:has(.cl-h) {
+  z-index: 61;
+}

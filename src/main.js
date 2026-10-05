@@ -43,6 +43,7 @@ import { playersIn, tablesTick } from "./core/tables.js";
 import { initUpdates } from "./ui/update.js";
 import { initDiag } from "./ui/diag.js";
 import { initBack } from "./ui/back.js";
+import { cloudCheck, cloudDayEnd, initCloud } from "./ui/cloud.js";
 import { updBirds, updPed } from "./render/city.js";
 import { updCars, updVCars, updVan } from "./render/cars.js";
 import { updCat } from "./render/pets.js";
@@ -134,6 +135,7 @@ function frame(now) {
         } else if (performance.now() > VIS.endAt) {
           VIS.endAt = 0;
           endDay();
+          cloudDayEnd(); // partida en la nube (docs/nube.md)
         }
       }
     } else (updateCusts(dt), tablesTick(dt));
@@ -282,3 +284,5 @@ installTestHooks(G, modules);
 initUpdates();
 initDiag(); // registro para cazar cierres de la app (ui/diag.js)
 initBack(); // botón «atrás» de Android en la app instalada (ui/back.js)
+initCloud(); // partida en la nube: reintentar lo pendiente al volver la red (docs/nube.md)
+on("started", () => setTimeout(cloudCheck, 2000)); // al entrar en una partida: ¿hay otra en la nube?
