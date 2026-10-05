@@ -4,8 +4,8 @@
 // Sin red, el juego sigue igual: lo que no se pudo subir queda pendiente y se sube al volver la conexión.
 
 /** Proyecto de Supabase (la clave «anon» es pública: la seguridad la ponen las reglas de las tablas). */
-export const CLOUD_URL = "";
-export const CLOUD_ANON = "";
+export const CLOUD_URL = "https://bhanoppjpkuwfrmocvpf.supabase.co";
+export const CLOUD_ANON = "sb_publishable_ARCFdS2lu4Iy0a_QTMbN0g_a3HnvQSd";
 /** Supabase pide un correo: el usuario se convierte en usuario@este dominio (nunca se manda nada a él). */
 export const CLOUD_MAIL = "aflogon-beep.github.io";
 export const CLOUD_KEY = "pcs-cloud-v1";

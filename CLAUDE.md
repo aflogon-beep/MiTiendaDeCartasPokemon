@@ -26,7 +26,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Zona Funko · F1: la librería se traspasa (nivel 5, 15.000 €), Don Ramón, nombre, zona dibujada y Emma en su sofá (`docs/funkos/`) | ✅ |
 | Zona Funko · F2–F5: catálogo (220 figuras + Deluxe, grails y oro), stock, venta en la misma caja, encargado, nivel de zona, mobiliario, Chase, olas, eventos, álbum, encargos y logros | ✅ |
 | Mejoras · Pantalla de niveles (tocar «Nivel» arriba) y premios en los niveles 4, 6, 8 y 9 | ✅ |
-| Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (falta que Alberto cree el proyecto y pase la URL y la clave) |
+| Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (proyecto de Alberto conectado; falta probarlo en el móvil) |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
