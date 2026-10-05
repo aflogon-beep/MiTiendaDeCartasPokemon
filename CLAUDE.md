@@ -27,7 +27,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Zona Funko · F2–F5: catálogo (220 figuras + Deluxe, grails y oro), stock, venta en la misma caja, encargado, nivel de zona, mobiliario, Chase, olas, eventos, álbum, encargos y logros | ✅ |
 | Mejoras · Pantalla de niveles (tocar «Nivel» arriba) y premios en los niveles 4, 6, 8 y 9 | ✅ |
 | Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (probado en el móvil de Alberto) |
-| Nube · Las 3 ranuras en la nube, sin recordatorio de copia con la nube al día y 🏆 Ranking en Retos (tabla `ranks`, `docs/nube.md`) | ✅ (falta que Alberto cree la tabla del ranking) |
+| Nube · Las 3 ranuras en la nube, sin recordatorio de copia con la nube al día y 🏆 Ranking en Retos (tabla `ranks`, `docs/nube.md`) | ✅ (tabla creada y probada contra el proyecto de Alberto) |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
