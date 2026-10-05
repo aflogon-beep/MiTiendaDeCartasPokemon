@@ -1,5 +1,6 @@
 # Aviso diario a Supabase para que el proyecto gratuito no se pause por falta de uso (docs/nube.md).
-# Usa los secretos SUPABASE_URL y SUPABASE_ANON; si no están, no hace nada.
+# Usa los secretos (o variables) SUPABASE_URL y SUPABASE_ANON si existen; si no, la dirección y la clave
+# publishable que ya van dentro del juego (src/core/cloud.js), que son públicas.
 name: Nube despierta
 
 on:
@@ -15,8 +16,8 @@ jobs:
     steps:
       - name: Consulta pequeña a Supabase
         env:
-          URL: ${{ secrets.SUPABASE_URL }}
-          KEY: ${{ secrets.SUPABASE_ANON }}
+          URL: ${{ secrets.SUPABASE_URL || vars.SUPABASE_URL || 'https://bhanoppjpkuwfrmocvpf.supabase.co' }}
+          KEY: ${{ secrets.SUPABASE_ANON || vars.SUPABASE_ANON || 'sb_publishable_ARCFdS2lu4Iy0a_QTMbN0g_a3HnvQSd' }}
         run: |
           if [ -z "$URL" ] || [ -z "$KEY" ]; then
             echo "Sin secretos SUPABASE_URL / SUPABASE_ANON: nada que hacer."
