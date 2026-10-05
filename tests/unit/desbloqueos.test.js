@@ -26,7 +26,29 @@ describe("desbloqueos por nivel", () => {
     expect(unlocksAt(3).join(" ")).toMatch(/2003 a 2016.*local de al lado.*4\.000 €/);
     expect(unlocksAt(3).join(" ")).toMatch(/Tienda de cartas/);
     expect(unlocksAt(5).join(" ")).toMatch(/clásicas/);
-    expect(unlocksAt(4)).toEqual([]);
+  });
+  it("todos los niveles dan algo (4: préstamo, 6 y 8: reputación, 9: premio)", () => {
+    for (let n = 1; n <= 9; n++) expect(unlocksAt(n).length).toBeGreaterThan(0);
+    expect(unlocksAt(4).join(" ")).toMatch(/10\.000 €/);
+    expect(unlocksAt(9).join(" ")).toMatch(/50\.000 €/);
+  });
+  it("la reputación de los niveles 6 y 8 y el premio del 9 (una sola vez)", async () => {
+    const { lvRep, repv } = await import("../../src/core/economy.js");
+    const { lvPrize, LV_PRIZE } = await import("../../src/core/unlocks.js");
+    nuevaPartida();
+    S.lvMax = 5;
+    const r = repv();
+    expect(lvRep()).toBe(0);
+    S.lvMax = 6;
+    expect(repv()).toBe(r + 10);
+    S.lvMax = 8;
+    expect(repv()).toBe(r + 30);
+    const m = S.money;
+    expect(lvPrize(8, 9)).toBe(true);
+    expect(S.money).toBe(m + LV_PRIZE);
+    expect(lvPrize(9, 9)).toBe(false);
+    expect(lvPrize(7, 8)).toBe(false);
+    expect(S.money).toBe(m + LV_PRIZE);
   });
 });
 

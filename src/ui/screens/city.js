@@ -1,6 +1,7 @@
 // Edificios de la calle: ampliación, banco, café, colegio, tienda rival y mercadillo.
 import { BYID, setName } from "../../core/cards/sets.js";
 import { REGS } from "../../core/constants.js";
+import { LOAN_BIG } from "../../core/unlocks.js";
 import { S, SETS } from "../../core/state.js";
 import { VIS } from "../../render/canvas.js";
 import { face } from "../modals.js";
@@ -17,7 +18,7 @@ export function mAnnex() {
 }
 export function mBank() {
   const L = S.loan;
-  return `<h2>🏦 Banco</h2>${L && L.left > 0 ? `<div class="pn"><b>Préstamo activo</b><div>Te quedan por pagar <b>${fmt(L.left)}</b> (${fmt(L.daily)} cada noche).</div><div class="btns"><button class="b pri" data-a="loanpay"${S.money < L.left ? " disabled" : ""}>Pagarlo todo ya (${fmt(L.left)})</button></div></div>` : `<p class="mu">Pide un préstamo para crecer más rápido. Lo devuelves en 10 días con un 12 % de intereses; se cobra solo cada noche.</p>${[500, 1500, 4000].map((a) => `<div class="pn row"><span><b>${fmt(a)}</b> · devuelves ${fmt(a * 1.12)} (${fmt((a * 1.12) / 10)}/día)</span><button class="b pri" data-a="loan" data-n="${a}"${a >= 4000 && level() < 3 ? " disabled" : ""}>Pedir</button></div>`).join("")}<p class="mu">El de 4.000 € requiere nivel 3.</p>`}`;
+  return `<h2>🏦 Banco</h2>${L && L.left > 0 ? `<div class="pn"><b>Préstamo activo</b><div>Te quedan por pagar <b>${fmt(L.left)}</b> (${fmt(L.daily)} cada noche).</div><div class="btns"><button class="b pri" data-a="loanpay"${S.money < L.left ? " disabled" : ""}>Pagarlo todo ya (${fmt(L.left)})</button></div></div>` : `<p class="mu">Pide un préstamo para crecer más rápido. Lo devuelves en 10 días con un 12 % de intereses; se cobra solo cada noche.</p>${[500, 1500, 4000].map((a) => `<div class="pn row"><span><b>${fmt(a)}</b> · devuelves ${fmt(a * 1.12)} (${fmt((a * 1.12) / 10)}/día)</span><button class="b pri" data-a="loan" data-n="${a}"${a >= 4000 && level() < 3 ? " disabled" : ""}>Pedir</button></div>`).join("")}<div class="pn row" data-fase="I"><span><b>${fmt(LOAN_BIG)}</b> · devuelves ${fmt(LOAN_BIG * 1.12)} (${fmt((LOAN_BIG * 1.12) / 10)}/día)</span><button class="b pri" data-a="loan" data-n="${LOAN_BIG}"${level() < 4 ? " disabled" : ""}>Pedir</button></div><p class="mu">El de 4.000 € requiere nivel 3.</p><p class="mu" data-fase="I">El de ${fmt(LOAN_BIG)} requiere nivel 4.</p>`}`;
 }
 export const CAFEL = [
   "¿Has visto el precio del Charizard? ¡Está por las nubes!",

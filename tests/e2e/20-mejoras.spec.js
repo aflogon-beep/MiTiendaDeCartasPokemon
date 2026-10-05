@@ -836,3 +836,22 @@ test("20ac · Cartas gradeadas: en la vista grande salen en su funda y, en la fi
   const r = await page.locator("#cbig .slab-card").evaluate((e) => e.clientWidth / e.clientHeight);
   expect(r).toBeCloseTo(63 / 88, 2);
 });
+
+test("20ad · Al tocar «Nivel» arriba salen los niveles de la tienda y lo que da cada uno", async ({
+  page,
+  gamePath,
+}, info) => {
+  vite(info);
+  await freshGame(page, gamePath);
+  await game(page, (P) => Object.assign(P.S, { lvMax: 4, lvSeen: 4, tierSeen: 9 }));
+  await page.locator("#lv").click();
+  const ovh = page.locator("#ovh");
+  await expect(ovh.locator("h2")).toContainText("Niveles de la tienda");
+  await expect(ovh.locator(".lvrow")).toHaveCount(9);
+  await expect(ovh.locator(".lvrow.on")).toHaveCount(4);
+  await expect(ovh.locator(".lvrow.now")).toContainText("10.000 €");
+  await expect(ovh.locator(".lvnow")).toContainText("Nivel 4");
+  // Nivel 4: en el banco se puede pedir el préstamo de 10.000 €
+  await game(page, (P) => P.openM("bank"));
+  await expect(ovh.locator('[data-a="loan"][data-n="10000"]')).toBeEnabled();
+});
