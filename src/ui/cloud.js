@@ -4,7 +4,8 @@
 import { A } from "./actions.js";
 import { G, S, ensure, hasState, replaceState } from "../core/state.js";
 import { closeM, openM, renderM } from "./modals.js";
-import { CL, RK, work } from "./screens/cloud.js";
+import { CL, RK, paint, work } from "./screens/cloud.js";
+import { paintTitle, startGame } from "./title.js";
 import { BYID } from "../core/cards/sets.js";
 import { itemVal, level, netWorth } from "../core/economy.js";
 import { fkLv, fkUVal } from "../core/funko/zone.js";
@@ -13,7 +14,7 @@ import { custs, queue } from "../core/customers/move.js";
 import { hud } from "./hud.js";
 import { loadSetsFor } from "../core/cards/api.js";
 import { releaseHolds, saveNow } from "../core/save.js";
-import { slotKey } from "../core/slots.js";
+import { slotInfo, slotKey, useSlot } from "../core/slots.js";
 import { toast } from "./toast.js";
 import { BUILD } from "./version.js";
 import {
@@ -42,15 +43,14 @@ import { SLOTS } from "../core/slots.js";
 const form = () => [document.querySelector("#cldu")?.value || "", document.querySelector("#cldp")?.value || ""];
 /** El botón «☁️ Nube: …» de los ajustes del título, al día con la cuenta. */
 function titleTile() {
-  const t = document.querySelector('#title [data-k="cloud"]');
-  if (t && t.lastChild) t.lastChild.textContent = "Nube: " + (cloudUser() || "sin cuenta");
+  if (G.TITLE) paintTitle();
 }
 function afterLogin(u) {
   titleTile();
   toast(`☁️ Hola, ${u}`);
-  CL.list = null;
+  CL.list = CL.slots = null;
   if (hasState() && !G.TITLE) setTimeout(cloudCheck, 300);
-  else cloudSyncAll();
+  else cloudSyncAll().then(() => ((CL.slots = null), paint()));
 }
 
 /* ---------- Subir y cargar ---------- */
@@ -205,6 +205,24 @@ function applyCloud(txt, id) {
   });
 }
 
+/** Desde el título: carga en la ranura n la copia más nueva de la nube y entra a jugar. */
+async function titleCloudLoad(n) {
+  const r = (CL.slots || [])[n - 1];
+  if (!r) return;
+  const ns = JSON.parse(await cloudFetch(r.id));
+  await loadSetsFor(ns.sets);
+  useSlot(n);
+  replaceState(ns);
+  S.phase = "closed";
+  S.clock = 0;
+  ensure();
+  releaseHolds();
+  setSynced(G.MODE, n, r.id);
+  CL.ask = CL.slots = CL.list = null;
+  startGame();
+  toast(`☁️ ¡Partida del día ${S.day} cargada de la nube!`);
+}
+
 /**
  * Sube las otras ranuras de este dispositivo que la nube no tiene al día (nunca subidas o guardadas después de
  * la última subida). Si en la nube hay una copia de esa ranura que no salió de aquí, no la pisa: se preguntará
@@ -333,7 +351,7 @@ Object.assign(A, {
   cldout: () => {
     cloudSignOut();
     titleTile();
-    CL.list = null;
+    CL.list = CL.slots = null;
     CL.err = "";
     toast("☁️ Has salido de tu cuenta. Las partidas de este dispositivo siguen aquí");
     renderM();
@@ -345,6 +363,13 @@ Object.assign(A, {
       toast("☁️ Partida subida a la nube");
       CL.list = await cloudList(G.MODE, G.SLOT);
     }),
+  cldslot: (d) => {
+    const n = +d.n;
+    if (slotInfo(n, G.MODE).empty) return A.cldslotgo(d);
+    CL.ask = "s" + n;
+    renderM();
+  },
+  cldslotgo: (d) => work("Bajando la partida…", () => titleCloudLoad(+d.n)),
   cldask: (d) => {
     CL.ask = +d.n || null;
     renderM();

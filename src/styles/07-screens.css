@@ -1237,6 +1237,128 @@ html.ux .cbig.gr .slab {
   color: var(--mu);
   font-size: 11px;
 }
+.cl-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 4px 0 2px;
+  padding: 14px 8px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #3b82f655, #22d3ee22);
+  font-size: 30px;
+}
+.cl-hero .c {
+  font-size: 44px;
+  animation: cl-float 3s ease-in-out infinite;
+}
+.cl-hero i {
+  font-style: normal;
+  font-size: 18px;
+  opacity: 0.6;
+}
+@keyframes cl-float {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+html.ui-calm .cl-hero .c {
+  animation: none;
+}
+.cl-sub {
+  text-align: center;
+}
+.cl-me {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cl-who {
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: #3b82f633;
+}
+.cl-slots {
+  display: grid;
+  gap: 10px;
+}
+.cl-slot {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+.cl-slot.has {
+  border-color: #3b82f6;
+  box-shadow:
+    0 0 0 1px #3b82f655,
+    0 4px 14px #3b82f633;
+}
+.cl-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cl-side {
+  display: grid;
+  gap: 1px;
+  align-content: start;
+  padding: 8px;
+  border-radius: 10px;
+  background: #0002;
+  min-width: 0;
+}
+.cl-side.cloud {
+  background: linear-gradient(160deg, #3b82f633, #22d3ee18);
+}
+.cl-side em {
+  font-style: normal;
+  font-size: 20px;
+}
+.cl-side em u {
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--mu);
+  vertical-align: middle;
+}
+.cl-side b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cl-side span {
+  font: 800 16px var(--fd);
+}
+.cl-side small {
+  color: var(--mu);
+  font-size: 11px;
+}
+.cl-side.none span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mu);
+}
+.cl-slot .btns {
+  margin-top: 0;
+  align-items: center;
+}
+.cl-slot .mu {
+  margin: 0;
+  font-size: 12px;
+}
+.cl-ok {
+  font-weight: 700;
+  color: #22c55e;
+}
+.cl-ask {
+  font-size: 13px;
+}
 /* 🏆 Ranking (ui/screens/cloud.js) */
 .rk-row {
   display: grid;
