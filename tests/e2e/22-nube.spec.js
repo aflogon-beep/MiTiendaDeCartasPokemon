@@ -1,8 +1,12 @@
 // Partida en la nube (docs/nube.md) contra un Supabase simulado (tests/fixtures/supa.js): crear cuenta, subir,
 // subida al terminar el día, sin red (pendiente y reintento), aviso de otra partida en la nube, cargar una copia
 // y registro de errores.
-import { test, expect, freshGame, game, closeModals } from "./helpers.js";
+import { test, expect, freshGame, game, closeModals, openGame } from "./helpers.js";
 import { mockSupa } from "../fixtures/supa.js";
+import { readFileSync } from "node:fs";
+import { gzipSync } from "node:zlib";
+
+const SAVE = JSON.parse(readFileSync(new URL("../fixtures/partida-v22.json", import.meta.url), "utf8")).S;
 
 test.beforeEach(({}, info) => test.skip(info.project.name !== "vite", "solo existe en la versión de Vite"));
 
@@ -307,4 +311,54 @@ test("22f · Ranking con pestañas, visitar una tienda, regalar y cambiar cartas
   });
   expect(db.trades[2].status).toBe("closed");
   expect(await game(page, (P) => P.S.items.length)).toBe(n2 + 1); // Alberto recibe la pedida
+});
+
+test("22g · Dispositivo nuevo: desde el título, entrar en la nube y cargar la partida en su ranura", async ({
+  page,
+  gamePath,
+}) => {
+  const db = await mockSupa(page);
+  // En la nube: la ranura 1 de Alberto (Gengar Cards, día 25), subida desde el móvil
+  db.users["alberto@aflogon-beep.github.io"] = { uid: "u9", pass: "secreto1" };
+  const st = { ...SAVE, shopName: "Gengar Cards", day: 25, money: 4321 };
+  db.saves.push({
+    id: 50,
+    user_id: "u9",
+    mode: "real",
+    slot: 1,
+    day: 25,
+    name: "Gengar Cards",
+    size: 1,
+    data: gzipSync(JSON.stringify(st)).toString("base64"),
+    created_at: new Date().toISOString(),
+  });
+  // En este dispositivo, otra tienda en la ranura 1
+  await openGame(page, gamePath, { title: true, save: { ...SAVE, shopName: "Tienda PC", day: 3 } });
+  const t = page.locator("#title"),
+    ovh = page.locator("#ovh");
+  // El botón de la nube se ve en el menú principal
+  await expect(t.locator(".title-cloud")).toContainText("Entra con tu usuario");
+  await t.locator(".title-cloud").click();
+  await page.locator("#cldu").fill("alberto");
+  await page.locator("#cldp").fill("secreto1");
+  await ovh.locator('[data-a="cldin"]').click();
+  // Las 3 ranuras: la 1 con la copia de la nube y la de aquí; la 2, nada
+  await expect(ovh.locator(".cl-slot")).toHaveCount(3);
+  const s1 = ovh.locator(".cl-slot").nth(0);
+  await expect(s1.locator(".cl-side.cloud")).toContainText("Gengar Cards");
+  await expect(s1.locator(".cl-side.cloud")).toContainText("Día 25");
+  await expect(s1.locator(".cl-side.here")).toContainText("Tienda PC");
+  await expect(ovh.locator(".cl-slot").nth(1)).toContainText("Nada en la nube");
+  await expect(t.locator(".title-cloud")).toContainText("alberto");
+  // Cargar: como hay otra tienda aquí, pregunta antes
+  await s1.locator('[data-a="cldslot"]').click();
+  await expect(s1.locator(".cl-ask")).toContainText("Tienda PC");
+  await s1.locator('[data-a="cldslotgo"]').click();
+  await expect(t).toHaveCount(0);
+  expect(await game(page, (P) => [P.SLOT, P.S.shopName, P.S.day, P.S.money])).toEqual([1, "Gengar Cards", 25, 4321]);
+  expect(await game(page, (P) => P.syncedId("real", 1))).toBe(50);
+  // Ya es la de la nube: no sale el aviso de «otra partida» y no se sube otra copia
+  await page.waitForTimeout(2500);
+  expect(await game(page, (P) => P.G.M)).not.toBe("cloudnew");
+  expect(db.saves.length).toBe(1);
 });

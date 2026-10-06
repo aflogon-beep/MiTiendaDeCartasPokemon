@@ -3,13 +3,23 @@
 import { G, S, hasState } from "../../core/state.js";
 import { renderM } from "../modals.js";
 import { fmt } from "../../core/util.js";
-import { cloudList, cloudOn, cloudRanks, cloudUid, cloudUser, pendingSlots, syncedId } from "../../core/cloud.js";
+import { SLOTS, slotInfo } from "../../core/slots.js";
+import {
+  cloudLatest,
+  cloudList,
+  cloudOn,
+  cloudRanks,
+  cloudUid,
+  cloudUser,
+  pendingSlots,
+  syncedId,
+} from "../../core/cloud.js";
 import { cardPack, fkPack, tradeCanGet, tradeCards, tradeFks, tradeHas } from "../../core/trade.js";
 import { FBYID } from "../../core/funko/catalog.js";
 import { figSVG } from "../funko/fig.js";
 
 /** Lo que enseña la pantalla mientras llegan las cosas de la nube. */
-export const CL = { list: null, busy: "", err: "", ask: null, other: null };
+export const CL = { list: null, slots: null, busy: "", err: "", ask: null, other: null };
 const when = (iso) =>
   new Date(iso).toLocaleString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 const kb = (n) => (n ? ` · ${Math.max(1, Math.round(n / 1024))} KB` : "");
@@ -22,13 +32,12 @@ export function mCloud() {
     busy = CL.busy ? `<p class="mu cl-busy">⏳ ${CL.busy}</p>` : "",
     err = CL.err ? `<div class="pn down cl-err">⚠️ ${CL.err}</div>` : "";
   if (!u)
-    return `<h2 class="cl-h">☁️ Nube</h2><p class="mu">Guarda tu partida en internet para no perderla y seguir en otro dispositivo.</p>${err}
+    return `<h2 class="cl-h">☁️ Nube</h2>${HERO}${err}
   <div class="pn cl-form"><label>Usuario<input id="cldu" class="inp" autocomplete="username" autocapitalize="none" maxlength="20" placeholder="p. ej. alberto"></label>
   <label>Contraseña<input id="cldp" class="inp" type="password" autocomplete="current-password" maxlength="72"></label>
   <div class="btns"><button class="b pri" data-a="cldin">Entrar</button><button class="b" data-a="cldup">Crear cuenta</button></div></div>
   <p class="mu">🔑 Sin correo no se puede recuperar la contraseña: apúntala en un sitio seguro.</p>${busy}`;
-  if (!hasState() || G.TITLE)
-    return `<h2 class="cl-h">☁️ Nube</h2><div class="pn">Conectado como <b>${u}</b>.</div><p class="mu">Entra en una partida para subirla o ver sus copias.</p><div class="btns"><button class="b danger" data-a="cldout">Cerrar sesión</button></div>`;
+  if (!hasState() || G.TITLE) return mCloudTitle(u, err, busy);
   if (CL.list == null && !CL.busy) refreshList();
   const L = CL.list || [],
     sid = syncedId(G.MODE, G.SLOT),
@@ -38,11 +47,60 @@ export function mCloud() {
       ? `<div class="pn cl-row ask"><span>¿Cargar la copia del <b>día ${r.day}</b>? Se sustituye la partida de esta ranura.</span><div class="btns"><button class="b pri" data-a="cldload" data-n="${r.id}">Sí, cargarla</button><button class="b" data-a="cldask" data-n="0">No</button></div></div>`
       : `<div class="pn cl-row"><span><b>Día ${r.day}</b>${r.name ? " · " + esc(r.name) : ""}<small>${when(r.created_at)}${kb(r.size)}${i === 0 ? " · la más nueva" : ""}${r.id === sid ? " · ✔ la de aquí" : ""}</small></span><button class="b" data-a="cldask" data-n="${r.id}">Cargar</button></div>`,
   ).join("");
-  return `<h2 class="cl-h">☁️ Nube</h2><div class="pn cl-me">Conectado como <b>${u}</b> · ranura ${G.SLOT}${pend ? `<div class="mu">⏳ Hay cambios sin subir (sin conexión). Se suben solos al volver la red.</div>` : ""}</div>${err}
+  return `<h2 class="cl-h">☁️ Nube</h2><div class="pn cl-me">${who(u)} · ranura ${G.SLOT}${pend ? `<div class="mu">⏳ Hay cambios sin subir (sin conexión). Se suben solos al volver la red.</div>` : ""}</div>${err}
   <div class="btns"><button class="b pri" data-a="cldsave">☁️ Subir ahora</button></div>
   <p class="mu">Se sube sola al terminar cada día, y también las otras ranuras de este dispositivo. En la nube se quedan las 7 últimas copias de cada ranura.</p>${busy}
   <h3>Copias en la nube</h3>${rows || (CL.list ? '<p class="mu">Todavía no hay ninguna.</p>' : "")}
   <div class="btns"><button class="b danger" data-a="cldout">Cerrar sesión</button></div>`;
+}
+/** Cabecera con el dibujo móvil → nube → PC. */
+const HERO = `<div class="cl-hero" aria-hidden="true"><span>📱</span><i>➜</i><span class="c">☁️</span><i>➜</i><span>💻</span></div><p class="mu cl-sub">Guarda tu partida en internet para no perderla y seguir en otro dispositivo.</p>`;
+const who = (u) => `<span class="cl-who">👤 <b>${esc(u)}</b></span>`;
+
+/* ---------- ☁️ Nube desde el título: las 3 ranuras con su copia de la nube ---------- */
+const side = (ic, cls, s, foot) =>
+  s
+    ? `<div class="cl-side ${cls}"><em>${ic} <u>${cls === "cloud" ? "En la nube" : "Aquí"}</u></em><b>${esc(s.name)}</b><span>Día ${s.day}</span><small>${foot}</small></div>`
+    : `<div class="cl-side ${cls} none"><em>${ic} <u>${cls === "cloud" ? "En la nube" : "Aquí"}</u></em><span>${cls === "cloud" ? "Nada en la nube" : "Vacía"}</span></div>`;
+function slotCard(n, r) {
+  const loc = slotInfo(n, G.MODE),
+    here = loc.empty ? null : loc,
+    same = r && here && r.id === syncedId(G.MODE, n);
+  let act = "";
+  if (CL.ask === "s" + n)
+    act = `<div class="cl-ask">¿Sustituir «${esc(here.name)}» (día ${here.day}) de este dispositivo por la de la nube?<div class="btns"><button class="b pri" data-a="cldslotgo" data-n="${n}">Sí, cargarla</button><button class="b" data-a="cldask" data-n="0">No</button></div></div>`;
+  else if (same)
+    act = `<div class="btns"><span class="cl-ok">✔ Al día</span><button class="b pri" data-a="topen" data-n="${n}">▶ Jugar</button></div>`;
+  else if (r)
+    act = `<div class="btns"><button class="b pri" data-a="cldslot" data-n="${n}">☁️ Cargar en esta ranura</button></div>`;
+  else if (here) act = `<p class="mu">Se sube sola al entrar en ella.</p>`;
+  return `<div class="cl-slot${r && !same ? " has" : ""}"><div class="title-slotn">Ranura ${n}</div><div class="cl-two">${side(
+    "☁️",
+    "cloud",
+    r && { name: r.name || "Poké Cards", day: r.day },
+    r ? when(r.created_at) : "",
+  )}${side("💻", "here", here, here && here.savedAt ? when(here.savedAt) : "")}</div>${act}</div>`;
+}
+function mCloudTitle(u, err, busy) {
+  if (CL.slots == null && !CL.busy) refreshSlots();
+  const L = CL.slots;
+  return `<h2 class="cl-h">☁️ Nube</h2><div class="pn cl-me">${who(u)}<button class="b mini danger" data-a="cldout">Salir</button></div>${err}
+  <p class="mu">Tus partidas en la nube. Toca <b>☁️ Cargar en esta ranura</b> para seguir aquí donde lo dejaste.</p>${busy}
+  ${L ? `<div class="cl-slots">${L.map((r, i) => slotCard(i + 1, r)).join("")}</div>` : ""}`;
+}
+async function refreshSlots() {
+  CL.busy = "Mirando la nube…";
+  try {
+    const L = [];
+    for (let n = 1; n <= SLOTS; n++) L.push(await cloudLatest(G.MODE, n));
+    CL.slots = L;
+    CL.err = "";
+  } catch (e) {
+    CL.slots = [];
+    CL.err = e.message;
+  }
+  CL.busy = "";
+  paint();
 }
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 export const paint = () => G.M === "cloud" && renderM();

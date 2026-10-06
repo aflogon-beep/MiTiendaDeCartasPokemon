@@ -380,6 +380,26 @@
 .title-imp {
   align-self: center;
 }
+/* ☁️ Partida en la nube (menú del título y Cargar partida) */
+.title-menu .title-cloud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-color: #3b82f6;
+  background: linear-gradient(160deg, #1e3a8a, #0e7490);
+  color: #fff;
+}
+.title-cloud small {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+.title-cloudb {
+  width: 100%;
+  margin-bottom: 10px;
+  border-color: #3b82f6;
+}
 .title-gear {
   position: absolute;
   top: 0;

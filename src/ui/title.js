@@ -169,13 +169,16 @@ export function paintTitle() {
     body = `${logo}<div class="title-menu">
       ${cont ? `<button class="b pri big title-cont" data-a="tcont">▶ Continuar${card(slotInfo(cont))}</button>` : ""}
       <button class="b ${cont ? "" : "pri"} big" data-a="tnew">✨ Nueva partida</button>
-      ${any ? `<button class="b big" data-a="tload">📂 Cargar partida</button>` : `<button class="b mini title-imp" data-a="timp">📥 Importar una partida</button>`}
+      ${any ? `<button class="b big" data-a="tload">📂 Cargar partida</button>` : ""}
+      ${cloudOn() ? `<button class="b big title-cloud" data-a="m" data-k="cloud">☁️ Partida en la nube<small>${cloudUser() ? "👤 " + esc(cloudUser()) : "Entra con tu usuario"}</small></button>` : ""}
+      ${any ? "" : `<button class="b mini title-imp" data-a="timp">📥 Importar una partida</button>`}
     </div>`;
   else if (view === "new" || view === "load")
     body = `<h2>${view === "new" ? "✨ Nueva partida" : "📂 Cargar partida"}</h2><p class="mu">${view === "new" ? "Elige dónde guardar tu tienda." : "Elige una tienda para seguir jugando."}</p>
       <div class="title-slots">${listSlots()
         .map((s) => slotRow(s, view))
         .join("")}</div>
+      ${view === "load" && cloudOn() ? `<button class="b title-cloudb" data-a="m" data-k="cloud">☁️ Traer una partida de la nube</button>` : ""}
       ${view === "load" ? impBox() : ""}${back}`;
   else if (view === "imp")
     body = pendingImport

@@ -29,6 +29,7 @@ Juego de gestión de una tienda de cartas Pokémon con cartas y precios reales (
 | Nube · Partida online con usuario y contraseña (Supabase), 7 copias por ranura y registro de errores (`docs/nube.md`) | ✅ (probado en el móvil de Alberto) |
 | Nube · Las 3 ranuras en la nube, sin recordatorio de copia con la nube al día y 🏆 Ranking en Retos (tabla `ranks`, `docs/nube.md`) | ✅ (tabla creada y probada contra el proyecto de Alberto) |
 | Nube · Ranking con 4 pestañas (empresa, carta, colección, Funkos), visitar tiendas y regalar o cambiar cartas y Funkos entre cuentas (tabla `trades`, `core/trade.js`) | ✅ (SQL ejecutado y probado contra el proyecto de Alberto) |
+| Nube · Desde el título: botón ☁️ Partida en la nube y cargar la copia de cada ranura (dispositivo nuevo); callejón con vida en la calle de arriba | ✅ |
 | R5 · TypeScript | ⏸️ En pausa (decisión de Alberto; no es obligatoria) |
 | R6 · Compartir `core/` con el proyecto 3D | ⏸️ En pausa (opcional) |
 
@@ -110,7 +111,7 @@ src/
     diag.js              registro de cierres (pcs-diag-v1): si la app se cierra sola, al volver sale un aviso con los datos
                          (con cuenta en la nube, los errores y cierres van también a la tabla logs)
     cloud.js             nube: subida al terminar el día, pendiente sin red, aviso «Hay otra partida en la nube» (cloudCheck)
-    screens/cloud.js     pantallas ☁️ Nube (cloud), aviso (cloudnew), 🏆 Ranking con pestañas (rank, en Retos), visita a una
+    screens/cloud.js     pantallas ☁️ Nube (cloud; desde el título, las 3 ranuras con su copia de la nube), aviso (cloudnew), 🏆 Ranking con pestañas (rank, en Retos), visita a una
                          tienda (visit), elegir qué mandar (tdgive) y 📬 regalos y cambios (trades)
     back.js              botón «atrás» de Android en la app instalada: cierra el panel; sin nada abierto, avisa antes de salir
     tutorial.js          tutorial con Emma
